@@ -6,10 +6,15 @@ import CredentialsProvider from 'next-auth/providers/credentials'
 import GitHubProvider from 'next-auth/providers/github'
 
 export const authOptions: NextAuthOptions = {
+  debug: process.env.NODE_ENV === 'development',
   secret: process.env.NEXTAUTH_SECRET,
   adapter: DrizzleAdapter(db),
   pages: {
-    signIn: '/auth/login'
+    signIn: '/login',
+    signOut: '/logout'
+  },
+  session: {
+    strategy: "jwt",
   },
   providers: [
     // EmailProvider({

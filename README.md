@@ -1,16 +1,22 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+This is going to be my first next hobby project, that I would like to see through until it is deployed,
+for this reason I am narrowing the focus of the app specifically to tracking habits, which means redesigning
+aspects of it, but I think in the end it will be a good choice, since it does not really make sense to have
+a ToDo and Book Tracker if I make a fully featured habit tracking interface it will be more focused and I'll
+be able to go deeper into the specific design of the habits.
+
+- Habit Tracker
+  - My idea for this is for it to be sort of like a ToDo list except that it doesn't get completed in the same way
+    so you'll have a habit group, which needs a better name, that has a set of habits, that are either related in
+    some way or that you are working on specifically forming, you'll be able to go in each day and mark which things
+    you did or did not do, I think for now they will be yes/no, although maybe as I'm developing it there will be
+    an obvious way to add other answers, or maybe it will be more like a counter, although the number of yes and no
+    is sort of like a tracker.
 
 ## Getting Started
 
 First, run the development server:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
 bun dev
 ```
 
