@@ -4,6 +4,6 @@ import postgres from 'postgres'
 
 const client = postgres(`${process.env.DATABASE_URL}`);
 
-// migrate(drizzle(client), { migrationsFolder: '/server/db/migrations/' })
+// migrate(drizzle(client), { migrationsFolder: './server/db/migrations' })
 
 export const db: PostgresJsDatabase = drizzle(client);

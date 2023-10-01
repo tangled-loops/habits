@@ -4,6 +4,7 @@ import { UserAuthForm } from '@/components/user-auth-form';
 import { Metadata } from 'next';
 import { getServerSession } from 'next-auth'
 import { redirect } from 'next/navigation';
+import { getCsrfToken, getProviders, useSession } from 'next-auth/react';
 
 export const metadata: Metadata = {
   title: "Authentication",
@@ -11,9 +12,15 @@ export const metadata: Metadata = {
 }
 
 export default async function Login() {
-  const session = await getServerSession();
+  const session = await getServerSession()
+  const providers = await getProviders()
+  const csrf = await getCsrfToken()
+  // console.log(providers)
   if (session) {
     redirect('/')
+  }
+  if (!providers || !csrf) {
+    throw new Error('Issue!!!')
   }
   return (
     <>
@@ -28,7 +35,7 @@ export default async function Login() {
                 Enter your email below to create your account
               </p>
             </div>
-            <UserAuthForm />
+            <UserAuthForm providers={providers} csrf={csrf} />
             <p className="px-8 text-center text-sm text-muted-foreground">
               By clicking continue, you agree to our{" "}
               <Link

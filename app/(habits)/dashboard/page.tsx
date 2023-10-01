@@ -9,9 +9,9 @@ export default async function Dashboard() {
   console.log(session)
   return (
     <>
-      <div className='shadow border-1 bg-primary text-white rounded-xl'>
+      <div className='shadow border-1 rounded-xl'>
         <h1 className='p-5 text-2xl text-center'>Recent Updates</h1>
-        <Separator className='bg-white w-[20%] ml-[40%] my-3'/>
+        <Separator className='w-[20%] ml-[40%] my-3'/>
         <div className='grid grid-cols-1 gap-4 p-4'>
           <Card className="">
             <CardHeader>
