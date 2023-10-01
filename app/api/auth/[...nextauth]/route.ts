@@ -1,9 +1,9 @@
 import NextAuth from 'next-auth';
 import { db } from '@/server/db';
-import { NextAuthOptions } from 'next-auth'
-import { DrizzleAdapter } from "@auth/drizzle-adapter";
-import GithubProvider from 'next-auth/providers/github'
-import EmailProvider from 'next-auth/providers/email'
+import { NextAuthOptions } from 'next-auth';
+import { DrizzleAdapter } from '@auth/drizzle-adapter';
+import GithubProvider from 'next-auth/providers/github';
+import EmailProvider from 'next-auth/providers/email';
 import { authOptions } from '@/server/auth';
 
 const handler = NextAuth(authOptions);

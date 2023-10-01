@@ -1,7 +1,6 @@
+'use client';
 
-'use client'
-
-import Link from 'next/link'
+import Link from 'next/link';
 
 import {
   Brackets,
@@ -13,8 +12,8 @@ import {
   Menu,
   Settings,
   User,
-} from "lucide-react"
- 
+} from 'lucide-react';
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,142 +22,195 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from '@/components/ui/dropdown-menu';
 
-import { PropsWithChildren, ReactElement } from 'react'
-import { Button } from "@/components/ui/button"
-import clsx from 'clsx'
+import { PropsWithChildren, ReactElement } from 'react';
+import { Button } from '@/components/ui/button';
+import clsx from 'clsx';
 
-import { signOut } from "next-auth/react"
-import { useRouter } from 'next/navigation'
-import { usePathname } from 'next/navigation'
-import { Separator } from './ui/separator'
-import { Menubar, MenubarContent, MenubarItem, MenubarMenu, MenubarSeparator, MenubarShortcut, MenubarSub, MenubarSubContent, MenubarSubTrigger, MenubarTrigger } from './ui/menubar'
-import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger, navigationMenuTriggerStyle } from './ui/navigation-menu'
-import { cn } from '@/lib/utils'
+import { signOut } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
+import { Separator } from './ui/separator';
+import {
+  Menubar,
+  MenubarContent,
+  MenubarItem,
+  MenubarMenu,
+  MenubarSeparator,
+  MenubarShortcut,
+  MenubarSub,
+  MenubarSubContent,
+  MenubarSubTrigger,
+  MenubarTrigger,
+} from './ui/menubar';
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+  navigationMenuTriggerStyle,
+} from './ui/navigation-menu';
+import { cn } from '@/lib/utils';
 
 interface SidebarItem {
-  id: number
-  title: string
-  href: string
-  onClick?: () => void
-  icon: ReactElement
+  id: number;
+  title: string;
+  href: string;
+  onClick?: () => void;
+  icon: ReactElement;
 }
 
 function items(iconClasses: string): SidebarItem[] {
   return [
-    { id: 1, title: 'Dashboard', href: '/dashboard', icon: <LayoutDashboard className={iconClasses} /> }, 
-    { id: 2, title: 'Habits', href: '/habits', icon: <ListPlus className={iconClasses} /> },
-    { id: 3, title: 'Profile', href: '/profile', icon: <User className={iconClasses} /> },
-  ]
+    {
+      id: 1,
+      title: 'Dashboard',
+      href: '/dashboard',
+      icon: <LayoutDashboard className={iconClasses} />,
+    },
+    {
+      id: 2,
+      title: 'Habits',
+      href: '/habits',
+      icon: <ListPlus className={iconClasses} />,
+    },
+    {
+      id: 3,
+      title: 'Profile',
+      href: '/profile',
+      icon: <User className={iconClasses} />,
+    },
+  ];
 }
 
 function SettingsContent() {
-  const router = useRouter()
+  const router = useRouter();
   return (
-    <DropdownMenuContent className="w-56 ">
+    <DropdownMenuContent className='w-56 '>
       <DropdownMenuLabel>My Account</DropdownMenuLabel>
       <DropdownMenuSeparator />
       <DropdownMenuGroup>
-        <DropdownMenuItem className='cursor-pointer' onClick={() => router.push('/profile')}>
-          <User className="mr-2 h-4 w-4" />
-          <Link className='p-1 font-medium' href='/profile'>Profile</Link>
+        <DropdownMenuItem
+          className='cursor-pointer'
+          onClick={() => router.push('/profile')}
+        >
+          <User className='mr-2 h-4 w-4' />
+          <Link className='p-1 font-medium' href='/profile'>
+            Profile
+          </Link>
         </DropdownMenuItem>
       </DropdownMenuGroup>
       <DropdownMenuGroup>
         <DropdownMenuItem className='cursor-pointer' onClick={() => signOut()}>
-          <LogOut className="mr-2 h-4 w-4" />
-          <Link className='p-1 font-medium' href='/api/auth/signout'>Sign Out</Link>
+          <LogOut className='mr-2 h-4 w-4' />
+          <Link className='p-1 font-medium' href='/api/auth/signout'>
+            Sign Out
+          </Link>
         </DropdownMenuItem>
       </DropdownMenuGroup>
     </DropdownMenuContent>
-  )
+  );
 }
 
 function MenuContent() {
   return (
-    <DropdownMenuContent className="w-56">
+    <DropdownMenuContent className='w-56'>
       <DropdownMenuLabel>Main Menu</DropdownMenuLabel>
       <DropdownMenuSeparator />
       <DropdownMenuGroup>
-        {
-          items("mr-2 h-4 w-4").map((link)=> {
-            return (
-              <DropdownMenuItem key={link.id}>
-                {link.icon}
-                <Link className='p-4 font-medium' href={link.href}>{link.title}</Link>
-              </DropdownMenuItem>
-            )
-          })
-        }
-        
+        {items('mr-2 h-4 w-4').map((link) => {
+          return (
+            <DropdownMenuItem key={link.id}>
+              {link.icon}
+              <Link className='p-4 font-medium' href={link.href}>
+                {link.title}
+              </Link>
+            </DropdownMenuItem>
+          );
+        })}
       </DropdownMenuGroup>
     </DropdownMenuContent>
-  )
+  );
 }
 
-interface NavDropdownMenuProps extends PropsWithChildren{
-  buttonContent: ReactElement
+interface NavDropdownMenuProps extends PropsWithChildren {
+  buttonContent: ReactElement;
 }
 
-export function NavDropdownMenu({ buttonContent, children, }: NavDropdownMenuProps) {
+export function NavDropdownMenu({
+  buttonContent,
+  children,
+}: NavDropdownMenuProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline">
-          {buttonContent}
-        </Button>
+        <Button variant='outline'>{buttonContent}</Button>
       </DropdownMenuTrigger>
       {children}
     </DropdownMenu>
-  )
+  );
 }
 
 interface SidebarLinkProps {
-  link: SidebarItem
-  path: string
-  className?: string
+  link: SidebarItem;
+  path: string;
+  className?: string;
 }
 
-const SidebarLink = ({ link, path, className }: SidebarLinkProps) => 
-  <Link 
+const SidebarLink = ({ link, path, className }: SidebarLinkProps) => (
+  <Link
     key={link.id}
-    href={link.href} 
+    href={link.href}
     onClick={link.onClick}
-    className={
-      clsx(
-        className, 
-        link.href === path ? 'text-primary' : 'text-foreground', 
-        'hover:bg-secondary hover:text-foreground',
-        'text-md cursor-pointer p-4',
-        'h-15 flex flex-col justify-center '
-      )
-    }>
+    className={clsx(
+      className,
+      link.href === path ? 'text-primary' : 'text-foreground',
+      'hover:bg-secondary hover:text-foreground',
+      'text-md cursor-pointer p-4',
+      'h-15 flex flex-col justify-center ',
+    )}
+  >
     <span className='flex items-center ml-3'>
       {link.icon}
       {link.title}
     </span>
   </Link>
+);
 
 function Sidebar() {
-  const path = usePathname()
+  const path = usePathname();
   const logoutLink = {
-    id: 0, title: "Sign Out", href: '', onClick: () => signOut(), icon: <LogOut className='mr-2 h-5 w-5'/>
-  }
+    id: 0,
+    title: 'Sign Out',
+    href: '',
+    onClick: () => signOut(),
+    icon: <LogOut className='mr-2 h-5 w-5' />,
+  };
   return (
     <aside className='absolute left-0 hidden h-[calc(100%-44px)] sm:block md:w-[200px] bg-card border-r-[1px] border-primary'>
       <div className='w-full'>
-        {items("mr-2 h-5 w-5").map((link)=> <SidebarLink link={link} path={path} />)}
+        {items('mr-2 h-5 w-5').map((link) => (
+          <SidebarLink link={link} path={path} />
+        ))}
       </div>
-      <SidebarLink link={logoutLink} path={path} className='w-full absolute bottom-0' />
+      <SidebarLink
+        link={logoutLink}
+        path={path}
+        className='w-full absolute bottom-0'
+      />
     </aside>
-  )
+  );
 }
 
 function Nav() {
-  const linkClasses = cn(navigationMenuTriggerStyle(), 'bg-card')
-  const pathRoot = usePathname().split('/').filter((path) => path && path !== '').shift()
-  console.log(pathRoot === 'habits')
+  const linkClasses = cn(navigationMenuTriggerStyle(), 'bg-card');
+  const pathRoot = usePathname()
+    .split('/')
+    .filter((path) => path && path !== '')
+    .shift();
   return (
     <>
       <NavigationMenu className='max-w-full h-[44px] space-x-5 bg-card justify-start'>
@@ -169,31 +221,46 @@ function Nav() {
             </h1>
           </NavigationMenuItem>
           <NavigationMenuItem className='sm:hidden pl-4'>
-            <Link href="/dashboard" legacyBehavior passHref>
-              <NavigationMenuLink className={cn(linkClasses, pathRoot === 'dashboard' ? 'text-primary' : 'text-foreground')}>
+            <Link href='/dashboard' legacyBehavior passHref>
+              <NavigationMenuLink
+                className={cn(
+                  linkClasses,
+                  pathRoot === 'dashboard' ? 'text-primary' : 'text-foreground',
+                )}
+              >
                 Dashboard
               </NavigationMenuLink>
             </Link>
           </NavigationMenuItem>
           <NavigationMenuItem className='sm:hidden'>
-            <Link href="/habits" legacyBehavior passHref>
-              <NavigationMenuLink className={cn(linkClasses, pathRoot !== 'habits' ? 'text-primary' : 'text-foreground')}>
+            <Link href='/habits' legacyBehavior passHref>
+              <NavigationMenuLink
+                className={cn(
+                  linkClasses,
+                  pathRoot !== 'habits' ? 'text-primary' : 'text-foreground',
+                )}
+              >
                 Habits
               </NavigationMenuLink>
             </Link>
           </NavigationMenuItem>
           <NavigationMenuItem className='sm:hidden'>
-            <Link href="/profile" legacyBehavior passHref>
-              <NavigationMenuLink className={cn(linkClasses, pathRoot === 'profile' ? 'text-primary' : 'text-foreground')}>
+            <Link href='/profile' legacyBehavior passHref>
+              <NavigationMenuLink
+                className={cn(
+                  linkClasses,
+                  pathRoot === 'profile' ? 'text-primary' : 'text-foreground',
+                )}
+              >
                 Profile
               </NavigationMenuLink>
             </Link>
           </NavigationMenuItem>
         </NavigationMenuList>
       </NavigationMenu>
-      <Separator className='bg-primary'/>
+      <Separator className='bg-primary' />
     </>
-  )
+  );
 }
 
 export default function Navigation() {
@@ -202,11 +269,11 @@ export default function Navigation() {
       <Nav />
       <Sidebar />
     </>
-    
-  )
+  );
 }
 
-{/* <nav className='transition-transform bg-card'>
+{
+  /* <nav className='transition-transform bg-card'>
   <div className='sm:hidden h-[50px] flex flex-row items-center justify-center'>
     <div className='inline-grid grid-cols-3 gap-4 w-full'>
       <div className='p-1 flex justify-start m-4'>
@@ -231,7 +298,8 @@ export default function Navigation() {
   <h1 className='ml-5 text-2xl whitespace-nowrap text-center'>
     Habits
   </h1>
-</div>  */}
+</div>  */
+}
 /* 
 <NavigationMenu className='w-full h-[40px] ml-[100px] space-x-10 bg-primary'>
   <NavigationMenuList>

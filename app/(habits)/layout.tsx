@@ -1,9 +1,9 @@
-import Navigation from '@/components/navigation'
+import Navigation from '@/components/navigation';
 
 export default function HabitsLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
     <>
@@ -12,5 +12,5 @@ export default function HabitsLayout({
         {children}
       </main>
     </>
-  )
+  );
 }
