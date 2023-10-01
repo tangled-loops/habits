@@ -1,3 +1,6 @@
+'use client';
+
+import { trpc } from '@/lib/trpc';
 import {
   Table,
   TableBody,
@@ -9,22 +12,26 @@ import {
 } from '../ui/table';
 
 export default function HabitsTable() {
+  const allHabits = trpc.habits.findAll.useQuery();
+  console.log(allHabits.data);
   return (
     <Table>
       <TableCaption>Tracking Habits.</TableCaption>
       <TableHeader>
         <TableRow>
-          <TableHead className='w-[100px]'>Title</TableHead>
-          <TableHead>Priority</TableHead>
-          <TableHead>Performed</TableHead>
+          <TableHead className='w-[200px]'>Title</TableHead>
+          <TableHead>Description</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
-        <TableRow key={1}>
-          <TableCell className='font-medium'>Brush Teeth</TableCell>
-          <TableCell>High</TableCell>
-          <TableCell>0</TableCell>
-        </TableRow>
+        {allHabits.data && allHabits.data.map((habit) => {
+          return (
+            <TableRow key={habit.id}>
+              <TableCell className='font-medium'>{habit.title}</TableCell>
+              <TableCell>{habit.description}</TableCell>
+            </TableRow>
+          )
+        })}
       </TableBody>
     </Table>
   );

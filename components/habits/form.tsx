@@ -23,6 +23,7 @@ import { Textarea } from '../ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Separator } from '../ui/separator';
 import { trpc } from '@/lib/trpc';
+import { redirect, useRouter } from 'next/navigation';
 
 const habitsFormSchema = z.object({
   title: z.string(),
@@ -37,9 +38,13 @@ const defaultValues: Partial<HabitsFormValues> = {
   description: '',
 };
 
+/**
+ * @todo figure out why the session passed into the auth context is not correct
+ */
 export default function HabitsForm() {
-  const hello = trpc.habits.all.useQuery();
-  console.log(hello);
+  console.log('main')
+  const mutation = trpc.habits.create.useMutation()
+  const router = useRouter()
 
   const form = useForm<HabitsFormValues>({
     resolver: zodResolver(habitsFormSchema),
@@ -47,14 +52,18 @@ export default function HabitsForm() {
   });
 
   function onSubmit(data: HabitsFormValues) {
-    toast({
-      title: 'You submitted the following values:',
-      description: (
-        <pre className='mt-2 w-[340px] rounded-md bg-slate-950 p-4'>
-          <code className='text-white'>{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
-    });
+    console.log(data)
+    const resp = mutation.mutate(data)
+    console.log(resp)
+    router.replace('/habits')
+    // toast({
+    //   title: 'You submitted the following values:',
+    //   description: (
+    //     <pre className='mt-2 w-[340px] rounded-md bg-slate-950 p-4'>
+    //       <code className='text-white'>{JSON.stringify(data, null, 2)}</code>
+    //     </pre>
+    //   ),
+    // });
   }
 
   return (

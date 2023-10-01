@@ -9,12 +9,12 @@
 
 import { initTRPC, TRPCError } from '@trpc/server';
 import { type CreateNextContextOptions } from '@trpc/server/adapters/next';
-import { type Session } from 'next-auth';
+import { getServerSession, type Session } from 'next-auth';
 import superjson from 'superjson';
 import { ZodError } from 'zod';
 
-import { getServerAuthSession } from '@/server/auth';
 import { db } from '@/server/db';
+import { authOptions } from '../auth';
 
 /**
  * 1. CONTEXT
@@ -55,8 +55,8 @@ export const createTRPCContext = async (opts: CreateNextContextOptions) => {
   const { req, res } = opts;
 
   // Get the session from the server using the getServerSession wrapper function
-  const session = await getServerAuthSession({ req, res });
-
+  const session = await getServerSession(authOptions)
+ 
   return createInnerTRPCContext({
     session,
   });
@@ -112,6 +112,7 @@ const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
   if (!ctx.session?.user) {
     throw new TRPCError({ code: 'UNAUTHORIZED' });
   }
+  
   return next({
     ctx: {
       // infers the `session` as non-nullable

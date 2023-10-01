@@ -211,6 +211,7 @@ function Nav() {
     .split('/')
     .filter((path) => path && path !== '')
     .shift();
+  console.log(pathRoot)
   return (
     <>
       <NavigationMenu className='max-w-full h-[44px] space-x-5 bg-card justify-start'>

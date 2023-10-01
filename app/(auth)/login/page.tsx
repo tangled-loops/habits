@@ -15,7 +15,7 @@ export default async function Login() {
   const session = await getServerSession();
   const providers = await getProviders();
   const csrf = await getCsrfToken();
-  // console.log(providers)
+
   if (session) {
     redirect('/');
   }

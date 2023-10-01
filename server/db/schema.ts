@@ -1,13 +1,10 @@
 import { relations } from 'drizzle-orm';
 import {
   integer,
-  pgEnum,
   pgTable,
   primaryKey,
-  serial,
   text,
   timestamp,
-  uniqueIndex,
   uuid,
   varchar,
 } from 'drizzle-orm/pg-core';
@@ -77,10 +74,16 @@ export const verificationTokens = pgTable(
 
 export const roles = pgTable('roles', {
   id: uuid('id').notNull().defaultRandom().primaryKey(),
-  name: varchar('name'),
+  name: varchar('name').notNull(),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at'),
 });
+
+export type Role = typeof roles.$inferSelect;
+export const roleSchema = createSelectSchema(roles);
+
+export type NewRole = typeof roles.$inferInsert;
+export const newRoleSchema = createInsertSchema(roles);
 
 export const habits = pgTable('habits', {
   id: uuid('id').notNull().defaultRandom().primaryKey(),
@@ -93,7 +96,11 @@ export const habits = pgTable('habits', {
   updatedAt: timestamp('updated_at'),
 });
 
-const insertUserSchema = createInsertSchema(habits);
+export type Habit = typeof habits.$inferSelect;
+export const habitSchema = createSelectSchema(habits);
+
+export type NewHabit = typeof habits.$inferInsert;
+export const newHabitSchema = createInsertSchema(habits);
 
 export const habitsRelations = relations(habits, ({ one, many }) => ({
   user: one(users, {
@@ -116,6 +123,12 @@ export const responses = pgTable('responses', {
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at'),
 });
+
+export type Response = typeof responses.$inferSelect;
+export const responseSchema = createSelectSchema(responses);
+
+export type NewResponse = typeof responses.$inferInsert;
+export const newResponseSchema = createInsertSchema(responses);
 
 export const responsesRelations = relations(responses, ({ one, many }) => ({
   habit: one(habits, {
