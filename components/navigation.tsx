@@ -190,7 +190,7 @@ function Sidebar() {
     icon: <LogOut className='mr-2 h-5 w-5' />,
   };
   return (
-    <aside className='absolute left-0 hidden h-[calc(100%-44px)] sm:block md:w-[200px] bg-card border-r-[1px] border-primary'>
+    <aside className='fixed left-0 bottom-0 hidden h-[calc(100%-44px)] sm:block md:w-[200px] bg-card border-r-[1px] border-primary'>
       <div className='w-full'>
         {items('mr-2 h-5 w-5').map((link) => (
           <SidebarLink link={link} path={path} />
@@ -214,7 +214,7 @@ function Nav() {
   console.log(pathRoot)
   return (
     <>
-      <NavigationMenu className='max-w-full h-[44px] space-x-5 bg-card justify-start'>
+      <NavigationMenu className='fixed top-0 right-0 left-0 max-w-full h-[44px] space-x-5 bg-card justify-start'>
         <NavigationMenuList className='bg-card'>
           <NavigationMenuItem>
             <h1 className='text-xl ml-5 whitespace-nowrap text-center'>
@@ -259,7 +259,7 @@ function Nav() {
           </NavigationMenuItem>
         </NavigationMenuList>
       </NavigationMenu>
-      <Separator className='bg-primary' />
+      <Separator className='bg-primary top-[44px] fixed' />
     </>
   );
 }

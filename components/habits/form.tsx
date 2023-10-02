@@ -1,12 +1,9 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ChevronDownIcon } from '@radix-ui/react-icons';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
-import { cn } from '@/lib/utils';
-import { toast } from '../ui/use-toast';
 import {
   Form,
   FormControl,
@@ -17,34 +14,92 @@ import {
   FormMessage,
 } from '../ui/form';
 import { Button, buttonVariants } from '../ui/button';
-import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { Separator } from '../ui/separator';
 import { trpc } from '@/lib/trpc';
-import { redirect, useRouter } from 'next/navigation';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '../ui/dialog';
+import { ReactNode, useState } from 'react';
+
+interface FormDialogProps {
+  title: ReactNode;
+  desc: ReactNode;
+  trigger: ReactNode;
+  data?: {
+    id: string
+    title: string
+    description: string
+  }
+  handleSubmit: () => void;
+  submitTitle: string
+}
+
+export function FormDialog({
+  data,
+  title,
+  desc,
+  trigger,
+  submitTitle,
+  handleSubmit,
+}: FormDialogProps) {
+  const [open, setOpen] = useState(false);
+  const submitWrapper = () => {
+    setOpen(false);
+    handleSubmit();
+  };
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger>{trigger}</DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+          <DialogDescription>{desc}</DialogDescription>
+        </DialogHeader>
+        <HabitsForm data={data} submitTitle={submitTitle} handleSubmit={submitWrapper} />
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 const habitsFormSchema = z.object({
+  id: z.string().optional(),
   title: z.string(),
   description: z.string(),
 });
 
 type HabitsFormValues = z.infer<typeof habitsFormSchema>;
 
-// This can come from your database or API.
-const defaultValues: Partial<HabitsFormValues> = {
-  title: '',
-  description: '',
-};
+export default function HabitsForm({
+  data,
+  submitTitle,
+  handleSubmit,
+}: {
+  data?: {
+    id?: string,
+    title?: string,
+    description?: string,
+  },
+  submitTitle: string,
+  handleSubmit: () => void;
+}) {
+  const mutation = trpc.habits.createOrUpdate.useMutation();
 
-/**
- * @todo figure out why the session passed into the auth context is not correct
- */
-export default function HabitsForm() {
-  console.log('main')
-  const mutation = trpc.habits.create.useMutation()
-  const router = useRouter()
+  let defaultValues: Partial<HabitsFormValues>;
+  if (data) {
+    defaultValues = { ...data };
+  } else {
+    defaultValues = {
+      id: '',
+      title: '',
+      description: '',
+    };
+  }
 
   const form = useForm<HabitsFormValues>({
     resolver: zodResolver(habitsFormSchema),
@@ -52,71 +107,50 @@ export default function HabitsForm() {
   });
 
   function onSubmit(data: HabitsFormValues) {
-    console.log(data)
-    const resp = mutation.mutate(data)
-    console.log(resp)
-    router.replace('/habits')
-    // toast({
-    //   title: 'You submitted the following values:',
-    //   description: (
-    //     <pre className='mt-2 w-[340px] rounded-md bg-slate-950 p-4'>
-    //       <code className='text-white'>{JSON.stringify(data, null, 2)}</code>
-    //     </pre>
-    //   ),
-    // });
+    mutation.mutate(data);
+    // Need to wait a bit so when we refresh the data it is in fact fresh
+    setTimeout(() => handleSubmit(), 250);
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>New Habit</CardTitle>
-      </CardHeader>
-      <Separator />
-      <CardContent className='flex flex-col items-center p-5'>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
-            <FormField
-              control={form.control}
-              name='title'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Title</FormLabel>
-                  <div className=''>
-                    <FormControl>
-                      <Input {...field} className='w-[300px]' />
-                    </FormControl>
-                  </div>
-                  <FormDescription>
-                    Title for the habit to track.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name='description'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Font</FormLabel>
-                  <div className='relative w-max'>
-                    <FormControl>
-                      <Textarea {...field} className='w-[300px]' />
-                    </FormControl>
-                  </div>
-                  <FormDescription>
-                    Description of the habit to track.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div className='flex flex-row justify-end'>
-              <Button type='submit'>Update preferences</Button>
-            </div>
-          </form>
-        </Form>
-      </CardContent>
-    </Card>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
+        <FormField
+          control={form.control}
+          name='title'
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Title</FormLabel>
+              <div className=''>
+                <FormControl>
+                  <Input {...field} className='w-[400px]' />
+                </FormControl>
+              </div>
+              <FormDescription></FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name='description'
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Description</FormLabel>
+              <div className='relative w-max'>
+                <FormControl>
+                  <Textarea {...field} className='w-[400px]' />
+                </FormControl>
+              </div>
+              <FormDescription></FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <div className='flex flex-row justify-start'>
+          <Button type='submit'>{submitTitle}</Button>
+        </div>
+      </form>
+    </Form>
   );
 }
