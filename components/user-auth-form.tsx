@@ -1,70 +1,69 @@
 'use client';
 
-import { Github, Loader } from 'lucide-react';
+import { Github } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
-import { Label } from './ui/label';
 import clsx from 'clsx';
 import React from 'react';
-import { ClientSafeProvider, LiteralUnion, signIn } from 'next-auth/react';
-import { BuiltInProviderType } from 'next-auth/providers/index';
+import { signIn } from 'next-auth/react';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+} from './ui/form';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { toast } from './ui/use-toast';
 
-interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {
-  providers: Record<
-    LiteralUnion<BuiltInProviderType, string>,
-    ClientSafeProvider
-  >;
-  csrf: string;
-}
+interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {}
 
-export function UserAuthForm({
-  providers,
-  csrf,
-  className,
-  ...props
-}: UserAuthFormProps) {
-  const [isLoading, setIsLoading] = React.useState<boolean>(false);
+const userAuthFormSchema = z.object({
+  email: z.string(),
+});
 
-  // async function onSubmit(event: React.SyntheticEvent) {
-  //   event.preventDefault()
-  //   setIsLoading(true)
-  //   setTimeout(() => {
-  //     setIsLoading(false)
-  //   }, 3000)
-  // }
+type UserAuthFormValues = z.infer<typeof userAuthFormSchema>;
 
-  console.log(providers.email.signinUrl);
+export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
+  const form = useForm<UserAuthFormValues>({
+    resolver: zodResolver(userAuthFormSchema),
+    defaultValues: {},
+  });
+
+  function onSubmit(data: UserAuthFormValues) {
+    signIn('email', { ...data });
+  }
+
   return (
     <div className={clsx('grid gap-6', className)} {...props}>
-      <form action={providers.email.signinUrl} method='POST'>
-        <input type='hidden' name='csrfToken' value={csrf} />
-        <input
-          type='hidden'
-          name='callbackUrl'
-          value={providers.email.callbackUrl}
-        />
-        <div className='grid gap-2'>
-          <div className='grid gap-1'>
-            <Label className='sr-only' htmlFor='email'>
-              Email
-            </Label>
-            <Input
-              id='email'
-              name='email'
-              placeholder='name@example.com'
-              type='email'
-              autoCapitalize='none'
-              autoComplete='email'
-              autoCorrect='off'
-              disabled={isLoading}
-            />
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
+          <div className='grid gap-2'>
+            <div className='grid gap-1'>
+              <FormField
+                control={form.control}
+                name='email'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        placeholder='name@example.com'
+                        type='email'
+                        autoCapitalize='none'
+                        autoComplete='email'
+                        autoCorrect='off'
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            </div>
+            <Button type='submit'>Sign In with Email</Button>
           </div>
-          <Button type='submit' disabled={isLoading}>
-            {isLoading && <Loader className='mr-2 h-4 w-4 animate-spin' />}
-            Sign In with Email
-          </Button>
-        </div>
-      </form>
+        </form>
+      </Form>
       <div className='relative'>
         <div className='absolute inset-0 flex items-center'>
           <span className='w-full border-t' />
@@ -75,17 +74,8 @@ export function UserAuthForm({
           </span>
         </div>
       </div>
-      <Button
-        variant='outline'
-        type='button'
-        disabled={isLoading}
-        onClick={() => signIn('github')}
-      >
-        {isLoading ? (
-          <Loader className='mr-2 h-4 w-4 animate-spin' />
-        ) : (
-          <Github className='mr-2 h-4 w-4' />
-        )}{' '}
+      <Button variant='outline' type='button' onClick={() => signIn('github')}>
+        <Github className='mr-2 h-4 w-4' />
         Github
       </Button>
     </div>

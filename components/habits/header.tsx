@@ -7,7 +7,7 @@ import { Form } from '.';
 import { useState } from 'react';
 import { FormDialog } from './form';
 
-export default function HabitsHeader({ handleSubmit }: { handleSubmit: () => void }) {
+export default function HabitsHeader({ onSubmit }: { onSubmit: () => void }) {
   return (
     <div className='bg-card w-full grid grid-cols-2 p-4 rounded shadow'>
       <h1 className='flex flex-row items-center'>Habit Tracker</h1>
@@ -16,7 +16,7 @@ export default function HabitsHeader({ handleSubmit }: { handleSubmit: () => voi
           title='New Habit' 
           desc='Create a Habit to Track'
           trigger={<PlusCircle />}
-          handleSubmit={handleSubmit}
+          handleSubmit={onSubmit}
           submitTitle='Create'
         />
       </div>

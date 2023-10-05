@@ -1,8 +1,8 @@
 {
   "version": "5",
   "dialect": "pg",
-  "id": "a7f1ae31-bdce-4c74-86f5-92b53089ddb1",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "c626e346-850c-49b8-9b8b-8fc5f44ace01",
+  "prevId": "a7f1ae31-bdce-4c74-86f5-92b53089ddb1",
   "tables": {
     "account": {
       "name": "account",
@@ -298,7 +298,8 @@
           "name": "user_id",
           "type": "uuid",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true,
+          "default": "gen_random_uuid()"
         },
         "created_at": {
           "name": "created_at",

@@ -20,10 +20,20 @@ export const habitsRouter = createTRPCRouter({
   createOrUpdate: protectedProcedure
     .input(z.object({ id: z.string().optional(), title: z.string(), description: z.string(), }))
     .mutation(async ({ ctx, input }) => {
-      if (input.id) {
+      if (input.id && input.id.length > 0) {
         await ctx.db.update(habits).set(input).where(sql`id = ${input.id}`)
       } else {
-        await ctx.db.insert(habits).values({ ...input, userId: ctx.session.user.id })
+        await ctx.db.insert(habits).values({ title: input.title, description: input.description, userId: ctx.session.user.id })
       }
     }),
+  updateField: protectedProcedure
+    .input(z.object({ id: z.string(), type: z.string(), description: z.string().optional(), title: z.string().optional() }))
+    .mutation(async ({ ctx, input }) => {
+      const habitsUpdate = ctx.db.update(habits)
+      if (input.type === 'description') {
+        await habitsUpdate.set({ description: input.description }).where(sql`id = ${input.id}`)
+      } else {
+        await habitsUpdate.set({ title: input.title }).where(sql`id = ${input.id}`)
+      }
+    })
 });

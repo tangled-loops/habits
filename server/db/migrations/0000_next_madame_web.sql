@@ -19,23 +19,17 @@ CREATE TABLE IF NOT EXISTS "habits" (
 	"title" varchar NOT NULL,
 	"description" text,
 	"user_id" uuid NOT NULL,
-	"created_at" timestamp DEFAULT now(),
-	"updated_at" timestamp
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "responses" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"value" text NOT NULL,
 	"habit_id" uuid NOT NULL,
-	"created_at" timestamp DEFAULT now(),
-	"updated_at" timestamp
-);
---> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "roles" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"name" varchar,
-	"created_at" timestamp DEFAULT now(),
-	"updated_at" timestamp
+	"response_type" varchar NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "session" (
@@ -44,13 +38,21 @@ CREATE TABLE IF NOT EXISTS "session" (
 	"expires" timestamp NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "tags" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"name" varchar NOT NULL,
+	"user_id" uuid,
+	"created_at" timestamp DEFAULT now(),
+	"updated_at" timestamp DEFAULT now()
+);
+--> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "user" (
 	"id" uuid PRIMARY KEY NOT NULL,
 	"name" text,
 	"email" text DEFAULT '' NOT NULL,
 	"emailVerified" timestamp,
 	"image" text,
-	"role_id" uuid,
+	"role" varchar,
 	"created_at" timestamp DEFAULT now(),
 	"updated_at" timestamp
 );
@@ -87,7 +89,7 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "user" ADD CONSTRAINT "user_role_id_roles_id_fk" FOREIGN KEY ("role_id") REFERENCES "roles"("id") ON DELETE no action ON UPDATE no action;
+ ALTER TABLE "tags" ADD CONSTRAINT "tags_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "user"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;

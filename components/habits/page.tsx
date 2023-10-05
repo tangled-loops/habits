@@ -23,11 +23,12 @@ import z from "zod";
 import { Table } from ".";
 import HabitsHeader from "./header";
 import { Habit } from "@/server/db/schema";
+import HabitsList from "./list";
 
 export default function HabitsPage() {
   const query = trpc.habits.findAll.useQuery()
   
-  const [habits, setHabits] = useState<Habit[] | undefined>([]);
+  const [habits, setHabits] = useState<Habit[]>([]);
 
   async function handleSubmit() {
     const newData = await query.refetch()
@@ -37,15 +38,14 @@ export default function HabitsPage() {
   }
   
   useEffect(() => {
-    // not sure why I have to set it twice
-    setHabits(query.data)
+    setHabits(query.data || [])
   })
 
   return (
     <>
-      <HabitsHeader handleSubmit={handleSubmit} />
+      <HabitsHeader onSubmit={handleSubmit} />
       <div className='grid p-4'>
-        <Table habits={habits} handleSubmit={handleSubmit} />
+        <HabitsList habits={habits} onSubmit={handleSubmit} />
       </div>
     </>
   );

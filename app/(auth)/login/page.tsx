@@ -4,24 +4,28 @@ import { UserAuthForm } from '@/components/user-auth-form';
 import { Metadata } from 'next';
 import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
-import { getCsrfToken, getProviders, useSession } from 'next-auth/react';
+import { getCsrfToken, getProviders } from 'next-auth/react';
+import { toast } from '@/components/ui/use-toast';
+import { getCurrentUser } from '@/server/session';
 
 export const metadata: Metadata = {
   title: 'Authentication',
   description: 'Authentication forms built using the components.',
 };
 
-export default async function Login() {
-  const session = await getServerSession();
-  const providers = await getProviders();
-  const csrf = await getCsrfToken();
+export default async function Login({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
+  const user = await getCurrentUser();
+  if (user) redirect('/');
 
-  if (session) {
-    redirect('/');
-  }
-  if (!providers || !csrf) {
-    throw new Error('Issue!!!');
-  }
+  console.log(searchParams)
+  // @todo this does not work...?
+  // if (searchParams.error) {
+  //   toast({
+  //     title: "Error",
+  //     description: "There seems to be an issue, please try again."
+  //   })
+  // }
+
   return (
     <>
       <div className='container relative h-[800px] flex-col items-center justify-center grid'>
@@ -35,7 +39,7 @@ export default async function Login() {
                 Enter your email below to create your account
               </p>
             </div>
-            <UserAuthForm providers={providers} csrf={csrf} />
+            <UserAuthForm />
             <p className='px-8 text-center text-sm text-muted-foreground'>
               By clicking continue, you agree to our{' '}
               <Link

@@ -11,23 +11,9 @@ import {
 import { AdapterAccount } from 'next-auth/adapters';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
 
-export const users = pgTable('user', {
-  id: uuid('id').notNull().primaryKey(),
-  name: text('name'),
-  email: text('email').notNull().default(''),
-  emailVerified: timestamp('emailVerified', { mode: 'date' }),
-  image: text('image'),
-  roleId: uuid('role_id').references(() => roles.id),
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at'),
-});
-
-export const usersRelations = relations(users, ({ one, many }) => ({
-  role: one(roles, {
-    fields: [users.roleId],
-    references: [roles.id],
-  }),
-}));
+/**
+ * @mark NextAuth Tables
+ */
 
 export const accounts = pgTable(
   'account',
@@ -72,18 +58,33 @@ export const verificationTokens = pgTable(
   }),
 );
 
-export const roles = pgTable('roles', {
-  id: uuid('id').notNull().defaultRandom().primaryKey(),
-  name: varchar('name').notNull(),
+/**
+ * @mark Users
+ */
+
+export type Role = 'standard' | 'paid' | 'admin' | 'superadmin'
+
+export const users = pgTable('user', {
+  id: uuid('id').notNull().primaryKey(),
+  name: text('name'),
+  email: text('email').notNull().default(''),
+  emailVerified: timestamp('emailVerified', { mode: 'date' }),
+  image: text('image'),
+  role: varchar('role').$type<Role>(),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at'),
 });
 
-export type Role = typeof roles.$inferSelect;
-export const roleSchema = createSelectSchema(roles);
+// export const usersRelations = relations(users, ({ one, many }) => ({
+//   role: one(roles, {
+//     fields: [users.roleId],
+//     references: [roles.id],
+//   }),
+// }));
 
-export type NewRole = typeof roles.$inferInsert;
-export const newRoleSchema = createInsertSchema(roles);
+/**
+ * @mark Habits
+ */
 
 export const habits = pgTable('habits', {
   id: uuid('id').notNull().defaultRandom().primaryKey(),
@@ -92,14 +93,14 @@ export const habits = pgTable('habits', {
   userId: uuid('user_id')
     .notNull()
     .references(() => users.id),
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
 });
 
 export type Habit = typeof habits.$inferSelect;
-export const habitSchema = createSelectSchema(habits);
-
 export type NewHabit = typeof habits.$inferInsert;
+
+export const habitSchema = createSelectSchema(habits);
 export const newHabitSchema = createInsertSchema(habits);
 
 export const habitsRelations = relations(habits, ({ one, many }) => ({
@@ -110,6 +111,9 @@ export const habitsRelations = relations(habits, ({ one, many }) => ({
   responses: many(responses),
 }));
 
+
+export type ResponseType = 'completion' | 'diary' | 'scale'
+
 /**
  * Not sure yet how the responses should look
  * @todo refine the response structure as the features become more developed
@@ -119,15 +123,16 @@ export const responses = pgTable('responses', {
   value: text('value').notNull(),
   habitId: uuid('habit_id')
     .notNull()
-    .references(() => habits.id),
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at'),
+    .references(() => habits.id).notNull(),
+  responseType: varchar('response_type').$type<ResponseType>().notNull(),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
 });
 
 export type Response = typeof responses.$inferSelect;
-export const responseSchema = createSelectSchema(responses);
-
 export type NewResponse = typeof responses.$inferInsert;
+
+export const responseSchema = createSelectSchema(responses);
 export const newResponseSchema = createInsertSchema(responses);
 
 export const responsesRelations = relations(responses, ({ one, many }) => ({
@@ -136,3 +141,17 @@ export const responsesRelations = relations(responses, ({ one, many }) => ({
     references: [habits.id],
   }),
 }));
+
+export const tags = pgTable('tags', {
+  id: uuid('id').notNull().defaultRandom().primaryKey(),
+  name: varchar('name').notNull(),
+  userId: uuid('user_id').references(() => users.id).notNull().defaultRandom(),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+})
+
+export type Tag = typeof tags.$inferSelect;
+export type NewTag = typeof tags.$inferInsert;
+
+export const tagSchema = typeof tags.$inferSelect;
+export const newTagSchema = typeof tags.$inferInsert;
