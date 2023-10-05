@@ -8,8 +8,6 @@ interface HabitCardProps {
   onSubmit: () => void
 }
 
-
-
 function HabitCard({ habit, onSubmit }: HabitCardProps) {
   const [editing, setEditing] = useState<Field>('none')
   const handleSubmit = () => {

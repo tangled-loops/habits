@@ -72,7 +72,7 @@ export const users = pgTable('user', {
   image: text('image'),
   role: varchar('role').$type<Role>(),
   createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at'),
+  updatedAt: timestamp('updated_at').defaultNow(),
 });
 
 // export const usersRelations = relations(users, ({ one, many }) => ({

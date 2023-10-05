@@ -20,6 +20,8 @@ export const habitsRouter = createTRPCRouter({
   createOrUpdate: protectedProcedure
     .input(z.object({ id: z.string().optional(), title: z.string(), description: z.string(), }))
     .mutation(async ({ ctx, input }) => {
+      console.log(ctx.session)
+      console.log(input)
       if (input.id && input.id.length > 0) {
         await ctx.db.update(habits).set(input).where(sql`id = ${input.id}`)
       } else {
