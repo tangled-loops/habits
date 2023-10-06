@@ -167,7 +167,7 @@ const SidebarLink = ({ link, path, className }: SidebarLinkProps) => (
     onClick={link.onClick}
     className={clsx(
       className,
-      link.href === path ? 'text-primary' : 'text-foreground',
+      link.href.split('/').pop() === path ? 'text-primary' : 'text-foreground',
       'hover:bg-secondary hover:text-foreground',
       'text-md cursor-pointer p-4',
       'h-15 flex flex-col justify-center ',
@@ -180,8 +180,12 @@ const SidebarLink = ({ link, path, className }: SidebarLinkProps) => (
   </Link>
 );
 
+function useRootPath() {
+  return usePathname().split('/').filter(path => !!path).shift() || '';
+}
+
 function Sidebar() {
-  const path = usePathname();
+  const path = useRootPath();
   const logoutLink = {
     id: 0,
     title: 'Sign Out',
@@ -207,10 +211,7 @@ function Sidebar() {
 
 function Nav() {
   const linkClasses = cn(navigationMenuTriggerStyle(), 'bg-card');
-  const pathRoot = usePathname()
-    .split('/')
-    .filter((path) => path && path !== '')
-    .shift();
+  const path = useRootPath();
   return (
     <>
       <NavigationMenu className='fixed top-0 right-0 left-0 max-w-full h-[44px] space-x-5 bg-card justify-start'>
@@ -225,7 +226,7 @@ function Nav() {
               <NavigationMenuLink
                 className={cn(
                   linkClasses,
-                  pathRoot === 'dashboard' ? 'text-primary' : 'text-foreground',
+                  path === 'dashboard' ? 'text-primary' : 'text-foreground',
                 )}
               >
                 Dashboard
@@ -237,7 +238,7 @@ function Nav() {
               <NavigationMenuLink
                 className={cn(
                   linkClasses,
-                  pathRoot !== 'habits' ? 'text-primary' : 'text-foreground',
+                  path === 'habits' ? 'text-primary' : 'text-foreground',
                 )}
               >
                 Habits
@@ -249,7 +250,7 @@ function Nav() {
               <NavigationMenuLink
                 className={cn(
                   linkClasses,
-                  pathRoot === 'profile' ? 'text-primary' : 'text-foreground',
+                  path === 'profile' ? 'text-primary' : 'text-foreground',
                 )}
               >
                 Profile

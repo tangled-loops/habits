@@ -15,12 +15,15 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button, buttonVariants } from '@/components/ui/button';
-import { MoreHorizontal, Trash } from 'lucide-react';
+import { MoreHorizontal, Trash, X } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import { EditField, Field } from './table';
 import { Table, TableCaption, TableHead, TableHeader, TableRow, TableBody, TableCell } from '@/components/ui/table';
 import { ScrollArea } from '../ui/scroll-area';
+import { Badge } from '../ui/badge';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 interface HabitCardProps {
   habit: Habit;
@@ -72,6 +75,11 @@ export function HabitCard({ habit, onSubmit }: HabitCardProps) {
     { id: '3', value: 'Performed', createdAt: new Date('10/4/2023') },
   ]
 
+  const tags = [
+    { id: '1', name: 'daily' },
+    { id: '2', name: 'life-things' },
+  ]
+  const router = useRouter()
   return (
     <Card>
       <div className="flex flex-row items-center">
@@ -88,14 +96,17 @@ export function HabitCard({ habit, onSubmit }: HabitCardProps) {
             <MoreHorizontal />
           </DropdownMenuTrigger>
           <DropdownMenuContent className='space-y-1'>
-            <DropdownMenuItem
-              className={cn(
-                buttonVariants({ variant: 'default' }),
-                'w-full text-left cursor-pointer',
-              )}
-            >
-              Details
-            </DropdownMenuItem>
+            <Link href={`/habits/${habit.id}`} passHref legacyBehavior>
+              <DropdownMenuItem
+                className={cn(
+                  buttonVariants({ variant: 'default' }),
+                  'w-full text-left cursor-pointer',
+                )}
+                // @todo wrap the menu item in a link with passHref / legacyBehavior
+              >
+                Details
+              </DropdownMenuItem>
+            </Link>
             <DropdownMenuItem
               className={cn(
                 buttonVariants({ variant: 'destructive' }),
@@ -112,28 +123,37 @@ export function HabitCard({ habit, onSubmit }: HabitCardProps) {
       <CardContent>
         <Table>
           <TableCaption>Recent Responses</TableCaption>
-          <ScrollArea  className='h-[150px]'>
+          <ScrollArea  className='h-[100px]'>
             <TableBody>
               {responses.map((response) => {
-                  return (
-                    <TableRow key={response.id}>
-                      <TableCell className='font-medium'>
-                        {response.value}
-                      </TableCell>
-                      <TableCell>
-                        {response.createdAt.toDateString()}
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
+                return (
+                  <TableRow key={response.id}>
+                    <TableCell className='font-medium'>
+                      {response.value}
+                    </TableCell>
+                    <TableCell>
+                      {response.createdAt.toDateString()}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </ScrollArea>
         </Table>
       </CardContent>
       <Separator />
       <CardFooter className='mt-2 items-center justify-between'>
-        <div>
-          Tags
+        <div className='flex flex-row space-x-2'>
+          {tags.map((tag) => {
+            return (
+              <Badge id={tag.id} className='flex flex-row p-1'>
+                {tag.name}
+                <Button variant='ghost' size='xsm' className='ml-2'>
+                  <X/>
+                </Button>
+              </Badge>
+            );
+          })}
         </div>
         <Button onClick={() => {}}>Respond</Button>
       </CardFooter>

@@ -42,7 +42,7 @@ export default function HabitsPage({ habits }: HabitsPageProps) {
         </div>
       </div>
       <div className='grid p-4'>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {_habits.map((habit) => {
             return <HabitCard habit={habit} onSubmit={handleSubmit} />
           })}
