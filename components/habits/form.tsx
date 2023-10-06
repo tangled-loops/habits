@@ -4,13 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-} from '../ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel } from '../ui/form';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
@@ -30,12 +24,12 @@ interface FormDialogProps {
   desc: ReactNode;
   trigger: ReactNode;
   data?: {
-    id: string
-    title: string
-    description: string
-  }
+    id: string;
+    title: string;
+    description: string;
+  };
   handleSubmit: () => void;
-  submitTitle: string
+  submitTitle: string;
 }
 
 export function FormDialog({
@@ -59,7 +53,11 @@ export function FormDialog({
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{desc}</DialogDescription>
         </DialogHeader>
-        <HabitsForm data={data} submitTitle={submitTitle} handleSubmit={submitWrapper} />
+        <HabitsForm
+          data={data}
+          submitTitle={submitTitle}
+          handleSubmit={submitWrapper}
+        />
       </DialogContent>
     </Dialog>
   );
@@ -79,11 +77,11 @@ export default function HabitsForm({
   handleSubmit,
 }: {
   data?: {
-    id?: string,
-    title?: string,
-    description?: string,
-  },
-  submitTitle: string,
+    id?: string;
+    title?: string;
+    description?: string;
+  };
+  submitTitle: string;
   handleSubmit: () => void;
 }) {
   const mutation = trpc.habits.createOrUpdate.useMutation();

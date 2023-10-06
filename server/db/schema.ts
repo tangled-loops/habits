@@ -62,7 +62,7 @@ export const verificationTokens = pgTable(
  * @mark Users
  */
 
-export type Role = 'standard' | 'paid' | 'admin' | 'superadmin'
+export type Role = 'standard' | 'paid' | 'admin' | 'superadmin';
 
 export const users = pgTable('user', {
   id: uuid('id').notNull().primaryKey(),
@@ -111,8 +111,7 @@ export const habitsRelations = relations(habits, ({ one, many }) => ({
   responses: many(responses),
 }));
 
-
-export type ResponseType = 'completion' | 'diary' | 'scale'
+export type ResponseType = 'completion' | 'diary' | 'scale';
 
 /**
  * Not sure yet how the responses should look
@@ -123,7 +122,8 @@ export const responses = pgTable('responses', {
   value: text('value').notNull(),
   habitId: uuid('habit_id')
     .notNull()
-    .references(() => habits.id).notNull(),
+    .references(() => habits.id)
+    .notNull(),
   responseType: varchar('response_type').$type<ResponseType>().notNull(),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
@@ -145,10 +145,13 @@ export const responsesRelations = relations(responses, ({ one, many }) => ({
 export const tags = pgTable('tags', {
   id: uuid('id').notNull().defaultRandom().primaryKey(),
   name: varchar('name').notNull(),
-  userId: uuid('user_id').references(() => users.id).notNull().defaultRandom(),
+  userId: uuid('user_id')
+    .references(() => users.id)
+    .notNull()
+    .defaultRandom(),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
-})
+});
 
 export type Tag = typeof tags.$inferSelect;
 export type NewTag = typeof tags.$inferInsert;

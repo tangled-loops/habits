@@ -13,18 +13,9 @@ export const metadata: Metadata = {
   description: 'Authentication forms built using the components.',
 };
 
-export default async function Login({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
+export default async function Login() {
   const user = await getCurrentUser();
   if (user) redirect('/');
-
-  console.log(searchParams)
-  // @todo this does not work...?
-  // if (searchParams.error) {
-  //   toast({
-  //     title: "Error",
-  //     description: "There seems to be an issue, please try again."
-  //   })
-  // }
 
   return (
     <>

@@ -10,10 +10,6 @@ const handler = async (req: Request) => {
     endpoint: '/api/trpc',
     req,
     router: appRouter,
-    /**
-     * @todo should this be using some of the context declaration
-     *  from the trpc stuff in the server?
-     */
     createContext: () => ({ session, db }),
   });
 };

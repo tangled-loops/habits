@@ -2,25 +2,10 @@
 
 import Link from 'next/link';
 
-import {
-  Brackets,
-  Home,
-  LayoutDashboard,
-  Library,
-  ListPlus,
-  LogOut,
-  Menu,
-  Settings,
-  User,
-} from 'lucide-react';
+import { LayoutDashboard, ListPlus, LogOut, User } from 'lucide-react';
 
 import {
   DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
@@ -29,28 +14,13 @@ import { Button } from '@/components/ui/button';
 import clsx from 'clsx';
 
 import { signOut } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
 import { usePathname } from 'next/navigation';
 import { Separator } from './ui/separator';
 import {
-  Menubar,
-  MenubarContent,
-  MenubarItem,
-  MenubarMenu,
-  MenubarSeparator,
-  MenubarShortcut,
-  MenubarSub,
-  MenubarSubContent,
-  MenubarSubTrigger,
-  MenubarTrigger,
-} from './ui/menubar';
-import {
   NavigationMenu,
-  NavigationMenuContent,
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
-  NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from './ui/navigation-menu';
 import { cn } from '@/lib/utils';
@@ -84,56 +54,6 @@ function items(iconClasses: string): SidebarItem[] {
       icon: <User className={iconClasses} />,
     },
   ];
-}
-
-function SettingsContent() {
-  const router = useRouter();
-  return (
-    <DropdownMenuContent className='w-56 '>
-      <DropdownMenuLabel>My Account</DropdownMenuLabel>
-      <DropdownMenuSeparator />
-      <DropdownMenuGroup>
-        <DropdownMenuItem
-          className='cursor-pointer'
-          onClick={() => router.push('/profile')}
-        >
-          <User className='mr-2 h-4 w-4' />
-          <Link className='p-1 font-medium' href='/profile'>
-            Profile
-          </Link>
-        </DropdownMenuItem>
-      </DropdownMenuGroup>
-      <DropdownMenuGroup>
-        <DropdownMenuItem className='cursor-pointer' onClick={() => signOut()}>
-          <LogOut className='mr-2 h-4 w-4' />
-          <Link className='p-1 font-medium' href='/api/auth/signout'>
-            Sign Out
-          </Link>
-        </DropdownMenuItem>
-      </DropdownMenuGroup>
-    </DropdownMenuContent>
-  );
-}
-
-function MenuContent() {
-  return (
-    <DropdownMenuContent className='w-56'>
-      <DropdownMenuLabel>Main Menu</DropdownMenuLabel>
-      <DropdownMenuSeparator />
-      <DropdownMenuGroup>
-        {items('mr-2 h-4 w-4').map((link) => {
-          return (
-            <DropdownMenuItem key={link.id}>
-              {link.icon}
-              <Link className='p-4 font-medium' href={link.href}>
-                {link.title}
-              </Link>
-            </DropdownMenuItem>
-          );
-        })}
-      </DropdownMenuGroup>
-    </DropdownMenuContent>
-  );
 }
 
 interface NavDropdownMenuProps extends PropsWithChildren {
@@ -181,7 +101,12 @@ const SidebarLink = ({ link, path, className }: SidebarLinkProps) => (
 );
 
 function useRootPath() {
-  return usePathname().split('/').filter(path => !!path).shift() || '';
+  return (
+    usePathname()
+      .split('/')
+      .filter((path) => !!path)
+      .shift() || ''
+  );
 }
 
 function Sidebar() {
@@ -272,62 +197,3 @@ export default function Navigation() {
     </>
   );
 }
-
-{
-  /* <nav className='transition-transform bg-card'>
-  <div className='sm:hidden h-[50px] flex flex-row items-center justify-center'>
-    <div className='inline-grid grid-cols-3 gap-4 w-full'>
-      <div className='p-1 flex justify-start m-4'>
-        <NavDropdownMenu buttonContent={<Menu/>}>
-          <MenuContent />
-        </NavDropdownMenu>
-      </div>
-      <div className='flex flex-col justify-center'>
-        <h1 className='text-2xl whitespace-nowrap text-center'>
-          Habits
-        </h1>
-      </div>
-      <div className='p-1 flex justify-end m-4'>
-        <NavDropdownMenu buttonContent={<Settings/>}>
-          <SettingsContent />
-        </NavDropdownMenu>
-      </div>
-    </div>
-  </div>
-</nav>
-<div className='hidden bg-card sm:flex h-[40px] flex-row items-center px-2 py-1'>
-  <h1 className='ml-5 text-2xl whitespace-nowrap text-center'>
-    Habits
-  </h1>
-</div>  */
-}
-/* 
-<NavigationMenu className='w-full h-[40px] ml-[100px] space-x-10 bg-primary'>
-  <NavigationMenuList>
-    <NavigationMenuItem>
-      <NavigationMenuTrigger>Profile</NavigationMenuTrigger>
-      <NavigationMenuContent>
-        <ul className="grid gap-3 p-6 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
-          <li className="row-span-3">
-            <NavigationMenuLink asChild>
-              <a
-                className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md"
-                href="/"
-              >
-                <Icons.logo className="h-6 w-6" />
-                <div className="mb-2 mt-4 text-lg font-medium">
-                  shadcn/ui
-                </div>
-                <p className="text-sm leading-tight text-muted-foreground">
-                  Beautifully designed components built with Radix UI and
-                  Tailwind CSS.
-                </p>
-              </a>
-            </NavigationMenuLink>
-          </li>
-        </ul>
-      </NavigationMenuContent>
-    </NavigationMenuItem>
-  </NavigationMenuList>
-</NavigationMenu>
-*/

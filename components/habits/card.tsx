@@ -19,10 +19,15 @@ import { MoreHorizontal, Trash, X } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import { EditField, Field } from './table';
-import { Table, TableCaption, TableHead, TableHeader, TableRow, TableBody, TableCell } from '@/components/ui/table';
+import {
+  Table,
+  TableCaption,
+  TableRow,
+  TableBody,
+  TableCell,
+} from '@/components/ui/table';
 import { ScrollArea } from '../ui/scroll-area';
 import { Badge } from '../ui/badge';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 interface HabitCardProps {
@@ -73,16 +78,16 @@ export function HabitCard({ habit, onSubmit }: HabitCardProps) {
     { id: '1', value: 'Performed', createdAt: new Date('10/2/2023') },
     { id: '2', value: 'Performed', createdAt: new Date('10/3/2023') },
     { id: '3', value: 'Performed', createdAt: new Date('10/4/2023') },
-  ]
+  ];
 
   const tags = [
     { id: '1', name: 'daily' },
     { id: '2', name: 'life-things' },
-  ]
-  const router = useRouter()
+  ];
+
   return (
     <Card>
-      <div className="flex flex-row items-center">
+      <div className='flex flex-row items-center'>
         <CardHeader className=' flex-grow'>
           <CardTitle onClick={() => setEditing('title')}>
             {content('title')}
@@ -118,12 +123,12 @@ export function HabitCard({ habit, onSubmit }: HabitCardProps) {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-      </div>  
+      </div>
       <Separator />
       <CardContent>
         <Table>
           <TableCaption>Recent Responses</TableCaption>
-          <ScrollArea  className='h-[100px]'>
+          <ScrollArea className='h-[100px]'>
             <TableBody>
               {responses.map((response) => {
                 return (
@@ -131,9 +136,7 @@ export function HabitCard({ habit, onSubmit }: HabitCardProps) {
                     <TableCell className='font-medium'>
                       {response.value}
                     </TableCell>
-                    <TableCell>
-                      {response.createdAt.toDateString()}
-                    </TableCell>
+                    <TableCell>{response.createdAt.toDateString()}</TableCell>
                   </TableRow>
                 );
               })}
@@ -149,7 +152,7 @@ export function HabitCard({ habit, onSubmit }: HabitCardProps) {
               <Badge id={tag.id} className='flex flex-row p-1'>
                 {tag.name}
                 <Button variant='ghost' size='xsm' className='ml-2'>
-                  <X/>
+                  <X />
                 </Button>
               </Badge>
             );

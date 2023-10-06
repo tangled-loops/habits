@@ -1,20 +1,16 @@
 'use client';
 
-import { Github } from 'lucide-react';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
 import clsx from 'clsx';
 import React from 'react';
+import * as z from 'zod';
 import { signIn } from 'next-auth/react';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-} from './ui/form';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
+import { Github } from 'lucide-react';
+
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Form, FormControl, FormField, FormItem } from './ui/form';
 
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {}
 

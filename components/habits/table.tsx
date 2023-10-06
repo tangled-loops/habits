@@ -10,9 +10,7 @@ import {
   TableRow,
 } from '../ui/table';
 import { Habit } from '@/server/db/schema';
-import { Edit } from 'lucide-react';
-import { FormDialog } from './form';
-import { KeyboardEventHandler, useState } from 'react';
+import { useState } from 'react';
 import z from 'zod';
 import { trpc } from '@/lib/trpc';
 import { useForm } from 'react-hook-form';
