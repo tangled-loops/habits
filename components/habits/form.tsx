@@ -7,13 +7,11 @@ import * as z from 'zod';
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
 } from '../ui/form';
-import { Button, buttonVariants } from '../ui/button';
+import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
 import { trpc } from '@/lib/trpc';
@@ -121,13 +119,9 @@ export default function HabitsForm({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Title</FormLabel>
-              <div className=''>
-                <FormControl>
-                  <Input {...field} className='w-[400px]' />
-                </FormControl>
-              </div>
-              <FormDescription></FormDescription>
-              <FormMessage />
+              <FormControl>
+                <Input {...field} className='w-[400px]' />
+              </FormControl>
             </FormItem>
           )}
         />
@@ -142,8 +136,6 @@ export default function HabitsForm({
                   <Textarea {...field} className='w-[400px]' />
                 </FormControl>
               </div>
-              <FormDescription></FormDescription>
-              <FormMessage />
             </FormItem>
           )}
         />

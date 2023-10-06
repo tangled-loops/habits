@@ -6,7 +6,9 @@ import { trpc } from "@/lib/trpc";
 import { Habit } from "@/server/db/schema";
 
 import HabitsHeader from "./header";
-import HabitsList from "./list";
+import HabitsList, { HabitCard } from "./card";
+import { FormDialog } from "./form";
+import { PlusCircle } from "lucide-react";
 
 interface HabitsPageProps {
   habits: Array<Habit>;
@@ -27,9 +29,24 @@ export default function HabitsPage({ habits }: HabitsPageProps) {
 
   return (
     <>
-      <HabitsHeader onSubmit={handleSubmit} />
+      <div className='bg-card w-full grid grid-cols-2 p-4 rounded shadow'>
+        <h1 className='flex flex-row items-center'>Habit Tracker</h1>
+        <div className='flex flex-row items-center justify-end'>
+          <FormDialog 
+            title='New Habit' 
+            desc='Create a Habit to Track'
+            trigger={<PlusCircle />}
+            handleSubmit={handleSubmit}
+            submitTitle='Create'
+          />
+        </div>
+      </div>
       <div className='grid p-4'>
-        <HabitsList habits={_habits} onSubmit={handleSubmit} />
+        <div className="grid grid-cols-2 gap-4">
+          {_habits.map((habit) => {
+            return <HabitCard habit={habit} onSubmit={handleSubmit} />
+          })}
+        </div>
       </div>
     </>
   );
