@@ -1,21 +1,12 @@
 'use client';
 
-import Link from 'next/link';
-
-import { LayoutDashboard, ListPlus, LogOut, User } from 'lucide-react';
-
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-
-import { PropsWithChildren, ReactElement } from 'react';
-import { Button } from '@/components/ui/button';
 import clsx from 'clsx';
-
+import { LayoutDashboard, ListPlus, LogOut, User } from 'lucide-react';
 import { signOut } from 'next-auth/react';
+import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Separator } from './ui/separator';
+import { PropsWithChildren, ReactElement } from 'react';
+
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -23,6 +14,13 @@ import {
   NavigationMenuList,
   navigationMenuTriggerStyle,
 } from './ui/navigation-menu';
+import { Separator } from './ui/separator';
+
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 
 interface SidebarItem {
@@ -119,7 +117,7 @@ function Sidebar() {
     icon: <LogOut className='mr-2 h-5 w-5' />,
   };
   return (
-    <aside className='bg-card border-primary fixed bottom-0 left-0 hidden h-[calc(100%-44px)] border-r-[1px] sm:block md:w-[200px]'>
+    <aside className='fixed bottom-0 left-0 hidden h-[calc(100%-44px)] border-r-[1px] border-primary bg-card sm:block md:w-[200px]'>
       <div className='w-full'>
         {items('mr-2 h-5 w-5').map((link) => (
           <SidebarLink link={link} path={path} />
@@ -139,7 +137,7 @@ function Nav() {
   const path = useRootPath();
   return (
     <>
-      <NavigationMenu className='bg-card fixed inset-x-0 top-0 h-[44px] max-w-full justify-start space-x-5'>
+      <NavigationMenu className='fixed inset-x-0 top-0 h-[44px] max-w-full justify-start space-x-5 bg-card'>
         <NavigationMenuList className='bg-card'>
           <NavigationMenuItem>
             <h1 className='ml-5 whitespace-nowrap text-center text-xl'>
@@ -184,7 +182,7 @@ function Nav() {
           </NavigationMenuItem>
         </NavigationMenuList>
       </NavigationMenu>
-      <Separator className='bg-primary fixed top-[44px]' />
+      <Separator className='fixed top-[44px] bg-primary' />
     </>
   );
 }

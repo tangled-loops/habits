@@ -1,5 +1,6 @@
-import { getClient } from '@/src/server/session';
-import HabitsPage from '@/components/habits/page';
+import HabitsPage from '$/habits/page';
+
+import { getClient } from '~/session';
 
 export default async function Habits() {
   const api = await getClient();

@@ -8,8 +8,8 @@ import {
   uuid,
   varchar,
 } from 'drizzle-orm/pg-core';
-import { AdapterAccount } from 'next-auth/adapters';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
+import { AdapterAccount } from 'next-auth/adapters';
 
 /**
  * @mark NextAuth Tables
@@ -135,7 +135,7 @@ export type NewResponse = typeof responses.$inferInsert;
 export const responseSchema = createSelectSchema(responses);
 export const newResponseSchema = createInsertSchema(responses);
 
-export const responsesRelations = relations(responses, ({ one, many }) => ({
+export const responsesRelations = relations(responses, ({ one }) => ({
   habit: one(habits, {
     fields: [responses.habitId],
     references: [habits.id],

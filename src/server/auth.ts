@@ -1,10 +1,11 @@
 import { DrizzleAdapter } from '@auth/drizzle-adapter';
+import { eq, or } from 'drizzle-orm';
 import { type NextAuthOptions } from 'next-auth';
-import { db } from '@/src/server/db';
 import EmailProvider from 'next-auth/providers/email';
 import GithubProvider from 'next-auth/providers/github';
-import { users } from './db/schema';
-import { eq, or } from 'drizzle-orm';
+
+import { db } from '~db/drizz';
+import { users } from '~db/schema';
 
 export const authOptions: NextAuthOptions = {
   debug: process.env.NODE_ENV === 'development',

@@ -88,12 +88,8 @@
           "name": "account_userId_user_id_fk",
           "tableFrom": "account",
           "tableTo": "user",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -101,10 +97,7 @@
       "compositePrimaryKeys": {
         "account_provider_providerAccountId": {
           "name": "account_provider_providerAccountId",
-          "columns": [
-            "provider",
-            "providerAccountId"
-          ]
+          "columns": ["provider", "providerAccountId"]
         }
       },
       "uniqueConstraints": {}
@@ -159,12 +152,8 @@
           "name": "habits_user_id_user_id_fk",
           "tableFrom": "habits",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -222,12 +211,8 @@
           "name": "responses_habit_id_habits_id_fk",
           "tableFrom": "responses",
           "tableTo": "habits",
-          "columnsFrom": [
-            "habit_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["habit_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -264,12 +249,8 @@
           "name": "session_userId_user_id_fk",
           "tableFrom": "session",
           "tableTo": "user",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -321,12 +302,8 @@
           "name": "tags_user_id_user_id_fk",
           "tableFrom": "tags",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -422,10 +399,7 @@
       "compositePrimaryKeys": {
         "verificationToken_identifier_token": {
           "name": "verificationToken_identifier_token",
-          "columns": [
-            "identifier",
-            "token"
-          ]
+          "columns": ["identifier", "token"]
         }
       },
       "uniqueConstraints": {}

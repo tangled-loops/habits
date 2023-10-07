@@ -1,4 +1,4 @@
-import { Button } from '@/components/ui/button';
+import { Button } from '$ui/button';
 import {
   Card,
   CardContent,
@@ -6,8 +6,8 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
+} from '$ui/card';
+import { Separator } from '$ui/separator';
 import {
   Table,
   TableBody,
@@ -16,9 +16,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { authOptions } from '@/src/server/auth';
-import { getServerSession } from 'next-auth';
+} from '$ui/table';
 
 export default async function Dashboard() {
   return (

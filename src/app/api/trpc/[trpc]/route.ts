@@ -1,8 +1,10 @@
-import { appRouter } from '@/src/server/api/root';
-import { authOptions } from '@/src/server/auth';
-import { db } from '@/src/server/db';
 import { fetchRequestHandler } from '@trpc/server/adapters/fetch';
 import { getServerSession } from 'next-auth';
+
+import { db } from '@/server/db/drizz';
+
+import { appRouter } from '~/api/root';
+import { authOptions } from '~/auth';
 
 const handler = async (req: Request) => {
   const session = await getServerSession(authOptions);

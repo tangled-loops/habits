@@ -1,16 +1,16 @@
 'use client';
 
-import clsx from 'clsx';
-import React from 'react';
-import * as z from 'zod';
-import { signIn } from 'next-auth/react';
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import clsx from 'clsx';
 import { Github } from 'lucide-react';
+import { signIn } from 'next-auth/react';
+import React from 'react';
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
 
 import { Button } from './ui/button';
-import { Input } from './ui/input'
 import { Form, FormControl, FormField, FormItem } from './ui/form';
+import { Input } from './ui/input';
 
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {}
 
@@ -64,7 +64,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
           <span className='w-full border-t' />
         </div>
         <div className='relative flex justify-center text-xs uppercase'>
-          <span className='bg-background text-muted-foreground px-2'>
+          <span className='bg-background px-2 text-muted-foreground'>
             Or continue with
           </span>
         </div>

@@ -1,12 +1,9 @@
+import { desc, eq, sql } from 'drizzle-orm';
 import { z } from 'zod';
-import { users, habits, newHabitSchema } from '../../db/schema';
-import { eq, sql, desc } from 'drizzle-orm';
 
-import {
-  createTRPCRouter,
-  protectedProcedure,
-  publicProcedure,
-} from '@/src/server/api/trpc';
+import { createTRPCRouter, protectedProcedure } from '~api/trpc';
+
+import { habits } from '~db/schema';
 
 export const habitsRouter = createTRPCRouter({
   findAll: protectedProcedure.query(async ({ ctx }) => {

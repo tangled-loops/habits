@@ -1,5 +1,12 @@
+import { MoreHorizontal, Trash, X } from 'lucide-react';
+import Link from 'next/link';
 import { useState } from 'react';
-import { Habit } from '@/src/server/db/schema';
+
+import { Badge } from '../ui/badge';
+import { ScrollArea } from '../ui/scroll-area';
+import { EditField, Field } from './table';
+
+import { Button, buttonVariants } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -14,21 +21,17 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Button, buttonVariants } from '@/components/ui/button';
-import { MoreHorizontal, Trash, X } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
-import { cn } from '@/lib/utils';
-import { EditField, Field } from './table';
 import {
   Table,
-  TableCaption,
-  TableRow,
   TableBody,
+  TableCaption,
   TableCell,
+  TableRow,
 } from '@/components/ui/table';
-import { ScrollArea } from '../ui/scroll-area';
-import { Badge } from '../ui/badge';
-import Link from 'next/link';
+import { cn } from '@/lib/utils';
+
+import { Habit } from '~db/schema';
 
 interface HabitCardProps {
   habit: Habit;

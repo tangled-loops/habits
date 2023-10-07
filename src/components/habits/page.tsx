@@ -1,13 +1,14 @@
 'use client';
 
+import { PlusCircle } from 'lucide-react';
 import { useState } from 'react';
-
-import { trpc } from '@/lib/trpc';
-import { Habit } from '@/src/server/db/schema';
 
 import { HabitCard } from './card';
 import { FormDialog } from './form';
-import { PlusCircle } from 'lucide-react';
+
+import { trpc } from '@/lib/trpc';
+
+import { Habit } from '~/db/schema';
 
 interface HabitsPageProps {
   habits: Array<Habit>;
@@ -28,7 +29,7 @@ export default function HabitsPage({ habits }: HabitsPageProps) {
 
   return (
     <>
-      <div className='bg-card grid w-full grid-cols-2 rounded p-4 shadow'>
+      <div className='grid w-full grid-cols-2 rounded bg-card p-4 shadow'>
         <h1 className='flex flex-row items-center'>Habit Tracker</h1>
         <div className='flex flex-row items-center justify-end'>
           <FormDialog
