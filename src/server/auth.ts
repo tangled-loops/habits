@@ -4,8 +4,8 @@ import { type NextAuthOptions } from 'next-auth';
 import EmailProvider from 'next-auth/providers/email';
 import GithubProvider from 'next-auth/providers/github';
 
-import { db } from '~db/drizz';
-import { users } from '~db/schema';
+import { db } from '~/db/drizz';
+import { users } from '~/db/schema';
 
 export const authOptions: NextAuthOptions = {
   debug: process.env.NODE_ENV === 'development',
@@ -43,6 +43,14 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
     async jwt({ token, user }) {
+      if (token.id && token.email) {
+        return {
+          ...token,
+          id: token.id,
+          email: token.email,
+        };
+      }
+
       const userRes = await db
         .select()
         .from(users)

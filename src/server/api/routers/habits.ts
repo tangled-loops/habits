@@ -1,9 +1,8 @@
 import { desc, eq, sql } from 'drizzle-orm';
 import { z } from 'zod';
 
-import { createTRPCRouter, protectedProcedure } from '~api/trpc';
-
-import { habits } from '~db/schema';
+import { createTRPCRouter, protectedProcedure } from '~/api/trpc';
+import { habits, habitsFormSchema } from '~/db/schema';
 
 export const habitsRouter = createTRPCRouter({
   findAll: protectedProcedure.query(async ({ ctx }) => {
@@ -21,23 +20,13 @@ export const habitsRouter = createTRPCRouter({
       ).shift();
     }),
   createOrUpdate: protectedProcedure
-    .input(
-      z.object({
-        id: z.string().optional(),
-        title: z.string(),
-        description: z.string(),
-      }),
-    )
+    .input(habitsFormSchema)
     .mutation(async ({ ctx, input }) => {
       if (input.id && input.id.length > 0) {
-        await ctx.db
-          .update(habits)
-          .set(input)
-          .where(sql`id = ${input.id}`);
+        await ctx.db.update(habits).set(input).where(eq(habits.id, input.id));
       } else {
         await ctx.db.insert(habits).values({
           title: input.title,
-          description: input.description,
           userId: ctx.session.user.id,
         });
       }

@@ -1,4 +1,4 @@
-import { Button } from '$ui/button';
+import { Button } from '$/ui/button';
 import {
   Card,
   CardContent,
@@ -6,8 +6,8 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '$ui/card';
-import { Separator } from '$ui/separator';
+} from '$/ui/card';
+import { Separator } from '$/ui/separator';
 import {
   Table,
   TableBody,
@@ -16,7 +16,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '$ui/table';
+} from '$/ui/table';
 
 export default async function Dashboard() {
   return (

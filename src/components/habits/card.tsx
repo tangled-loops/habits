@@ -1,9 +1,10 @@
-import { MoreHorizontal, Trash, X } from 'lucide-react';
+'use client';
+
+import { Badge } from '$/ui/badge';
+import { MoreHorizontal, Plus, Trash, X } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 
-import { Badge } from '../ui/badge';
-import { ScrollArea } from '../ui/scroll-area';
 import { EditField, Field } from './table';
 
 import { Button, buttonVariants } from '@/components/ui/button';
@@ -22,33 +23,32 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Separator } from '@/components/ui/separator';
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableRow,
-} from '@/components/ui/table';
+import { trpc } from '@/lib/trpc';
 import { cn } from '@/lib/utils';
 
-import { Habit } from '~db/schema';
+import { Habit } from '~/db/schema';
 
 interface HabitCardProps {
   habit: Habit;
-  onSubmit: () => void;
 }
 
-export function HabitCard({ habit, onSubmit }: HabitCardProps) {
+export function HabitCard({ habit }: HabitCardProps) {
+  const query = trpc.habits.findById.useQuery({ id: habit.id });
+
+  const [_habit, setHabit] = useState(habit);
   const [editing, setEditing] = useState<Field>('none');
-  const handleSubmit = () => {
-    onSubmit();
+
+  const handleSubmit = async () => {
+    const habit = await query.refetch();
+    if (habit.data) setHabit(habit.data);
     setEditing('none');
   };
+
   const content = (field: Field) => {
     const editField = (value: string | null) => {
       return (
         <EditField
-          id={habit.id}
+          id={_habit.id}
           field={field}
           value={value}
           handleSubmit={handleSubmit}
@@ -58,12 +58,12 @@ export function HabitCard({ habit, onSubmit }: HabitCardProps) {
     const fieldEditing = field === editing;
     switch (field) {
       case 'title': {
-        if (fieldEditing) return editField(habit.title);
-        return habit.title;
+        if (fieldEditing) return editField(_habit.title);
+        return _habit.title;
       }
       case 'description': {
-        if (fieldEditing) return editField(habit.description);
-        return habit.description;
+        if (fieldEditing) return editField(_habit.description);
+        return _habit.description;
       }
       default: {
         return '';
@@ -71,34 +71,20 @@ export function HabitCard({ habit, onSubmit }: HabitCardProps) {
     }
   };
 
-  const responses = [
-    { id: '1', value: 'Performed', createdAt: new Date('10/2/2023') },
-    { id: '2', value: 'Performed', createdAt: new Date('10/3/2023') },
-    { id: '3', value: 'Performed', createdAt: new Date('10/4/2023') },
-    { id: '1', value: 'Performed', createdAt: new Date('10/2/2023') },
-    { id: '2', value: 'Performed', createdAt: new Date('10/3/2023') },
-    { id: '3', value: 'Performed', createdAt: new Date('10/4/2023') },
-    { id: '1', value: 'Performed', createdAt: new Date('10/2/2023') },
-    { id: '2', value: 'Performed', createdAt: new Date('10/3/2023') },
-    { id: '3', value: 'Performed', createdAt: new Date('10/4/2023') },
-  ];
-
   const tags = [
     { id: '1', name: 'daily' },
     { id: '2', name: 'life-things' },
   ];
 
   return (
-    <Card>
+    <Card className='bg-emerald-400'>
       <div className='flex flex-row items-center'>
         <CardHeader className='grow'>
-          <CardTitle onClick={() => setEditing('title')}>
+          <CardTitle className='font-2xl' onClick={() => setEditing('title')}>
             {content('title')}
           </CardTitle>
-          <CardDescription onClick={() => setEditing('description')}>
-            {content('description')}
-          </CardDescription>
         </CardHeader>
+        <Badge className='m-8 bg-orange-400 px-4 py-1'>Weekly</Badge>
         <DropdownMenu>
           <DropdownMenuTrigger className='mr-4'>
             <MoreHorizontal />
@@ -110,7 +96,6 @@ export function HabitCard({ habit, onSubmit }: HabitCardProps) {
                   buttonVariants({ variant: 'default' }),
                   'w-full cursor-pointer text-left',
                 )}
-                // @todo wrap the menu item in a link with passHref / legacyBehavior
               >
                 Details
               </DropdownMenuItem>
@@ -127,41 +112,32 @@ export function HabitCard({ habit, onSubmit }: HabitCardProps) {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <Separator />
-      <CardContent>
-        <Table>
-          <TableCaption>Recent Responses</TableCaption>
-          <ScrollArea className='h-[100px]'>
-            <TableBody>
-              {responses.map((response) => {
-                return (
-                  <TableRow key={response.id}>
-                    <TableCell className='font-medium'>
-                      {response.value}
-                    </TableCell>
-                    <TableCell>{response.createdAt.toDateString()}</TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </ScrollArea>
-        </Table>
-      </CardContent>
-      <Separator />
-      <CardFooter className='mt-2 items-center justify-between'>
+      {/* <CardContent>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="text-sm flex flex-row">
+            Lorem ipsum doo dah floo
+          </div>
+          <div className="text-sm flex flex-row">
+            Lorem ipsum doo dah floo
+          </div>
+        </div>
+      </CardContent> */}
+      <CardFooter className='items-center justify-between'>
         <div className='flex flex-row space-x-2'>
           {tags.map((tag) => {
             return (
-              <Badge id={tag.id} className='flex flex-row p-1'>
+              <Badge id={tag.id} className='bg-blue-500'>
                 {tag.name}
-                <Button variant='ghost' size='xsm' className='ml-2'>
-                  <X />
-                </Button>
               </Badge>
             );
           })}
         </div>
-        <Button onClick={() => {}}>Respond</Button>
+        <div className='flex flex-row items-center space-x-5'>
+          <div className='text-sm'>0 / 10</div>
+          <Button onClick={() => {}}>
+            <Plus />
+          </Button>
+        </div>
       </CardFooter>
     </Card>
   );

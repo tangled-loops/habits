@@ -1,8 +1,8 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Form, FormControl, FormField, FormItem } from '$ui/form';
-import { Input } from '$ui/input';
+import { Form, FormControl, FormField, FormItem } from '$/ui/form';
+import { Input } from '$/ui/input';
 import {
   Table,
   TableBody,
@@ -11,14 +11,14 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '$ui/table';
+} from '$/ui/table';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import z from 'zod';
 
 import { trpc } from '@/lib/trpc';
 
-import { Habit } from '~db/schema';
+import { Habit } from '~/db/schema';
 
 export type Field = 'none' | 'description' | 'title';
 

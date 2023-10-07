@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 
-import * as schema from '~db/schema';
+import * as schema from '~/db/schema';
 
 const main = async () => {
   const client = postgres(`${process.env.DATABASE_URL}`);

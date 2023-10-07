@@ -1,5 +1,5 @@
-import { habitsRouter } from '~api/routers/habits';
-import { createTRPCRouter } from '~api/trpc';
+import { habitsRouter } from '~/api/routers/habits';
+import { createTRPCRouter } from '~/api/trpc';
 
 export const appRouter = createTRPCRouter({
   habits: habitsRouter,
