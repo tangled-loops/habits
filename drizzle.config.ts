@@ -5,7 +5,7 @@ export default {
   dbCredentials: {
     connectionString: `${process.env.DATABASE_URL}`,
   },
-  schema: './server/db/schema.ts',
-  out: './server/db/migrations',
+  schema: './src/server/db/schema.ts',
+  out: './src/server/db/migrations',
   verbose: true,
 } satisfies Config;
