@@ -51,6 +51,8 @@ export default function HabitsForm({ data, submitTitle }: HabitsFormProps) {
     defaultValues,
   });
 
+  const watcher = form.watch();
+
   function onSubmit(data: HabitsFormValues) {
     mutation.mutate(data);
     router.replace('/habits');
@@ -99,33 +101,38 @@ export default function HabitsForm({ data, submitTitle }: HabitsFormProps) {
               </FormItem>
             )}
           />
-          <FormField
-            control={form.control}
-            name='selectedDays'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Selected Days</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder='Select how often you want to track this habit.' />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value={Frequency.daily}>
-                      {Frequency.daily.toUpperCase()}
-                    </SelectItem>
-                    <SelectItem value={Frequency.weekly}>
-                      {Frequency.weekly.toUpperCase()}
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </FormItem>
-            )}
-          />
+          {watcher.frequency === Frequency.daily 
+            ? (
+              <FormField
+                control={form.control}
+                name='selectedDays'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Selected Days</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder='Select how often you want to track this habit.' />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value={Frequency.daily}>
+                          {Frequency.daily.toUpperCase()}
+                        </SelectItem>
+                        <SelectItem value={Frequency.weekly}>
+                          {Frequency.weekly.toUpperCase()}
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormItem>
+                )}
+              />
+                )
+                : null
+              }          
         </div>
         <div className='flex flex-row justify-start'>
           <Button type='submit'>{submitTitle}</Button>
