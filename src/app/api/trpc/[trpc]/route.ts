@@ -1,7 +1,7 @@
 import { fetchRequestHandler } from '@trpc/server/adapters/fetch';
 import { getServerSession } from 'next-auth';
 
-import { db } from '@/server/db/drizz';
+import { db } from '@/server/db/root';
 
 import { appRouter } from '~/api/root';
 import { authOptions } from '~/auth';

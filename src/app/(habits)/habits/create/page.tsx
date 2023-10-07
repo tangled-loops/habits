@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default async function Create() {
   return (
-    <div className='flex min-h-screen flex-col p-4'>
+    <div className='flex min-h-full flex-col p-4'>
       <div className='grid rounded-lg'>
         <Card>
           <CardHeader>

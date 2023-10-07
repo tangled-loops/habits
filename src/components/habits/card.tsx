@@ -1,32 +1,25 @@
 'use client';
 
-import { Badge } from '$/ui/badge';
-import { MoreHorizontal, Plus, Trash, X } from 'lucide-react';
+import { MoreHorizontal, Plus, Trash } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 
 import { EditField, Field } from './table';
 
 import { Button, buttonVariants } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Separator } from '@/components/ui/separator';
 import { trpc } from '@/lib/trpc';
 import { cn } from '@/lib/utils';
 
 import { Habit } from '~/db/schema';
+
+import { Badge } from '$/ui/badge';
 
 interface HabitCardProps {
   habit: Habit;
@@ -77,7 +70,7 @@ export function HabitCard({ habit }: HabitCardProps) {
   ];
 
   return (
-    <Card className='bg-emerald-400'>
+    <Card>
       <div className='flex flex-row items-center'>
         <CardHeader className='grow'>
           <CardTitle className='font-2xl' onClick={() => setEditing('title')}>

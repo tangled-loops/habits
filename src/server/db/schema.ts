@@ -10,7 +10,6 @@ import {
 } from 'drizzle-orm/pg-core';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
 import { AdapterAccount } from 'next-auth/adapters';
-import z from 'zod';
 
 /**
  * @mark NextAuth Tables
@@ -87,33 +86,6 @@ export const users = pgTable('user', {
  * @mark Habits
  */
 
-export enum Frequency {
-  none = 'none',
-  daily = 'daily',
-  weekly = 'weekly',
-}
-
-export enum Days {
-  monday = 'Mon',
-  tuesday = 'Tue',
-  wednsday = 'Wed',
-  thursday = 'Thu',
-  friday = 'Fri',
-  saturday = 'Sat',
-  sunday = 'Sun',
-}
-
-export const habitsFormSchema = z.object({
-  id: z.string().optional(),
-  title: z.string(),
-  frequency: z.nativeEnum(Frequency),
-  goal: z.number().default(1),
-  selectedDays: z.array(z.nativeEnum(Days)).optional(),
-  color: z.string(),
-  icon: z.string(),
-  tags: z.array(z.string()),
-});
-
 export const habits = pgTable('habits', {
   id: uuid('id').notNull().defaultRandom().primaryKey(),
   title: varchar('title').notNull(),
@@ -124,12 +96,6 @@ export const habits = pgTable('habits', {
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
 });
-
-export type Habit = typeof habits.$inferSelect;
-export type NewHabit = typeof habits.$inferInsert;
-
-export const habitSchema = createSelectSchema(habits);
-export const newHabitSchema = createInsertSchema(habits);
 
 export const habitsRelations = relations(habits, ({ one, many }) => ({
   user: one(users, {

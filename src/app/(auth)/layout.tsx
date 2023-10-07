@@ -1,8 +1,9 @@
-import { ThemeProvider } from '$/providers/theme';
-import { Toaster } from '$/ui/toaster';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import React from 'react';
+
+import { ThemeProvider } from '$/providers/theme';
+import { Toaster } from '$/ui/toaster';
 
 import '@/styles/globals.css';
 

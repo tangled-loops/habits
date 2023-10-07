@@ -1,8 +1,10 @@
 import { desc, eq, sql } from 'drizzle-orm';
 import { z } from 'zod';
 
+import { habitsFormSchema } from '@/lib/models/habit';
+
 import { createTRPCRouter, protectedProcedure } from '~/api/trpc';
-import { habits, habitsFormSchema } from '~/db/schema';
+import { habits } from '~/db/schema';
 
 export const habitsRouter = createTRPCRouter({
   findAll: protectedProcedure.query(async ({ ctx }) => {
@@ -26,7 +28,8 @@ export const habitsRouter = createTRPCRouter({
         await ctx.db.update(habits).set(input).where(eq(habits.id, input.id));
       } else {
         await ctx.db.insert(habits).values({
-          title: input.title,
+          title: input.name,
+          description: input.notes,
           userId: ctx.session.user.id,
         });
       }

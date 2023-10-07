@@ -5,7 +5,7 @@ import { ZodError } from 'zod';
 
 import { authOptions } from '../auth';
 
-import { db } from '~/db/drizz';
+import { db } from '@/server/db/root';
 
 /**
  * 1. CONTEXT

@@ -1,13 +1,12 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button } from '$/ui/button';
-import { Form, FormControl, FormField, FormItem, FormLabel } from '$/ui/form';
-import { Input } from '$/ui/input';
 import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
+import React from 'react';
+import { ControllerRenderProps, useForm, UseFormReturn } from 'react-hook-form';
 import * as z from 'zod';
 
+import { MultiSelect } from '../ui/multi-select';
 import {
   Select,
   SelectContent,
@@ -15,16 +14,42 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../ui/select';
+import { Textarea } from '../ui/textarea';
 
+import {
+  Day,
+  days,
+  frequencies,
+  Frequency,
+  habitsFormSchema,
+  HabitsFormValues,
+} from '@/lib/models/habit';
 import { trpc } from '@/lib/trpc';
-import { Frequency, habitsFormSchema } from '@/server/db/schema';
+import { cn } from '@/lib/utils';
 
-type HabitsFormValues = z.infer<typeof habitsFormSchema>;
+import { Button } from '$/ui/button';
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '$/ui/form';
+import { Input } from '$/ui/input';
 
 interface HabitsFormProps {
   data?: HabitsFormValues;
   submitTitle: string;
 }
+
+const daysOptions = days().map((day) => ({ value: Day[day], label: Day[day] }));
+
+const tags = [
+  { value: '1', label: 'Test' },
+  { value: '2', label: 'Test 2' },
+];
 
 export default function HabitsForm({ data, submitTitle }: HabitsFormProps) {
   const router = useRouter();
@@ -36,8 +61,9 @@ export default function HabitsForm({ data, submitTitle }: HabitsFormProps) {
   } else {
     defaultValues = {
       id: '',
-      title: '',
-      frequency: 'daily',
+      name: '',
+      notes: '',
+      frequency: Frequency[Frequency.Daily],
       goal: 1,
       selectedDays: [],
       color: 'primary',
@@ -53,27 +79,98 @@ export default function HabitsForm({ data, submitTitle }: HabitsFormProps) {
 
   const watcher = form.watch();
 
-  function onSubmit(data: HabitsFormValues) {
+  const onSubmit = (data: HabitsFormValues) => {
     mutation.mutate(data);
     router.replace('/habits');
-  }
+    router.refresh();
+  };
+
+  const [_tags, setTags] = React.useState(tags);
+
+  const handleNewTag = (
+    value: string,
+    field: ControllerRenderProps<HabitsFormValues, 'tags'>,
+    setOpen: React.Dispatch<React.SetStateAction<boolean>>,
+  ) => {
+    setTags([..._tags, { value: value, label: value }]);
+    field.onChange([...field.value, value]);
+    setOpen(false);
+  };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8 p-16'>
-        <FormField
-          control={form.control}
-          name='title'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Title</FormLabel>
-              <FormControl>
-                <Input {...field} className='' />
-              </FormControl>
-            </FormItem>
+      <form onSubmit={form.handleSubmit(onSubmit)}>
+        <div className='m-4 grid grid-cols-1 gap-4 md:grid-cols-2'>
+          <FormField
+            control={form.control}
+            name='name'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Name</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormDescription>
+                  If I could name them, I could tame them. They could be my
+                  friends.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <div className='grid grid-cols-2 gap-4'>
+            <FormField
+              control={form.control}
+              name='color'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Color</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder='' />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent></SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name='icon'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Icon</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder='' />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent></SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        </div>
+        <div
+          className={cn(
+            'm-4 grid grid-cols-1 gap-4',
+            watcher.frequency === Frequency[Frequency.Daily]
+              ? 'md:grid-cols-3'
+              : 'md:grid-cols-2',
           )}
-        />
-        <div className='grid grid-cols-2 gap-4'>
+        >
           <FormField
             control={form.control}
             name='frequency'
@@ -90,98 +187,109 @@ export default function HabitsForm({ data, submitTitle }: HabitsFormProps) {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value={Frequency.daily}>
-                      {Frequency.daily.toUpperCase()}
-                    </SelectItem>
-                    <SelectItem value={Frequency.weekly}>
-                      {Frequency.weekly.toUpperCase()}
-                    </SelectItem>
+                    {frequencies().map((freq) => {
+                      return (
+                        <SelectItem id={`${freq}`} value={Frequency[freq]}>
+                          {Frequency[freq]}
+                        </SelectItem>
+                      );
+                    })}
                   </SelectContent>
                 </Select>
+                <FormDescription>
+                  How often should you track this.
+                </FormDescription>
+                <FormMessage />
               </FormItem>
             )}
           />
-          {watcher.frequency === Frequency.daily 
-            ? (
-              <FormField
-                control={form.control}
-                name='selectedDays'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Selected Days</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder='Select how often you want to track this habit.' />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value={Frequency.daily}>
-                          {Frequency.daily.toUpperCase()}
-                        </SelectItem>
-                        <SelectItem value={Frequency.weekly}>
-                          {Frequency.weekly.toUpperCase()}
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </FormItem>
-                )}
-              />
-                )
-                : null
-              }          
+          {watcher.frequency === Frequency[Frequency.Daily] ? (
+            <FormField
+              control={form.control}
+              name='selectedDays'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Days</FormLabel>
+                  <MultiSelect
+                    selected={field.value || []}
+                    options={daysOptions}
+                    {...field}
+                  />
+                  <FormDescription>On what days.</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          ) : null}
+          {watcher.frequency ? (
+            <FormField
+              control={form.control}
+              name='goal'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Goal</FormLabel>
+                  <FormControl>
+                    <Input {...field} type='number' />
+                  </FormControl>
+                  <FormDescription>
+                    How many times per{' '}
+                    {watcher.frequency === Frequency[Frequency.Daily]
+                      ? 'day'
+                      : 'week'}
+                    .
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          ) : null}
         </div>
-        <div className='flex flex-row justify-start'>
-          <Button type='submit'>{submitTitle}</Button>
+        <div className='m-4 grid grid-cols-1 gap-4 md:grid-cols-2'>
+          <FormField
+            control={form.control}
+            name='tags'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Tags</FormLabel>
+                <MultiSelect
+                  selected={field.value || []}
+                  options={_tags}
+                  onEmpty={(value, setOpen) => (
+                    <Button onClick={() => handleNewTag(value, field, setOpen)}>
+                      Create Tag: {value}
+                    </Button>
+                  )}
+                  {...field}
+                  className='sm:w-[510px]'
+                />
+                <FormDescription>Categorize and classify.</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name='notes'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Notes</FormLabel>
+                <FormControl>
+                  <Textarea {...field} />
+                </FormControl>
+                <FormDescription>
+                  Any additional info you want to add.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        <div className='mt-10'>
+          <div className='flex flex-row justify-start'>
+            <Button type='submit'>{submitTitle}</Button>
+          </div>
         </div>
       </form>
     </Form>
   );
 }
-
-// interface FormDialogProps {
-//   title: ReactNode;
-//   desc: ReactNode;
-//   trigger: ReactNode;
-//   data?: {
-//     id: string;
-//     title: string;
-//     description: string;
-//   };
-//   handleSubmit: () => void;
-//   submitTitle: string;
-// }
-
-// export function FormDialog({
-//   data,
-//   title,
-//   desc,
-//   trigger,
-//   submitTitle,
-//   handleSubmit,
-// }: FormDialogProps) {
-//   const [open, setOpen] = useState(false);
-//   const submitWrapper = () => {
-//     setOpen(false);
-//     handleSubmit();
-//   };
-//   return (
-//     <Dialog open={open} onOpenChange={setOpen}>
-//       <DialogTrigger>{trigger}</DialogTrigger>
-//       <DialogContent>
-//         <DialogHeader>
-//           <DialogTitle>{title}</DialogTitle>
-//           <DialogDescription>{desc}</DialogDescription>
-//         </DialogHeader>
-//         <HabitsForm
-//           data={data}
-//           submitTitle={submitTitle}
-//           handleSubmit={submitWrapper}
-//         />
-//       </DialogContent>
-//     </Dialog>
-//   );
-// }

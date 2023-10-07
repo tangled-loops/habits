@@ -9,6 +9,7 @@ import '@/styles/globals.css';
 
 import Navigation from '@/components/navigation';
 import { TrpcProvider } from '@/components/providers/trpc';
+import { ensureAuth } from '@/server/session';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -17,11 +18,12 @@ export const metadata: Metadata = {
   description: 'Tracking all the Habits',
 };
 
-export default function HabitsLayout({
+export default async function HabitsLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  await ensureAuth();
   return (
     <html lang='en'>
       <body className={inter.className}>

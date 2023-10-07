@@ -1,11 +1,12 @@
-import { HabitCard } from '$/habits/card';
-import { Button } from '$/ui/button';
 import { Plus } from 'lucide-react';
 import Link from 'next/link';
 
-import { Habit } from '@/server/db/schema';
+import { Habit } from '@/lib/models/habit';
 
 import { getClient } from '~/session';
+
+import { HabitCard } from '$/habits/card';
+import { Button } from '$/ui/button';
 
 export default async function Habits() {
   const api = await getClient();
