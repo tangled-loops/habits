@@ -1,7 +1,7 @@
 import { Plus } from 'lucide-react';
 import Link from 'next/link';
 
-import { Habit } from '@/lib/models/habit';
+import { HabitsFormValues } from '@/lib/models/habit';
 
 import { getClient } from '~/session';
 
@@ -10,7 +10,8 @@ import { Button } from '$/ui/button';
 
 export default async function Habits() {
   const api = await getClient();
-  const habits: Array<Habit> = await api.habits.findAll();
+  // @todo Types are getting confusing need to straighten all this out eventually
+  const habits: Array<Partial<HabitsFormValues>> = await api.habits.findAll();
 
   return (
     <div className='flex min-h-full flex-col'>
@@ -23,7 +24,7 @@ export default async function Habits() {
           </Button>
         </Link>
       </div>
-      <div className='mt-4 min-h-screen rounded-xl border p-4'>
+      <div className='mt-4 rounded-xl border p-4'>
         <div className='grid grid-cols-1 gap-4 lg:grid-cols-2'>
           {habits.map((habit) => {
             return <HabitCard key={habit.id} habit={habit} />;

@@ -1,6 +1,8 @@
+import { Frequency } from '@/lib/models/habit';
 import { relations } from 'drizzle-orm';
 import {
   integer,
+  json,
   pgTable,
   primaryKey,
   text,
@@ -62,7 +64,7 @@ export const verificationTokens = pgTable(
  * @mark Users
  */
 
-export type Role = 'standard' | 'paid' | 'admin' | 'superadmin';
+export type Role = 'standard' | 'admin';
 
 export const users = pgTable('user', {
   id: uuid('id').notNull().primaryKey(),
@@ -72,29 +74,37 @@ export const users = pgTable('user', {
   image: text('image'),
   role: varchar('role').$type<Role>(),
   createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow(),
+  updatedAt: timestamp('updated_at'),
 });
-
-// export const usersRelations = relations(users, ({ one, many }) => ({
-//   role: one(roles, {
-//     fields: [users.roleId],
-//     references: [roles.id],
-//   }),
-// }));
 
 /**
  * @mark Habits
  */
 
+export type HabitJournalEntry = {
+  notes: string;
+  createdAt: Date;
+}
+
+export type HabitJournal = {
+  entries: Array<HabitJournalEntry>;
+}
+
 export const habits = pgTable('habits', {
   id: uuid('id').notNull().defaultRandom().primaryKey(),
-  title: varchar('title').notNull(),
-  description: text('description'),
+  name: varchar('name').notNull(),
+  notes: text('notes'),
+  journal: json('journal').$type<HabitJournal>(),
+  frequency: varchar('frequency').$type<Frequency>().notNull(),
+  goal: integer('goal').notNull().default(1),
+  selectedDays: json('selected_days').$type<Array<string>>(),
+  color: varchar('color'),
+  icon: varchar('icon'),
   userId: uuid('user_id')
     .notNull()
     .references(() => users.id),
   createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at'),
 });
 
 export const habitsRelations = relations(habits, ({ one, many }) => ({
@@ -103,24 +113,23 @@ export const habitsRelations = relations(habits, ({ one, many }) => ({
     references: [users.id],
   }),
   responses: many(responses),
+  tags: many(habitsTags),
 }));
 
-export type ResponseType = 'completion' | 'diary' | 'scale';
-
 /**
- * Not sure yet how the responses should look
- * @todo refine the response structure as the features become more developed
+ * This is going to be extremely basic, each record represents a response.
+ * I think it makes sense to have this as a table though since it will be
+ * easier to do statistics this way. They will be non-editable and each one
+ * represents a unique response to a habit being tracked, this also will 
+ * allow me to expand the feature set if I want to down the line.
  */
 export const responses = pgTable('responses', {
   id: uuid('id').notNull().defaultRandom().primaryKey(),
-  value: text('value').notNull(),
   habitId: uuid('habit_id')
     .notNull()
     .references(() => habits.id)
     .notNull(),
-  responseType: varchar('response_type').$type<ResponseType>().notNull(),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  createdAt: timestamp('created_at').notNull().defaultNow()
 });
 
 export type Response = typeof responses.$inferSelect;
@@ -144,7 +153,7 @@ export const tags = pgTable('tags', {
     .notNull()
     .defaultRandom(),
   createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow(),
+  updatedAt: timestamp('updated_at'),
 });
 
 export type Tag = typeof tags.$inferSelect;
@@ -152,3 +161,10 @@ export type NewTag = typeof tags.$inferInsert;
 
 export const tagSchema = typeof tags.$inferSelect;
 export const newTagSchema = typeof tags.$inferInsert;
+
+export const habitsTags = pgTable('habits_tags', {
+  tagId: uuid('tag_id').notNull().references(() => tags.id),
+  habitId: uuid('habit_id').notNull().references(() => habits.id)
+}, (habitTag) => ({
+  compoundKey: primaryKey(habitTag.tagId, habitTag.habitId),
+}))

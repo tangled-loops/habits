@@ -3,18 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import React from 'react';
-import { ControllerRenderProps, useForm, UseFormReturn } from 'react-hook-form';
-import * as z from 'zod';
-
-import { MultiSelect } from '../ui/multi-select';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '../ui/select';
-import { Textarea } from '../ui/textarea';
+import { ControllerRenderProps, useForm } from 'react-hook-form';
 
 import {
   Day,
@@ -38,31 +27,37 @@ import {
   FormMessage,
 } from '$/ui/form';
 import { Input } from '$/ui/input';
+import { MultiSelect } from '$/ui/multi-select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '$/ui/select';
+import { Textarea } from '$/ui/textarea';
 
 interface HabitsFormProps {
-  data?: HabitsFormValues;
+  data?: Partial<HabitsFormValues>;
+  tags: Array<string>;
   submitTitle: string;
 }
 
 const daysOptions = days().map((day) => ({ value: Day[day], label: Day[day] }));
 
-const tags = [
-  { value: '1', label: 'Test' },
-  { value: '2', label: 'Test 2' },
-];
-
-export default function HabitsForm({ data, submitTitle }: HabitsFormProps) {
+export default function HabitsForm({ data, tags, submitTitle }: HabitsFormProps) {
   const router = useRouter();
   const mutation = trpc.habits.createOrUpdate.useMutation();
 
-  let defaultValues: HabitsFormValues;
+  const tagOptions = tags.map(t => ({ value: t, label: t }))
+
+  let defaultValues: Partial<HabitsFormValues>;
   if (data) {
+    console.log(data)
     defaultValues = { ...data };
   } else {
     defaultValues = {
       id: '',
-      name: '',
-      notes: '',
       frequency: Frequency[Frequency.Daily],
       goal: 1,
       selectedDays: [],
@@ -85,7 +80,7 @@ export default function HabitsForm({ data, submitTitle }: HabitsFormProps) {
     router.refresh();
   };
 
-  const [_tags, setTags] = React.useState(tags);
+  const [_tags, setTags] = React.useState(tagOptions);
 
   const handleNewTag = (
     value: string,

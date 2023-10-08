@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "nxt:dev": "next dev",
+    "dev": "next dev",
     "nxt:build": "next build",
     "nxt:start": "next start",
     "nxt:lint": "next lint",

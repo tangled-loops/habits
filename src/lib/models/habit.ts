@@ -43,10 +43,10 @@ export type NewHabit = typeof habits.$inferInsert;
 
 export const habitsFormSchema = z.object({
   id: z.string().optional(),
-  name: z.string(),
+  name: z.string().min(3),
   notes: z.string(),
   frequency: z.string(),
-  goal: z.number().default(1),
+  goal: z.coerce.number().default(1),
   selectedDays: z.array(z.string()).optional(),
   color: z.string(),
   icon: z.string(),
