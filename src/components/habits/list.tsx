@@ -13,7 +13,7 @@ export function HabitsList() {
   const [hasMore, setHasMore] = React.useState(true);
 
   const query = trpc.habits.infiniteHabits.useInfiniteQuery(
-    { limit: 10 },
+    { limit: 3 },
     {
       getNextPageParam: (lastPage) => lastPage.nextCursor,
       initialCursor: 0,
@@ -46,7 +46,11 @@ export function HabitsList() {
     return cards;
   };
 
-  useEffect(() => void nextPage());
+  useEffect(() => {
+    if (query.hasNextPage) {
+      setHasMore(false);
+    }
+  }, [query, setHasMore]);
 
   return (
     <>

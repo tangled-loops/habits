@@ -24,6 +24,7 @@ export enum Day {
   Saturday,
   Sunday,
 }
+
 export type DayKeys = keyof typeof Day;
 
 export function days() {

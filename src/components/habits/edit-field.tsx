@@ -27,6 +27,8 @@ export interface EditFieldProps {
   handleSubmit: () => void;
 }
 
+// @todo could generalize this by passing the schema in or something although
+//  the mutation makes it a packaged unit maybe not worth generalizing.
 export function EditField({ id, field, value, handleSubmit }: EditFieldProps) {
   const mutation = trpc.habits.updateField.useMutation();
   const defaultValues = { id, type: field };

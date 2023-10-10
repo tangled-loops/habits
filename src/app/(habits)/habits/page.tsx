@@ -3,16 +3,10 @@ import Link from 'next/link';
 
 import { HabitsList } from '@/components/habits/list';
 import { Separator } from '@/components/ui/separator';
-import { FrontendHabit } from '@/lib/models/habit';
 
-import { getClient } from '~/session';
-
-import { HabitCard } from '$/habits/card';
 import { Button } from '$/ui/button';
 
 export default async function Habits() {
-  const api = await getClient();
-  // @todo Types are getting confusing need to straighten all this out eventually
   // const habits: Array<FrontendHabit> = await api.habits.findAll({ limit: 10 });
 
   return (

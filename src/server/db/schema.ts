@@ -1,11 +1,9 @@
-import { Frequency } from '@/lib/models/habit';
 import { relations } from 'drizzle-orm';
 import {
   integer,
   json,
   pgTable,
   primaryKey,
-  serial,
   text,
   timestamp,
   uuid,

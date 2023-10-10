@@ -1,7 +1,7 @@
-import { and, asc, desc, eq, gt, inArray, sql } from 'drizzle-orm';
+import { and, desc, eq, gt, inArray, sql } from 'drizzle-orm';
 import { z } from 'zod';
 
-import { Frequency, frontendHabitSchema } from '@/lib/models/habit';
+import { frontendHabitSchema } from '@/lib/models/habit';
 
 import { createTRPCRouter, protectedProcedure } from '~/api/trpc';
 import { habits, habitsTags, responses, Tag, tags } from '~/db/schema';
@@ -21,12 +21,10 @@ async function responsesSince(db: NodePgDatabase<typeof schema>, habitId: string
       break;
     }
   }
-  console.log(date)
   const result = await db.select({ count: sql<number>`count(*)` })
     .from(responses)
     .where(and(eq(responses.habitId, habitId), gt(responses.createdAt, date)))
     .groupBy(responses.habitId)
-  console.log(result)
   if (!result || result.length === 0) return { responses: 0 }
   return { responses: result[0].count }
 }
@@ -270,19 +268,4 @@ export const habitsRouter = createTRPCRouter({
           .where(eq(habits.id, input.id));
       }
     }),
-  addResponse: protectedProcedure
-    .input(z.object({ habitId: z.string() }))
-    .mutation(async ({ ctx, input }) => {
-      await ctx.db.insert(responses).values({ habitId: input.habitId });
-    }),
-  getResponsesSince: protectedProcedure
-    .input(z.object({ habitId: z.string(), since: z.date(), }))
-    .query(async ({ ctx: { db, }, input: { habitId, since, } }) => {
-      const result = await db.select({ count: sql<number>`count(*)` })
-        .from(responses)
-        .where(and(eq(responses.habitId, habitId), gt(responses.createdAt, since)))
-        .groupBy(responses.habitId)
-      if (!result) return { responses: 0 }
-      return { responses: result[0].count }
-    })
 });

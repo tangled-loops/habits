@@ -6,8 +6,6 @@ import React from 'react';
 import { ControllerRenderProps, useForm } from 'react-hook-form';
 
 import {
-  Day,
-  days,
   frequencies,
   Frequency,
   FrontendHabit,
@@ -17,6 +15,7 @@ import { trpc } from '@/lib/trpc';
 import { cn } from '@/lib/utils';
 
 import { Button } from '$/ui/button';
+import { DaysInput } from '$/ui/days-input';
 import {
   Form,
   FormControl,
@@ -42,8 +41,6 @@ interface HabitsFormProps {
   tags: Array<string>;
   submitTitle: string;
 }
-
-const daysOptions = days().map((day) => ({ value: Day[day], label: Day[day] }));
 
 export default function HabitsForm({
   data,
@@ -81,7 +78,6 @@ export default function HabitsForm({
   const onSubmit = (data: FrontendHabit) => {
     mutation.mutate(data);
     router.replace('/habits');
-    router.refresh();
   };
 
   const [_tags, setTags] = React.useState(tagOptions);
@@ -209,11 +205,7 @@ export default function HabitsForm({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Days</FormLabel>
-                  <MultiSelect
-                    selected={field.value || []}
-                    options={daysOptions}
-                    {...field}
-                  />
+                  <DaysInput {...field} selected={field.value || []} />
                   <FormDescription>On what days.</FormDescription>
                   <FormMessage />
                 </FormItem>

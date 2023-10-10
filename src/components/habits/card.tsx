@@ -2,9 +2,9 @@
 
 import { Edit, MoreHorizontal, Plus, Trash } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
-import { Frequency } from '../../lib/models/habit';
+import { Day, days } from '../../lib/models/habit';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { EditField, Field } from './edit-field';
 
@@ -27,25 +27,25 @@ interface HabitCardProps {
 }
 
 export function HabitCard({ habit }: HabitCardProps) {
-  const query = trpc.habits.findById.useQuery(
+  const { data, refetch } = trpc.habits.findById.useQuery(
     { id: habit.id || '' },
-    { enabled: false },
+    { enabled: true, refetchOnMount: true },
   );
 
-  const mutation = trpc.habits.addResponse.useMutation();
+  const { mutateAsync } = trpc.responses.add.useMutation();
 
   const [_habit, setHabit] = useState<FrontendHabit>(habit);
   const [editing, setEditing] = useState<Field>('none');
   const [responses, setResponses] = useState(habit.responses ?? 0);
 
   const handleSubmit = async () => {
-    const habit = await query.refetch();
-    if (habit.data) setHabit(habit.data);
+    const { data } = await refetch();
+    if (data) setHabit(data);
     setEditing('none');
   };
 
   const updateResponse = async () => {
-    await mutation.mutateAsync({ habitId: habit.id || 'fuck' });
+    await mutateAsync({ habitId: habit.id || 'fuck' });
     setResponses(responses + 1);
   };
 
@@ -76,6 +76,8 @@ export function HabitCard({ habit }: HabitCardProps) {
     }
   };
 
+  useEffect(() => data && setHabit(data), [data]);
+
   return (
     <Card>
       <div className='flex flex-row items-center'>
@@ -93,15 +95,31 @@ export function HabitCard({ habit }: HabitCardProps) {
           <PopoverContent align='start' alignOffset={5}>
             {_habit.frequency === 'Daily' ? (
               <>
-                <h3>Tracked on:</h3>
-                <ul>
-                  {_habit.selectedDays?.map((day) => {
-                    return <li key={day}>{day}</li>;
+                <div className='grid grid-cols-7 gap-0.5'>
+                  {days().map((day, i) => {
+                    const sday = Day[day];
+                    const sliceTo = i === (Day.Thursday || Day.Sunday) ? 2 : 1;
+                    if (_habit.selectedDays?.includes(sday)) {
+                      return (
+                        <Badge
+                          variant='secondary'
+                          // eslint-disable-next-line tailwindcss/classnames-order
+                          className='bg-primary text-center hover:bg-primary/50'
+                        >
+                          {sday.slice(0, sliceTo)}
+                        </Badge>
+                      );
+                    }
+                    return (
+                      <Badge variant='outline' className='text-center'>
+                        {sday.slice(0, sliceTo)}
+                      </Badge>
+                    );
                   })}
-                </ul>
+                </div>
               </>
             ) : (
-              'Tracked Weekly'
+              <div className='text-center'>Tracked Weekly</div>
             )}
           </PopoverContent>
         </Popover>
