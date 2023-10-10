@@ -56,7 +56,6 @@ export function EditField({ id, field, value, handleSubmit }: EditFieldProps) {
                   autoFocus
                   className='w-[100%]'
                   defaultValue={String(value)}
-                  // here what I should do is just unset editing?
                   onBlur={() => onSubmit(defaultValues)}
                   onKeyDown={(event) => {
                     if (event.code === 'Enter') {

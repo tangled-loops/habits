@@ -10,8 +10,8 @@ import {
   days,
   frequencies,
   Frequency,
-  habitsFormSchema,
-  HabitsFormValues,
+  FrontendHabit,
+  frontendHabitSchema,
 } from '@/lib/models/habit';
 import { trpc } from '@/lib/trpc';
 import { cn } from '@/lib/utils';
@@ -38,22 +38,26 @@ import {
 import { Textarea } from '$/ui/textarea';
 
 interface HabitsFormProps {
-  data?: Partial<HabitsFormValues>;
+  data?: Partial<FrontendHabit>;
   tags: Array<string>;
   submitTitle: string;
 }
 
 const daysOptions = days().map((day) => ({ value: Day[day], label: Day[day] }));
 
-export default function HabitsForm({ data, tags, submitTitle }: HabitsFormProps) {
+export default function HabitsForm({
+  data,
+  tags,
+  submitTitle,
+}: HabitsFormProps) {
   const router = useRouter();
   const mutation = trpc.habits.createOrUpdate.useMutation();
 
-  const tagOptions = tags.map(t => ({ value: t, label: t }))
+  const tagOptions = tags.map((t) => ({ value: t, label: t }));
 
-  let defaultValues: Partial<HabitsFormValues>;
+  let defaultValues: Partial<FrontendHabit>;
   if (data) {
-    console.log(data)
+    console.log(data);
     defaultValues = { ...data };
   } else {
     defaultValues = {
@@ -67,14 +71,14 @@ export default function HabitsForm({ data, tags, submitTitle }: HabitsFormProps)
     };
   }
 
-  const form = useForm<HabitsFormValues>({
-    resolver: zodResolver(habitsFormSchema),
+  const form = useForm<FrontendHabit>({
+    resolver: zodResolver(frontendHabitSchema),
     defaultValues,
   });
 
   const watcher = form.watch();
 
-  const onSubmit = (data: HabitsFormValues) => {
+  const onSubmit = (data: FrontendHabit) => {
     mutation.mutate(data);
     router.replace('/habits');
     router.refresh();
@@ -84,7 +88,7 @@ export default function HabitsForm({ data, tags, submitTitle }: HabitsFormProps)
 
   const handleNewTag = (
     value: string,
-    field: ControllerRenderProps<HabitsFormValues, 'tags'>,
+    field: ControllerRenderProps<FrontendHabit, 'tags'>,
     setOpen: React.Dispatch<React.SetStateAction<boolean>>,
   ) => {
     setTags([..._tags, { value: value, label: value }]);

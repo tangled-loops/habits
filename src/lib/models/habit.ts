@@ -41,7 +41,7 @@ export function days() {
 export type Habit = typeof habits.$inferSelect;
 export type NewHabit = typeof habits.$inferInsert;
 
-export const habitsFormSchema = z.object({
+export const frontendHabitSchema = z.object({
   id: z.string().optional(),
   name: z.string().min(3),
   notes: z.string(),
@@ -51,9 +51,10 @@ export const habitsFormSchema = z.object({
   color: z.string(),
   icon: z.string(),
   tags: z.array(z.string()),
+  responses: z.coerce.number().nullish(),
 });
 
-export type HabitsFormValues = z.infer<typeof habitsFormSchema>;
+export type FrontendHabit = z.infer<typeof frontendHabitSchema>;
 
 export const habitSchema = createSelectSchema(habits);
 export const newHabitSchema = createInsertSchema(habits);

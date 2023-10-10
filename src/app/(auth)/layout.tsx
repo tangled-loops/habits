@@ -7,8 +7,6 @@ import { Toaster } from '$/ui/toaster';
 
 import '@/styles/globals.css';
 
-import { TrpcProvider } from '@/components/providers/trpc';
-
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {

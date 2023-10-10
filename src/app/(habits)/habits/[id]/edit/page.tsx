@@ -6,7 +6,7 @@ export default async function Edit({ params }: { params: { id: string } }) {
   const api = await getClient()
   const tags = await api.tags.findAll()
   const habit = await api.habits.findById({ id: params.id })
-  console.log(habit)
+
   return (
     <div className='flex min-h-full flex-col p-4'>
       <div className='grid rounded-lg'>
