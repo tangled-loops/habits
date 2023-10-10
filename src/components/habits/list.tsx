@@ -1,6 +1,7 @@
 'use client';
 
 import React, { ReactNode, useEffect } from 'react';
+import { GridLoader } from 'react-spinners';
 
 import { HabitCard } from './card';
 
@@ -13,7 +14,7 @@ export function HabitsList() {
   const [hasMore, setHasMore] = React.useState(true);
 
   const query = trpc.habits.infiniteHabits.useInfiniteQuery(
-    { limit: 3 },
+    { limit: 10 },
     {
       getNextPageParam: (lastPage) => lastPage.nextCursor,
       initialCursor: 0,
@@ -33,7 +34,7 @@ export function HabitsList() {
   };
 
   const renderPages = () => {
-    if (query.isLoading || !query.data) return null;
+    if (query.isLoading || !query.data) return <GridLoader loading />;
 
     const cards: Array<ReactNode> = [];
 
@@ -47,17 +48,15 @@ export function HabitsList() {
   };
 
   useEffect(() => {
-    if (query.hasNextPage) {
-      setHasMore(false);
-    }
-  }, [query, setHasMore]);
+    void nextPage();
+  });
 
   return (
     <>
       <div className='grid grid-cols-1 gap-4 lg:grid-cols-2'>
         {renderPages()}
       </div>
-      {hasMore && (
+      {hasMore && !query.isLoading && (
         <div className='mt-5 grid grid-cols-1'>
           <Button onClick={() => void nextPage()}>Load More</Button>
         </div>

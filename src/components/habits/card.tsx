@@ -103,15 +103,17 @@ export function HabitCard({ habit }: HabitCardProps) {
                       return (
                         <Badge
                           variant='secondary'
-                          // eslint-disable-next-line tailwindcss/classnames-order
-                          className='bg-primary text-center hover:bg-primary/50'
+                          className='bg-primary text-center text-background hover:bg-primary/50'
                         >
                           {sday.slice(0, sliceTo)}
                         </Badge>
                       );
                     }
                     return (
-                      <Badge variant='outline' className='text-center'>
+                      <Badge
+                        variant='outline'
+                        className='text-center text-foreground'
+                      >
                         {sday.slice(0, sliceTo)}
                       </Badge>
                     );

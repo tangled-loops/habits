@@ -30,7 +30,7 @@ export default async function HabitsLayout({
         <TrpcProvider>
           <ThemeProvider
             attribute='class'
-            defaultTheme='dark'
+            defaultTheme='light'
             enableSystem
             disableTransitionOnChange
           >

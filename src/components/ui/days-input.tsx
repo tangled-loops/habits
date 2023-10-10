@@ -29,7 +29,9 @@ const DaysInput = ({
           <Badge
             variant={selected.includes(sday) ? 'secondary' : 'outline'}
             className={cn(
-              selected.includes(sday) ? 'bg-primary hover:bg-primary/50' : '',
+              selected.includes(sday)
+                ? 'bg-primary text-background hover:bg-primary/50'
+                : 'text-foreground',
               'flex flex-row items-center justify-center',
             )}
             onClick={() =>
