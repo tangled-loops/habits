@@ -8,7 +8,7 @@ export default async function Edit({ params }: { params: { id: string } }) {
   const habit = await api.habits.findById({ id: params.id });
 
   return (
-    <div className='flex min-h-full flex-col p-4'>
+    <div className='m-4 flex min-h-full flex-col p-4'>
       <div className='grid rounded-lg'>
         <Card>
           <CardHeader>

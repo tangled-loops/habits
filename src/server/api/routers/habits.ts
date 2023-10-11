@@ -1,33 +1,11 @@
-import { and, desc, eq, gt, inArray, sql } from 'drizzle-orm';
+import { desc, eq, inArray } from 'drizzle-orm';
 import { z } from 'zod';
 
 import { frontendHabitSchema } from '@/lib/models/habit';
 
 import { createTRPCRouter, protectedProcedure } from '~/api/trpc';
-import { habits, habitsTags, responses, Tag, tags } from '~/db/schema';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import * as schema from '~/db/schema';
-
-async function responsesSince(db: NodePgDatabase<typeof schema>, habitId: string, frequency: string) {
-  let date: Date = new Date();
-  const today = new Date()
-  switch (frequency) {
-    case 'Daily': {
-      date = new Date(`${today.toDateString()} 00:00`)
-      break;
-    }
-    case 'Weekly': {
-      date = new Date(today.getDate() - today.getDay()) // check that this is correct :)
-      break;
-    }
-  }
-  const result = await db.select({ count: sql<number>`count(*)` })
-    .from(responses)
-    .where(and(eq(responses.habitId, habitId), gt(responses.createdAt, date)))
-    .groupBy(responses.habitId)
-  if (!result || result.length === 0) return { responses: 0 }
-  return { responses: result[0].count }
-}
+import { habits, habitsTags, Tag, tags } from '~/db/schema';
+import { responseCountSince } from '@/lib/models/response';
 
 export const habitsRouter = createTRPCRouter({
   findAll: protectedProcedure
@@ -53,7 +31,7 @@ export const habitsRouter = createTRPCRouter({
         items.push(
           frontendHabitSchema.parse({
             ...habit,
-            responses: (await responsesSince(db, habit.id, habit.frequency)).responses,
+            responses: await responseCountSince(db, habit.id, habit.frequency),
             tags: tagsResult.map((t) => t.name),
           }),
         );
@@ -91,7 +69,7 @@ export const habitsRouter = createTRPCRouter({
         items.push(
           frontendHabitSchema.parse({
             ...habit,
-            responses: (await responsesSince(db, habit.id, habit.frequency)).responses,
+            responses: await responseCountSince(db, habit.id, habit.frequency),
             tags: tagsResult.map((t) => t.name),
           }),
         );
@@ -124,7 +102,7 @@ export const habitsRouter = createTRPCRouter({
 
       return frontendHabitSchema.parse({
         ...habit,
-        responses: (await responsesSince(ctx.db, habit.id, habit.frequency)).responses,
+        responses: await responseCountSince(ctx.db, habit.id, habit.frequency),
         tags: tagsResult.map((t) => t.name),
       });
     }),

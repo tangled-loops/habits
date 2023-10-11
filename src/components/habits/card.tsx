@@ -103,7 +103,7 @@ export function HabitCard({ habit }: HabitCardProps) {
                       return (
                         <Badge
                           variant='secondary'
-                          className='bg-primary text-center text-background hover:bg-primary/50'
+                          className='bg-primary text-background hover:bg-primary/50 text-center'
                         >
                           {sday.slice(0, sliceTo)}
                         </Badge>
@@ -112,7 +112,7 @@ export function HabitCard({ habit }: HabitCardProps) {
                     return (
                       <Badge
                         variant='outline'
-                        className='text-center text-foreground'
+                        className='text-foreground text-center'
                       >
                         {sday.slice(0, sliceTo)}
                       </Badge>
@@ -130,7 +130,7 @@ export function HabitCard({ habit }: HabitCardProps) {
             <MoreHorizontal />
           </DropdownMenuTrigger>
           <DropdownMenuContent className='max-w-[50px] space-y-1'>
-            <Link href={`/habits/${habit.id}`} passHref legacyBehavior>
+            <Link href={`/habits/${habit.id}`} passHref>
               <DropdownMenuItem
                 className={cn(
                   buttonVariants({ variant: 'default' }),
@@ -140,7 +140,7 @@ export function HabitCard({ habit }: HabitCardProps) {
                 Details
               </DropdownMenuItem>
             </Link>
-            <Link href={`/habits/${habit.id}/edit`} passHref legacyBehavior>
+            <Link href={`/habits/${habit.id}/edit`} passHref>
               <DropdownMenuItem
                 className={cn(
                   buttonVariants({ variant: 'default' }),
