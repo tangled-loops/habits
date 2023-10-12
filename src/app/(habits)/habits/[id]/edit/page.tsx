@@ -1,12 +1,16 @@
-import HabitsForm from '@/components/habits/form';
+import HabitsForm from '@/app/(habits)/habits/components/form';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { getClient } from '@/server/session';
 
-export default async function Edit({ params }: { params: { id: string } }) {
+async function getData(id: string) {
   const api = await getClient();
   const tags = await api.tags.findAll();
-  const habit = await api.habits.findById({ id: params.id });
+  const habit = await api.habits.findById({ id: id });
+  return { habit, tags };
+}
 
+export default async function Edit({ params }: { params: { id: string } }) {
+  const { habit, tags } = await getData(params.id);
   return (
     <div className='m-4 flex min-h-full flex-col p-4'>
       <div className='grid rounded-lg'>

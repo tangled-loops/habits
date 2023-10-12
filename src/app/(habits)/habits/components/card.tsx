@@ -4,8 +4,12 @@ import { Edit, MoreHorizontal, Plus, Trash } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
-import { Day, days } from '../../lib/models/habit';
-import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '../../../../components/ui/popover';
+import { Day, days } from '../../../../lib/models/habit';
 import { EditField, Field } from './edit-field';
 
 import { Button, buttonVariants } from '@/components/ui/button';
@@ -29,7 +33,7 @@ interface HabitCardProps {
 export function HabitCard({ habit }: HabitCardProps) {
   const { data, refetch } = trpc.habits.findById.useQuery(
     { id: habit.id || '' },
-    { enabled: true, refetchOnMount: true },
+    { enabled: true, refetchOnMount: true, refetchOnReconnect: true },
   );
 
   const { mutateAsync } = trpc.responses.add.useMutation();
@@ -76,7 +80,7 @@ export function HabitCard({ habit }: HabitCardProps) {
     }
   };
 
-  useEffect(() => data && setHabit(data), [data]);
+  if (!data) return null;
 
   return (
     <Card>
@@ -88,7 +92,7 @@ export function HabitCard({ habit }: HabitCardProps) {
         </CardHeader>
         <Popover>
           <PopoverTrigger>
-            <Badge className='mx-8 my-4 bg-blue-400 px-4 py-1'>
+            <Badge className='mx-8 my-4 bg-blue-500 px-4 py-1'>
               {_habit.frequency}
             </Badge>
           </PopoverTrigger>
@@ -103,7 +107,7 @@ export function HabitCard({ habit }: HabitCardProps) {
                       return (
                         <Badge
                           variant='secondary'
-                          className='bg-primary text-background hover:bg-primary/50 text-center'
+                          className='bg-primary text-center text-background hover:bg-primary/50'
                         >
                           {sday.slice(0, sliceTo)}
                         </Badge>
@@ -112,7 +116,7 @@ export function HabitCard({ habit }: HabitCardProps) {
                     return (
                       <Badge
                         variant='outline'
-                        className='text-foreground text-center'
+                        className='text-center text-foreground'
                       >
                         {sday.slice(0, sliceTo)}
                       </Badge>

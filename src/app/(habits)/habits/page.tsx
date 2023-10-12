@@ -1,7 +1,7 @@
 import { Plus } from 'lucide-react';
 import Link from 'next/link';
 
-import { HabitsList } from '@/components/habits/list';
+import { HabitsList } from '@/app/(habits)/habits/components/list';
 import { Separator } from '@/components/ui/separator';
 
 import { Button } from '$/ui/button';
@@ -10,7 +10,7 @@ export default async function Habits() {
   // const habits: Array<FrontendHabit> = await api.habits.findAll({ limit: 10 });
 
   return (
-    <div className='flex min-h-full flex-col'>
+    <div className='flex min-h-full flex-col md:mx-8 lg:mx-16'>
       <div className='flex flex-row items-center justify-between rounded-xl border p-4'>
         <h2>Habit Tracker</h2>
         <Link href='/habits/create' passHref>
@@ -26,7 +26,9 @@ export default async function Habits() {
           <div className='flex flex-row'>Sort by</div>
         </div>
         <Separator className='mb-5' />
-        <HabitsList />
+        <div className='p-4'>
+          <HabitsList />
+        </div>
       </div>
     </div>
   );

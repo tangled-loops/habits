@@ -18,6 +18,8 @@ export function HabitsList() {
     {
       getNextPageParam: (lastPage) => lastPage.nextCursor,
       initialCursor: 0,
+      refetchOnWindowFocus: true,
+      refetchOnMount: true,
     },
   );
 
