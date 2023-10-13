@@ -124,6 +124,7 @@ export const habitsRouter = createTRPCRouter({
         goal: input.goal,
         userId: ctx.session.user.id,
       };
+
       if (input.id && input.id.length > 0) {
         // update the habit
         await ctx.db
@@ -188,8 +189,9 @@ export const habitsRouter = createTRPCRouter({
           habitId: input.id!,
           tagId: tag.id,
         }));
-
-        await ctx.db.insert(habitsTags).values(habitsTagsValues);
+        if (habitsTagsValues.length > 0) {
+          await ctx.db.insert(habitsTags).values(habitsTagsValues);
+        }
       } else {
         const newHabit = (
           await ctx.db.insert(habits).values(valuesToSet).returning()
@@ -222,8 +224,9 @@ export const habitsRouter = createTRPCRouter({
           habitId: newHabit.id,
           tagId: tag.id,
         }));
-
-        await ctx.db.insert(habitsTags).values(habitsTagsValues);
+        if (habitsTagsValues.length > 0) {
+          await ctx.db.insert(habitsTags).values(habitsTagsValues);
+        }
       }
     }),
   updateField: protectedProcedure

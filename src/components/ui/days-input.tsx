@@ -1,9 +1,11 @@
+import { ReplaceAll } from 'lucide-react';
 import React from 'react';
 
 import { Day, days } from '@/lib/models/habit';
 import { cn } from '@/lib/utils';
 
 import { Badge } from '$/ui/badge';
+import { Button, buttonVariants } from '$/ui/button';
 
 interface DaysFieldProps {
   className?: string;

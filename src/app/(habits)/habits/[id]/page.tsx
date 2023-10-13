@@ -1,8 +1,8 @@
 import { Edit } from 'lucide-react';
 import Link from 'next/link';
 
+import { HabitEdit } from '@/components/habits/action-dialogs';
 import { DetailSection } from '@/components/habits/detail';
-import { HabitEdit } from '@/components/habits/edit';
 import { Journal } from '@/components/habits/journal';
 import { Button } from '@/components/ui/button';
 import { getClient } from '@/server/session';
@@ -26,9 +26,7 @@ export default async function Habits({ params }: { params: { id: string } }) {
             </Button>
           </Link>
         </div>
-        <HabitEdit habit={habit} />
         <DetailSection habit={habit} responses={responses} />
-        <Journal />
       </div>
     </div>
   );

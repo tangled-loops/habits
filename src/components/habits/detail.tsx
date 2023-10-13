@@ -4,7 +4,11 @@ import { TRPCClientErrorBase } from '@trpc/client';
 import { UseTRPCQueryResult } from '@trpc/react-query/shared';
 import { DefaultErrorShape } from '@trpc/server';
 import { Check, Dot } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
 import { GridLoader } from 'react-spinners';
+
+import { HabitEdit } from './action-dialogs';
+import { Journal } from './journal';
 
 import { Badge } from '@/components/ui/badge';
 import { DaysField } from '@/components/ui/days-input';
@@ -80,7 +84,7 @@ function ResponsesCard({ habit, responses, count }: ResponsesCardProps) {
                 <TableHeader>Date</TableHeader>
               </TableHead>
               <TableBody className='rounded-lg border'>
-                {responses.map((response) => {
+                {_responses.data.map((response) => {
                   return (
                     <TableRow key={response.id}>
                       <TableCell>
@@ -167,15 +171,20 @@ function DetailSection({
   habit: FrontendHabit;
   responses: Array<Response>;
 }) {
+  const params = useSearchParams();
   const count = trpc.responses.countSince.useQuery({
     habitId: habit.id!,
     frequency: habit.frequency,
   });
   return (
-    <div className='space-8 mx-8 my-1 grid h-full grid-cols-1 gap-4 p-4 lg:grid-cols-2'>
-      <InfoCard habit={habit} count={count} />
-      <ResponsesCard habit={habit} responses={responses} count={count} />
-    </div>
+    <>
+      <HabitEdit habit={habit} forceOpen={!!params.get('edit')} />
+      <div className='space-8 mx-8 my-1 grid h-full grid-cols-1 gap-4 p-4 lg:grid-cols-2'>
+        <InfoCard habit={habit} count={count} />
+        <ResponsesCard habit={habit} responses={responses} count={count} />
+      </div>
+      <Journal />
+    </>
   );
 }
 

@@ -1,11 +1,16 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { TRPCClientErrorBase } from '@trpc/client';
+import { UseTRPCQueryResult } from '@trpc/react-query/shared';
+import { DefaultErrorShape } from '@trpc/server';
 import { useRouter } from 'next/navigation';
 import React from 'react';
-import { ControllerRenderProps, useForm } from 'react-hook-form';
+import { ControllerRenderProps, useForm, UseFormReturn } from 'react-hook-form';
 
 import {
+  Day,
+  days,
   frequencies,
   Frequency,
   FrontendHabit,
@@ -14,7 +19,7 @@ import {
 import { trpc } from '@/lib/trpc';
 import { cn } from '@/lib/utils';
 
-import { Button } from '$/ui/button';
+import { Button, buttonVariants } from '$/ui/button';
 import { DaysInput } from '$/ui/days-input';
 import {
   Form,
@@ -26,7 +31,7 @@ import {
   FormMessage,
 } from '$/ui/form';
 import { Input } from '$/ui/input';
-import { MultiSelect } from '$/ui/multi-select';
+import { MultiSelect, OptionType } from '$/ui/multi-select';
 import {
   Select,
   SelectContent,
@@ -43,65 +48,158 @@ interface HabitsFormProps {
   redirectTo: string;
 }
 
-export default function HabitsForm({
-  data,
-  tags,
-  submitTitle,
-  redirectTo,
-}: HabitsFormProps) {
-  const router = useRouter();
-  const mutation = trpc.habits.createOrUpdate.useMutation();
+type MutateFn = (data: FrontendHabit) => void;
 
-  const tagOptions = tags.map((t) => ({ value: t, label: t }));
+interface FormViewModelOptions {
+  habit?: FrontendHabit;
+  tagsQuery: UseTRPCQueryResult<
+    string[],
+    TRPCClientErrorBase<DefaultErrorShape>
+  >;
+  redirectTo: string;
+  mutate: MutateFn;
+}
 
-  let defaultValues: Partial<FrontendHabit>;
-  if (data) {
-    console.log(data);
-    defaultValues = { ...data };
-  } else {
-    defaultValues = {
-      id: '',
-      frequency: Frequency[Frequency.Daily],
-      goal: 1,
-      selectedDays: [],
-      color: 'primary',
-      icon: 'none',
-      tags: [],
-    };
+export class FormViewModel {
+  habit: Partial<FrontendHabit> | null | undefined;
+  mutate: MutateFn;
+  redirectTo: string;
+  tagOptions: Array<OptionType>;
+
+  form: UseFormReturn<FrontendHabit>;
+  watcher: FrontendHabit;
+
+  router: ReturnType<typeof useRouter>;
+  setTags: React.Dispatch<React.SetStateAction<Array<OptionType>>>;
+  tagsQuery: UseTRPCQueryResult<
+    string[],
+    TRPCClientErrorBase<DefaultErrorShape>
+  >;
+
+  constructor({ habit, tagsQuery, redirectTo, mutate }: FormViewModelOptions) {
+    this.habit = habit;
+    this.mutate = mutate;
+    this.redirectTo = redirectTo;
+    this.tagsQuery = tagsQuery;
+
+    this.router = useRouter();
+
+    const [_tags, setTags] = React.useState(this.makeTagOptions);
+    this.tagOptions = _tags;
+    this.setTags = setTags;
+
+    this.form = useForm<FrontendHabit>({
+      resolver: zodResolver(frontendHabitSchema),
+      defaultValues: this.defaultValues,
+    });
+    this.watcher = this.form.watch();
+
+    setTimeout(() => {
+      if (tagsQuery.data) {
+        setTags(this.makeTagOptions);
+      }
+    }, 250);
   }
 
-  const form = useForm<FrontendHabit>({
-    resolver: zodResolver(frontendHabitSchema),
-    defaultValues,
-  });
+  get id() {
+    return this.habit?.id ?? '';
+  }
 
-  const watcher = form.watch();
+  get frequency() {
+    return this.habit?.frequency ?? Frequency[Frequency.Daily];
+  }
 
-  const onSubmit = (data: FrontendHabit) => {
-    mutation.mutate(data);
-    router.replace(redirectTo);
-    router.refresh();
+  get color() {
+    return this.habit?.color ?? 'green';
+  }
+
+  get icon() {
+    return this.habit?.icon ?? 'none';
+  }
+
+  get goal() {
+    return this.habit?.goal ?? 1;
+  }
+
+  get tags() {
+    return this.tagsQuery.data ?? this.habit?.tags ?? [];
+  }
+
+  get makeTagOptions() {
+    return this.tags.map((t) => ({ value: t, label: t }));
+  }
+
+  get selectedDays() {
+    return this.habit?.selectedDays ?? [];
+  }
+
+  get defaultValues() {
+    if (this.habit) {
+      return { ...this.habit };
+    } else {
+      return {
+        id: this.id,
+        frequency: this.frequency,
+        goal: this.goal,
+        selectedDays: this.selectedDays,
+        color: this.color,
+        icon: this.icon,
+        tags: this.tags,
+      };
+    }
+  }
+
+  onSubmit(data: FrontendHabit) {
+    this.mutate(data);
+    this.router.replace(this.redirectTo);
+    this.router.refresh();
     // @todo add a toast
-  };
+  }
 
-  const [_tags, setTags] = React.useState(tagOptions);
-
-  const handleNewTag = (
+  handleNewTag(
     value: string,
     field: ControllerRenderProps<FrontendHabit, 'tags'>,
     setOpen: React.Dispatch<React.SetStateAction<boolean>>,
-  ) => {
-    setTags([..._tags, { value: value, label: value }]);
-    field.onChange([...field.value, value]);
-    setOpen(false);
-  };
+  ) {
+    return () => {
+      this.setTags([...this.tagOptions, { value: value, label: value }]);
+      field.onChange([...field.value, value]);
+      setOpen(false);
+    };
+  }
 
+  selectAllTitle(field: ControllerRenderProps<FrontendHabit, 'selectedDays'>) {
+    if (field.value && field.value.length === 7) {
+      return 'Deselect All';
+    } else {
+      return 'Select All';
+    }
+  }
+
+  handleSelectAllDays(
+    field: ControllerRenderProps<FrontendHabit, 'selectedDays'>,
+  ) {
+    return () => {
+      if (field.value && field.value.length === 7) {
+        field.onChange([]);
+      } else {
+        field.onChange(days().map((day) => Day[day]));
+      }
+    };
+  }
+}
+
+export default function HabitsForm({
+  viewModel,
+}: {
+  viewModel: FormViewModel;
+}) {
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
+    <Form {...viewModel.form}>
+      <form onSubmit={viewModel.form.handleSubmit(viewModel.onSubmit)}>
         <div className='m-4 grid grid-cols-1 gap-4'>
           <FormField
-            control={form.control}
+            control={viewModel.form.control}
             name='name'
             render={({ field }) => (
               <FormItem>
@@ -116,9 +214,9 @@ export default function HabitsForm({
               </FormItem>
             )}
           />
-          {/* <div className='grid grid-cols-2 gap-4'>
+          <div className='grid grid-cols-2 gap-4'>
             <FormField
-              control={form.control}
+              control={viewModel.form.control}
               name='color'
               render={({ field }) => (
                 <FormItem>
@@ -139,7 +237,7 @@ export default function HabitsForm({
               )}
             />
             <FormField
-              control={form.control}
+              control={viewModel.form.control}
               name='icon'
               render={({ field }) => (
                 <FormItem>
@@ -159,18 +257,18 @@ export default function HabitsForm({
                 </FormItem>
               )}
             />
-          </div> */}
+          </div>
         </div>
         <div
           className={cn(
             'm-4 grid grid-cols-1 gap-4',
-            watcher.frequency === Frequency[Frequency.Daily]
+            viewModel.watcher.frequency === Frequency[Frequency.Daily]
               ? 'lg:grid-cols-3'
               : 'lg:grid-cols-2',
           )}
         >
           <FormField
-            control={form.control}
+            control={viewModel.form.control}
             name='frequency'
             render={({ field }) => (
               <FormItem>
@@ -199,13 +297,26 @@ export default function HabitsForm({
               </FormItem>
             )}
           />
-          {watcher.frequency === Frequency[Frequency.Daily] ? (
+          {viewModel.watcher.frequency === Frequency[Frequency.Daily] ? (
             <FormField
-              control={form.control}
+              control={viewModel.form.control}
               name='selectedDays'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Days</FormLabel>
+                  <FormLabel>
+                    <div className='flex flex-row items-center justify-between'>
+                      Days
+                      <div
+                        onClick={viewModel.handleSelectAllDays(field)}
+                        className={cn(
+                          buttonVariants({ variant: 'ghost' }),
+                          'font-light',
+                        )}
+                      >
+                        {viewModel.selectAllTitle(field)}
+                      </div>
+                    </div>
+                  </FormLabel>
                   <DaysInput {...field} selected={field.value || []} />
                   <FormDescription>On what days.</FormDescription>
                   <FormMessage />
@@ -213,9 +324,9 @@ export default function HabitsForm({
               )}
             />
           ) : null}
-          {watcher.frequency ? (
+          {viewModel.watcher.frequency ? (
             <FormField
-              control={form.control}
+              control={viewModel.form.control}
               name='goal'
               render={({ field }) => (
                 <FormItem>
@@ -225,7 +336,7 @@ export default function HabitsForm({
                   </FormControl>
                   <FormDescription>
                     How many times per{' '}
-                    {watcher.frequency === Frequency[Frequency.Daily]
+                    {viewModel.frequency === Frequency[Frequency.Daily]
                       ? 'day'
                       : 'week'}
                     .
@@ -239,29 +350,30 @@ export default function HabitsForm({
         <div className='m-4 grid grid-cols-1 gap-8'></div>
         <div className='m-4 grid grid-cols-1 gap-8'>
           <FormField
-            control={form.control}
+            control={viewModel.form.control}
             name='tags'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Tags</FormLabel>
                 <MultiSelect
                   selected={field.value || []}
-                  options={_tags}
+                  options={viewModel.tagOptions}
                   onEmpty={(value, setOpen) => (
-                    <Button onClick={() => handleNewTag(value, field, setOpen)}>
+                    <Button
+                      onClick={viewModel.handleNewTag(value, field, setOpen)}
+                    >
                       Create Tag: {value}
                     </Button>
                   )}
                   {...field}
                   className='sm:w-[510px]'
                 />
-                {/* <FormDescription>Categorize and classify.</FormDescription> */}
                 <FormMessage />
               </FormItem>
             )}
           />
           <FormField
-            control={form.control}
+            control={viewModel.form.control}
             name='notes'
             render={({ field }) => (
               <FormItem>
@@ -276,11 +388,6 @@ export default function HabitsForm({
               </FormItem>
             )}
           />
-        </div>
-        <div className='mt-10'>
-          <div className='flex flex-row justify-end'>
-            <Button type='submit'>{submitTitle}</Button>
-          </div>
         </div>
       </form>
     </Form>

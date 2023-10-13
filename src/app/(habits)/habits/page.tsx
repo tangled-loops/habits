@@ -2,7 +2,7 @@ import { Plus } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 
-import { HabitCreate } from '@/components/habits/create';
+import { HabitCreate } from '@/components/habits/action-dialogs';
 import { HabitsList } from '@/components/habits/list';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
@@ -34,11 +34,6 @@ export default async function Habits({
       </div>
       <ScrollArea className='mt-4 h-[80vh] p-4'>
         <div className=''>
-          {/* <div className='flex flex-row items-center justify-between py-4'>
-          <h1 className='px-2 py-4'>Habits</h1>
-          <div className='flex flex-row'>Sort by</div>
-        </div> */}
-          {/* <Separator className='mb-5' /> */}
           <div className='p-1'>
             <HabitsList habits={habits} />
           </div>
