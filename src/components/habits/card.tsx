@@ -2,14 +2,16 @@
 
 import { Edit, MoreHorizontal, Plus, Trash } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '../ui/popover';
 import { Day, days } from '../../lib/models/habit';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '../ui/tooltip';
 import { EditField, Field } from './edit-field';
 
 import { Button, buttonVariants } from '@/components/ui/button';
@@ -31,6 +33,7 @@ interface HabitCardProps {
 }
 
 export function HabitCard({ habit }: HabitCardProps) {
+  const router = useRouter();
   const { data, refetch } = trpc.habits.findById.useQuery(
     { id: habit.id || '' },
     { enabled: true, refetchOnMount: true, refetchOnReconnect: true },
@@ -83,52 +86,58 @@ export function HabitCard({ habit }: HabitCardProps) {
   if (!data) return null;
 
   return (
-    <Card>
+    <Card className='-p-4' onClick={() => router.push(`/habits/${habit.id}`)}>
       <div className='flex flex-row items-center'>
         <CardHeader className='grow p-2'>
           <CardTitle className='font-2xl' onClick={() => setEditing('name')}>
             {content('name')}
           </CardTitle>
         </CardHeader>
-        <Popover>
-          <PopoverTrigger>
-            <Badge className='mx-8 my-4 bg-blue-500 px-4 py-1'>
-              {_habit.frequency}
-            </Badge>
-          </PopoverTrigger>
-          <PopoverContent align='start' alignOffset={5}>
-            {_habit.frequency === 'Daily' ? (
-              <>
-                <div className='grid grid-cols-7 gap-0.5'>
-                  {days().map((day, i) => {
-                    const sday = Day[day];
-                    const sliceTo = i === (Day.Thursday || Day.Sunday) ? 2 : 1;
-                    if (_habit.selectedDays?.includes(sday)) {
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger className='p-4'>
+              <Badge
+                variant='secondary'
+                className='bg-primary text-center text-background hover:bg-primary/50'
+              >
+                {habit.frequency}
+              </Badge>
+            </TooltipTrigger>
+            <TooltipContent className='bg-foreground'>
+              {_habit.frequency === 'Daily' ? (
+                <>
+                  <div className='grid grid-cols-7 gap-0.5'>
+                    {days().map((day, i) => {
+                      const sday = Day[day];
+                      const sliceTo =
+                        i === (Day.Thursday || Day.Sunday) ? 2 : 1;
+                      if (_habit.selectedDays?.includes(sday)) {
+                        return (
+                          <Badge
+                            variant='secondary'
+                            className='bg-primary text-center text-background hover:bg-primary/50'
+                          >
+                            {sday.slice(0, sliceTo)}
+                          </Badge>
+                        );
+                      }
                       return (
                         <Badge
-                          variant='secondary'
-                          className='bg-primary text-center text-background hover:bg-primary/50'
+                          variant='outline'
+                          className='text-center text-background'
                         >
                           {sday.slice(0, sliceTo)}
                         </Badge>
                       );
-                    }
-                    return (
-                      <Badge
-                        variant='outline'
-                        className='text-center text-foreground'
-                      >
-                        {sday.slice(0, sliceTo)}
-                      </Badge>
-                    );
-                  })}
-                </div>
-              </>
-            ) : (
-              <div className='text-center'>Tracked Weekly</div>
-            )}
-          </PopoverContent>
-        </Popover>
+                    })}
+                  </div>
+                </>
+              ) : (
+                <div className='text-center'>Tracked Weekly</div>
+              )}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
         <DropdownMenu>
           <DropdownMenuTrigger className='mr-4'>
             <MoreHorizontal />

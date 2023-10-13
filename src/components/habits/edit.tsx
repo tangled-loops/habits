@@ -16,7 +16,7 @@ export function HabitEdit({ habit }: { habit: FrontendHabit }) {
   const thisDialog = habit.id === (params.get('id') ?? '');
   return (
     <Dialog
-      open={!!params.get('create') && show && thisDialog}
+      open={!!params.get('edit') && show && thisDialog}
       onOpenChange={setShow}
     >
       <DialogContent className='md:min-w-[500px] lg:min-w-[800px]'>
@@ -26,7 +26,12 @@ export function HabitEdit({ habit }: { habit: FrontendHabit }) {
         <ScrollArea className='-px-2 mt-2 max-h-[500px]'>
           <Card>
             <CardContent>
-              <HabitsForm data={habit} tags={habit.tags} submitTitle='Save' />
+              <HabitsForm
+                data={habit}
+                tags={habit.tags}
+                submitTitle='Save'
+                redirectTo={`/habits/${habit.id}`}
+              />
             </CardContent>
           </Card>
         </ScrollArea>

@@ -25,7 +25,11 @@ export function HabitCreate() {
         <ScrollArea className='-px-2 mt-2 max-h-[500px]'>
           <Card>
             <CardContent>
-              <HabitsForm tags={query.data ?? []} submitTitle='Save' />
+              <HabitsForm
+                tags={query.data ?? []}
+                submitTitle='Save'
+                redirectTo={`/habits?page=1`}
+              />
             </CardContent>
           </Card>
         </ScrollArea>

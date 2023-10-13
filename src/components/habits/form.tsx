@@ -40,12 +40,14 @@ interface HabitsFormProps {
   data?: Partial<FrontendHabit>;
   tags: Array<string>;
   submitTitle: string;
+  redirectTo: string;
 }
 
 export default function HabitsForm({
   data,
   tags,
   submitTitle,
+  redirectTo,
 }: HabitsFormProps) {
   const router = useRouter();
   const mutation = trpc.habits.createOrUpdate.useMutation();
@@ -77,7 +79,7 @@ export default function HabitsForm({
 
   const onSubmit = (data: FrontendHabit) => {
     mutation.mutate(data);
-    router.replace('/habits?page=1');
+    router.replace(redirectTo);
     router.refresh();
     // @todo add a toast
   };

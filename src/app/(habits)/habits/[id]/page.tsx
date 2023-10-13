@@ -16,10 +16,10 @@ export default async function Habits({ params }: { params: { id: string } }) {
   });
   return (
     <div className='-m-8 md:container'>
-      <div className='mt-10 flex min-h-full flex-col'>
+      <div className='mt-4 flex min-h-full flex-col'>
         <div className='flex flex-row items-center justify-between border px-8 py-6 md:-mx-12'>
           <h1 className='text-xl font-semibold'>{habit.name}</h1>
-          <Link href={`/habits/${habit.id}?edit=true`} passHref>
+          <Link href={`/habits/${habit.id}?edit=true&id=${habit.id}`} passHref>
             <Button>
               <Edit className='mr-2' />
               Edit

@@ -23,7 +23,7 @@ export default async function Habits({
   return (
     <div className='flex max-h-screen min-h-full flex-col md:mx-8 lg:mx-16'>
       <HabitCreate />
-      <div className='flex flex-row items-center justify-between border p-4 md:-mx-20'>
+      <div className='-mt-4 flex flex-row items-center justify-between border-y p-4 md:-mx-20'>
         <h2>Habit Tracker</h2>
         <Link href='/habits?create=true' passHref>
           <Button>
@@ -32,14 +32,14 @@ export default async function Habits({
           </Button>
         </Link>
       </div>
-      <ScrollArea className='mt-4 h-[80vh] rounded-xl border p-4'>
+      <ScrollArea className='mt-4 h-[80vh] p-4'>
         <div className=''>
           {/* <div className='flex flex-row items-center justify-between py-4'>
           <h1 className='px-2 py-4'>Habits</h1>
           <div className='flex flex-row'>Sort by</div>
         </div> */}
           {/* <Separator className='mb-5' /> */}
-          <div className='p-4'>
+          <div className='p-1'>
             <HabitsList habits={habits} />
           </div>
         </div>
