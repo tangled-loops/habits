@@ -4,8 +4,6 @@ import { TRPCClientErrorBase } from '@trpc/client';
 import { UseTRPCQueryResult } from '@trpc/react-query/shared';
 import { DefaultErrorShape } from '@trpc/server';
 import { Dot, Plus } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { PropsWithChildren, ReactElement, useState } from 'react';
 import { GridLoader } from 'react-spinners';
 
 import { Badge } from '@/components/ui/badge';

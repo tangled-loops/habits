@@ -2,13 +2,7 @@
 'use client';
 
 import clsx from 'clsx';
-import {
-  LayoutDashboard,
-  ListPlus,
-  LogOut,
-  Settings,
-  User,
-} from 'lucide-react';
+import { LayoutDashboard, ListPlus, LogOut, Settings } from 'lucide-react';
 import { signOut } from 'next-auth/react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';

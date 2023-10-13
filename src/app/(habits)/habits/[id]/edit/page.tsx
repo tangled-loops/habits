@@ -1,4 +1,4 @@
-import HabitsForm from '@/app/(habits)/habits/components/form';
+import HabitsForm from '@/components/habits/form';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { getClient } from '@/server/session';
 

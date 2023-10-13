@@ -1,4 +1,3 @@
-import { and, eq, gt, sql } from 'drizzle-orm';
 import * as z from 'zod';
 
 import { responseCountSince, responsesSince } from '@/lib/models/response';

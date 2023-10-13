@@ -1,8 +1,7 @@
 import { Edit } from 'lucide-react';
 import Link from 'next/link';
 
-import { DetailSection } from '../components/detail';
-
+import { DetailSection } from '@/components/habits/detail';
 import { Button } from '@/components/ui/button';
 import { getClient } from '@/server/session';
 

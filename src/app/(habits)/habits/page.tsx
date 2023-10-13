@@ -1,7 +1,7 @@
 import { Plus } from 'lucide-react';
 import Link from 'next/link';
 
-import { HabitsList } from '@/app/(habits)/habits/components/list';
+import { HabitsList } from '@/components/habits/list';
 import { Separator } from '@/components/ui/separator';
 
 import { Button } from '$/ui/button';
