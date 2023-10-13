@@ -4,8 +4,12 @@ import { Edit, MoreHorizontal, Plus, Trash } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '../ui/popover';
 import { Day, days } from '../../lib/models/habit';
-import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { EditField, Field } from './edit-field';
 
 import { Button, buttonVariants } from '@/components/ui/button';

@@ -3,7 +3,7 @@
 import { TRPCClientErrorBase } from '@trpc/client';
 import { UseTRPCQueryResult } from '@trpc/react-query/shared';
 import { DefaultErrorShape } from '@trpc/server';
-import { Dot, Plus } from 'lucide-react';
+import { Check, Dot, Plus } from 'lucide-react';
 import { GridLoader } from 'react-spinners';
 
 import { Badge } from '@/components/ui/badge';
@@ -66,7 +66,8 @@ function ResponsesCard({ habit, responses, count }: ResponsesCardProps) {
         <CardTitle className='flex flex-row items-center justify-between'>
           Recent Responses ({count.data} / {habit.goal})
           <Button onClick={updateResponse}>
-            <Plus />
+            <Check className='mr-2' />
+            Respond
           </Button>
         </CardTitle>
       </CardHeader>
@@ -171,7 +172,7 @@ function DetailSection({
     frequency: habit.frequency,
   });
   return (
-    <div className='space-8 mx-8 my-1 grid h-full grid-cols-1 gap-4 rounded-lg border p-4 shadow lg:grid-cols-2'>
+    <div className='space-8 mx-8 my-1 grid h-full grid-cols-1 gap-4 p-4 lg:grid-cols-2'>
       <InfoCard habit={habit} count={count} />
       <ResponsesCard habit={habit} responses={responses} count={count} />
     </div>

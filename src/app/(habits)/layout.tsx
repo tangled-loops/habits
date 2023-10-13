@@ -35,7 +35,7 @@ export default async function HabitsLayout({
             disableTransitionOnChange
           >
             <Navigation />
-            <main className='mt-[44px] flex flex-col overflow-hidden p-8 sm:ml-[150px] md:ml-[200px]'>
+            <main className='mt-[44px] flex flex-col overflow-hidden p-4 sm:ml-[150px] md:ml-[200px]'>
               {children}
             </main>
             <Toaster />

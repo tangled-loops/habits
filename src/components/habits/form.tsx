@@ -77,7 +77,9 @@ export default function HabitsForm({
 
   const onSubmit = (data: FrontendHabit) => {
     mutation.mutate(data);
-    router.replace('/habits');
+    router.replace('/habits?page=1');
+    router.refresh();
+    // @todo add a toast
   };
 
   const [_tags, setTags] = React.useState(tagOptions);
@@ -95,7 +97,7 @@ export default function HabitsForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
-        <div className='m-4 grid grid-cols-1 gap-4 md:grid-cols-2'>
+        <div className='m-4 grid grid-cols-1 gap-4'>
           <FormField
             control={form.control}
             name='name'
@@ -106,14 +108,13 @@ export default function HabitsForm({
                   <Input {...field} />
                 </FormControl>
                 <FormDescription>
-                  If I could name them, I could tame them. They could be my
-                  friends.
+                  If I could name them, I could tame them.
                 </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
           />
-          <div className='grid grid-cols-2 gap-4'>
+          {/* <div className='grid grid-cols-2 gap-4'>
             <FormField
               control={form.control}
               name='color'
@@ -156,14 +157,14 @@ export default function HabitsForm({
                 </FormItem>
               )}
             />
-          </div>
+          </div> */}
         </div>
         <div
           className={cn(
             'm-4 grid grid-cols-1 gap-4',
             watcher.frequency === Frequency[Frequency.Daily]
-              ? 'md:grid-cols-3'
-              : 'md:grid-cols-2',
+              ? 'lg:grid-cols-3'
+              : 'lg:grid-cols-2',
           )}
         >
           <FormField
@@ -191,9 +192,7 @@ export default function HabitsForm({
                     })}
                   </SelectContent>
                 </Select>
-                <FormDescription>
-                  How often should you track this.
-                </FormDescription>
+                <FormDescription>How often</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -235,7 +234,8 @@ export default function HabitsForm({
             />
           ) : null}
         </div>
-        <div className='m-4 grid grid-cols-1 gap-4 md:grid-cols-2'>
+        <div className='m-4 grid grid-cols-1 gap-8'></div>
+        <div className='m-4 grid grid-cols-1 gap-8'>
           <FormField
             control={form.control}
             name='tags'
@@ -253,7 +253,7 @@ export default function HabitsForm({
                   {...field}
                   className='sm:w-[510px]'
                 />
-                <FormDescription>Categorize and classify.</FormDescription>
+                {/* <FormDescription>Categorize and classify.</FormDescription> */}
                 <FormMessage />
               </FormItem>
             )}
@@ -276,7 +276,7 @@ export default function HabitsForm({
           />
         </div>
         <div className='mt-10'>
-          <div className='flex flex-row justify-start'>
+          <div className='flex flex-row justify-end'>
             <Button type='submit'>{submitTitle}</Button>
           </div>
         </div>

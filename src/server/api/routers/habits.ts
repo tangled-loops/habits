@@ -9,13 +9,14 @@ import { responseCountSince } from '@/lib/models/response';
 
 export const habitsRouter = createTRPCRouter({
   findAll: protectedProcedure
-    .input(z.object({ limit: z.number() }))
-    .query(async ({ ctx: { db, session }, input: { limit } }) => {
+    .input(z.object({ limit: z.number(), page: z.number() }))
+    .query(async ({ ctx: { db, session }, input: { limit, page } }) => {
       const habitsResult = await db
         .select()
         .from(habits)
         .where(eq(habits.userId, session.user.id))
         .orderBy(desc(habits.createdAt))
+        .offset((limit*page) - limit)
         .limit(limit)
 
       const items = [];
