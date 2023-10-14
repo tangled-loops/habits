@@ -4,17 +4,25 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { TRPCClientErrorBase } from '@trpc/client';
 import { UseTRPCQueryResult } from '@trpc/react-query/shared';
 import { DefaultErrorShape } from '@trpc/server';
+import { Activity, AlarmPlus, Anchor, Binary, Box, Dot } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import React from 'react';
+import React, { ReactElement } from 'react';
 import { ControllerRenderProps, useForm, UseFormReturn } from 'react-hook-form';
 
+import { icon } from './icon';
+
 import {
+  Color,
+  colors,
   Day,
   days,
   frequencies,
   Frequency,
   FrontendHabit,
   frontendHabitSchema,
+  Icon,
+  icons,
+  textColor,
 } from '@/lib/models/habit';
 import { trpc } from '@/lib/trpc';
 import { cn } from '@/lib/utils';
@@ -40,13 +48,6 @@ import {
   SelectValue,
 } from '$/ui/select';
 import { Textarea } from '$/ui/textarea';
-
-interface HabitsFormProps {
-  data?: Partial<FrontendHabit>;
-  tags: Array<string>;
-  submitTitle: string;
-  redirectTo: string;
-}
 
 type MutateFn = (data: FrontendHabit) => Promise<void>;
 
@@ -152,7 +153,7 @@ export class FormViewModel {
   async onSubmit(data: FrontendHabit) {
     await this.mutate(data);
     this.router.replace(this.redirectTo);
-    // this.router.refresh();
+
     // @todo add a toast
   }
 
@@ -189,11 +190,11 @@ export class FormViewModel {
   }
 }
 
-export default function HabitsForm({
-  viewModel,
-}: {
+interface HabitsFormProps {
   viewModel: FormViewModel;
-}) {
+}
+
+export default function HabitsForm({ viewModel }: HabitsFormProps) {
   return (
     <Form {...viewModel.form}>
       <form onSubmit={viewModel.form.handleSubmit(viewModel.onSubmit)}>
@@ -227,10 +228,35 @@ export default function HabitsForm({
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder='' />
+                        <SelectValue>
+                          <div className='flex flex-row items-center'>
+                            <Dot
+                              className={cn(
+                                textColor(field.value as Color),
+                                `mr-2`,
+                              )}
+                            />{' '}
+                            {field.value}
+                          </div>
+                        </SelectValue>
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent></SelectContent>
+                    <SelectContent>
+                      {colors.map((color) => {
+                        return (
+                          <SelectItem
+                            id={color}
+                            className={cn(
+                              textColor(color),
+                              `hover:${textColor(color)}`,
+                            )}
+                            value={color}
+                          >
+                            {color}
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
                   </Select>
                   <FormMessage />
                 </FormItem>
@@ -248,10 +274,18 @@ export default function HabitsForm({
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder='' />
+                        <SelectValue />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent></SelectContent>
+                    <SelectContent>
+                      {icons.map((ico) => {
+                        return (
+                          <SelectItem id={ico} value={ico}>
+                            {icon(ico)}
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
                   </Select>
                   <FormMessage />
                 </FormItem>

@@ -1,12 +1,28 @@
 'use client';
 
-import { Edit, MoreHorizontal, Plus, Trash, View } from 'lucide-react';
+import {
+  Archive,
+  Clock,
+  Edit,
+  MoreHorizontal,
+  Plus,
+  Search,
+  Trash,
+  View,
+} from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Dispatch, SetStateAction, useState } from 'react';
 
-import { Day, days } from '../../lib/models/habit';
+import {
+  backgroundColor,
+  Color,
+  Day,
+  days,
+  Icon,
+} from '../../lib/models/habit';
 import { Progress } from '../ui/progress';
+import { Separator } from '../ui/separator';
 import {
   Tooltip,
   TooltipContent,
@@ -15,6 +31,7 @@ import {
 } from '../ui/tooltip';
 import { HabitEdit } from './action-dialogs';
 import { EditField, Field } from './edit-field';
+import { icon } from './icon';
 
 import { Button, buttonVariants } from '@/components/ui/button';
 import {
@@ -48,8 +65,12 @@ function ProgressDisplay({ habit, responses }: ProgressDisplayProps) {
   return (
     <TooltipProvider>
       <Tooltip>
-        <TooltipTrigger>
-          <Progress value={(responses / habit.goal) * 100} />
+        <TooltipTrigger className='-mb-4'>
+          <Progress
+            value={(responses / habit.goal) * 100}
+            className={backgroundColor(habit.color as Color, true)}
+            indicatorClassName={backgroundColor(habit.color as Color)}
+          />
         </TooltipTrigger>
         <TooltipContent>
           ({habit.responses} / {habit.goal})
@@ -110,7 +131,12 @@ function Days({ habit }: HasHabit) {
 
 function Tags({ habit }: HasHabit) {
   return (
-    <div className='jusitfy-end flex h-[20px] flex-row space-x-2'>
+    <div
+      className={cn(
+        'h-[40px]',
+        'flex-1 flex-row items-center space-x-2 space-y-2 pb-4',
+      )}
+    >
       {habit.tags &&
         habit.tags.map((tag) => {
           return (
@@ -129,18 +155,26 @@ interface ActionsProps extends HasHabit {
 
 function Actions({ habit, onRespond }: ActionsProps) {
   return (
-    <div className='grid grid-cols-2'>
-      <Button onClick={onRespond} size='sm'>
+    <div className='-mb-2 grid grid-cols-2'>
+      <Button onClick={onRespond} size='sm' className='w-[60%]'>
         <Plus className='mr-2' />
         Respond
       </Button>
       <div className='flex flex-row justify-end'>
-        <Link href={`/habits/${habit.id}`} passHref>
+        <Link href={`/habits?archive=true&id=${habit.id}`} passHref>
           <Button
             variant='ghostPrimary'
             className='w-full cursor-pointer text-left'
           >
-            <View />
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <Archive className='text-destructive' />
+                  <span className='sr-only'>Archive</span>
+                </TooltipTrigger>
+                <TooltipContent>Archive</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </Button>
         </Link>
         <Link href={`/habits?edit=true&id=${habit.id}`} passHref>
@@ -148,8 +182,31 @@ function Actions({ habit, onRespond }: ActionsProps) {
             variant='ghostPrimary'
             className='w-full cursor-pointer text-left'
           >
-            <Edit />
-            {/* Edit */}
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <Edit />
+                  <span className='sr-only'>Edit</span>
+                </TooltipTrigger>
+                <TooltipContent>Edit</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </Button>
+        </Link>
+        <Link href={`/habits/${habit.id}`} passHref>
+          <Button
+            variant='ghostPrimary'
+            className='w-full cursor-pointer text-left'
+          >
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <Search />
+                  <span className='sr-only'>View Details</span>
+                </TooltipTrigger>
+                <TooltipContent>View Details</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </Button>
         </Link>
       </div>
@@ -166,14 +223,6 @@ interface EditableTitleProps extends HasHabit {
   setEditing: Dispatch<SetStateAction<Field>>;
   handleSubmit: () => void;
 }
-
-// @todo move this out of the body of this function
-function content(
-  habit: FrontendHabit,
-  editing: Field,
-  field: Field,
-  handleSubmit: () => void,
-) {}
 
 function EditableTitle({
   habit,
@@ -229,32 +278,34 @@ export function HabitCard({ habit }: HasHabit) {
   };
 
   const updateResponse = async () => {
-    await mutateAsync({ habitId: _habit.id || 'fuck' });
+    await mutateAsync({ habitId: _habit.id! });
     setResponses(responses + 1);
   };
 
   return (
     <>
       <HabitEdit habit={_habit} handleSubmit={delayedQuery} />
-      <Card className='-p-4'>
+      <Card className='p-2'>
         <div className='flex flex-row items-center'>
           <CardHeader className='grow p-4'>
             <EditableTitle
               editing={editing}
               setEditing={setEditing}
               handleSubmit={handleSubmit}
-              habit={habit}
+              habit={_habit}
             />
+            <Separator className={backgroundColor(_habit.color as Color)} />
           </CardHeader>
           <Days habit={_habit} />
+          {_habit.icon.length > 0 &&
+            icon(_habit.icon as Icon, _habit.color as Color)}
         </div>
-        <CardContent className='grid gap-4'>
-          <Notes habit={_habit} />
+        <CardContent className='mb-2 p-4 pt-0'>
           <Tags habit={_habit} />
         </CardContent>
-        <CardFooter className='grid gap-2 p-3'>
+        <CardFooter className='mb-0 grid gap-2 p-3'>
           <Actions habit={_habit} onRespond={updateResponse} />
-          <ProgressDisplay habit={habit} responses={responses} />
+          <ProgressDisplay habit={_habit} responses={responses} />
         </CardFooter>
       </Card>
     </>
