@@ -16,7 +16,6 @@ export function HabitsList({ habits }: { habits: Array<FrontendHabit> }) {
         {habits.map((habit) => {
           return (
             <>
-              <HabitEdit habit={habit} />
               <HabitCard key={habit.id} habit={habit} />
             </>
           );

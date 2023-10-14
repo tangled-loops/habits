@@ -1,10 +1,19 @@
 'use client';
 
+import { LexicalComposer } from '@lexical/react/LexicalComposer';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { ContentEditable } from '@lexical/react/LexicalContentEditable';
+import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary';
+import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
+import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
+import { PlainTextPlugin } from '@lexical/react/LexicalPlainTextPlugin';
 import { TRPCClientErrorBase } from '@trpc/client';
 import { UseTRPCQueryResult } from '@trpc/react-query/shared';
 import { DefaultErrorShape } from '@trpc/server';
+import { $getRoot, $getSelection } from 'lexical';
 import { BookOpen, Dot, Plus } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
+import { useEffect } from 'react';
 import { GridLoader } from 'react-spinners';
 
 import {
@@ -212,7 +221,7 @@ export function Journal() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <ul>
+          {/* <ul>
             {journalEntries.map((entry) => {
               return (
                 <li key={entry.id}>
@@ -233,7 +242,8 @@ export function Journal() {
                 </li>
               );
             })}
-          </ul>
+          </ul> */}
+          {/* <Editor /> */}
         </CardContent>
       </Card>
     </div>

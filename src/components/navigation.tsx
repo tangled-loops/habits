@@ -141,7 +141,7 @@ function Nav() {
   const path = useRootPath();
   return (
     <>
-      <NavigationMenu className='absolute inset-x-0 top-0 z-10 h-[44px] max-w-full justify-start space-x-5 bg-card'>
+      <NavigationMenu className='fixed inset-x-0 top-0 h-[44px] max-w-full justify-start space-x-5 bg-card'>
         <NavigationMenuList className='bg-card'>
           <NavigationMenuItem>
             <h1 className='ml-5 whitespace-nowrap text-center text-xl'>

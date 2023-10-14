@@ -86,9 +86,11 @@ function HabitCreate() {
 function HabitEdit({
   habit,
   forceOpen,
+  handleSubmit,
 }: {
   habit: FrontendHabit;
   forceOpen?: boolean;
+  handleSubmit?: () => void;
 }) {
   const ctx = trpc.useContext();
   const path = usePathname();
@@ -101,8 +103,9 @@ function HabitEdit({
   const tagsQuery = trpc.tags.findAll.useQuery();
   const mutation = trpc.habits.createOrUpdate.useMutation({
     onSuccess() {
-      ctx.habits.invalidate();
-      ctx.tags.invalidate();
+      console.log('success');
+      // ctx.habits.findById.invalidate();
+      // ctx.tags.invalidate();
     },
   });
 
@@ -110,8 +113,14 @@ function HabitEdit({
     habit,
     tagsQuery,
     redirectTo: path,
-    mutate: (data: FrontendHabit) => mutation.mutate(data),
+    mutate: async (data: FrontendHabit) => await mutation.mutateAsync(data),
   });
+
+  const onSubmit = () => {
+    viewModel.onSubmit(viewModel.watcher);
+    console.log('this');
+    handleSubmit?.();
+  };
 
   return (
     <Dialog
@@ -132,17 +141,11 @@ function HabitEdit({
         <DialogFooter className='-mb-4 sm:justify-between'>
           <Button
             variant='destructive'
-            type='submit'
             onClick={() => handleOpenChange(true, viewModel, setShow)}
           >
             Cancel
           </Button>
-          <Button
-            type='submit'
-            onClick={() => viewModel.onSubmit(viewModel.watcher)}
-          >
-            Save
-          </Button>
+          <Button onClick={onSubmit}>Save</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

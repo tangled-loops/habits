@@ -48,7 +48,7 @@ interface HabitsFormProps {
   redirectTo: string;
 }
 
-type MutateFn = (data: FrontendHabit) => void;
+type MutateFn = (data: FrontendHabit) => Promise<void>;
 
 interface FormViewModelOptions {
   habit?: FrontendHabit;
@@ -149,10 +149,10 @@ export class FormViewModel {
     }
   }
 
-  onSubmit(data: FrontendHabit) {
-    this.mutate(data);
+  async onSubmit(data: FrontendHabit) {
+    await this.mutate(data);
     this.router.replace(this.redirectTo);
-    this.router.refresh();
+    // this.router.refresh();
     // @todo add a toast
   }
 
