@@ -102,6 +102,7 @@ function HabitEdit({
   const mutation = trpc.habits.createOrUpdate.useMutation({
     onSuccess() {
       ctx.habits.invalidate();
+      ctx.tags.invalidate();
     },
   });
 

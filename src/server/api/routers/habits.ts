@@ -1,4 +1,4 @@
-import { desc, eq, inArray } from 'drizzle-orm';
+import { desc, eq, inArray, sql } from 'drizzle-orm';
 import { z } from 'zod';
 
 import { frontendHabitSchema } from '@/lib/models/habit';
@@ -8,6 +8,17 @@ import { habits, habitsTags, Tag, tags } from '~/db/schema';
 import { responseCountSince } from '@/lib/models/response';
 
 export const habitsRouter = createTRPCRouter({
+  totalCount: protectedProcedure
+    .input(z.object({ limit: z.number(), }))
+    .query(async ({ ctx: { db, session }, input: { limit }}) => {
+      const habitsResult = await db
+        .select({ count: sql<number>`count(*)`})
+        .from(habits)
+        .where(eq(habits.userId, session.user.id))
+        .groupBy(habits.userId)
+        .limit(1)
+      return Math.round(habitsResult[0].count / limit)
+    }),
   findAll: protectedProcedure
     .input(z.object({ limit: z.number(), page: z.number() }))
     .query(async ({ ctx: { db, session }, input: { limit, page } }) => {

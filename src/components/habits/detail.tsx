@@ -3,12 +3,17 @@
 import { TRPCClientErrorBase } from '@trpc/client';
 import { UseTRPCQueryResult } from '@trpc/react-query/shared';
 import { DefaultErrorShape } from '@trpc/server';
-import { Check, Dot } from 'lucide-react';
+import { BookOpen, Dot, Plus } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import { GridLoader } from 'react-spinners';
 
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '../ui/tooltip';
 import { HabitEdit } from './action-dialogs';
-import { Journal } from './journal';
 
 import { Badge } from '@/components/ui/badge';
 import { DaysField } from '@/components/ui/days-input';
@@ -69,9 +74,9 @@ function ResponsesCard({ habit, responses, count }: ResponsesCardProps) {
       <CardHeader>
         <CardTitle className='flex flex-row items-center justify-between'>
           Recent Responses ({count.data} / {habit.goal})
-          <Button onClick={updateResponse}>
-            <Check className='mr-2' />
-            Respond
+          <Button variant='ghostPrimary' onClick={updateResponse}>
+            <Plus className='mr-2' />
+            {/* Mark Performed */}
           </Button>
         </CardTitle>
       </CardHeader>
@@ -128,6 +133,9 @@ interface InfoCardProps extends TRPCData {
 function InfoCard({ habit, count }: InfoCardProps) {
   return (
     <Card>
+      <CardHeader className='grow p-4'>
+        <CardTitle className='font-2xl'>General Info</CardTitle>
+      </CardHeader>
       <CardContent>
         <div className='mt-4 grid'>
           <div className='flex flex-row justify-around'>
@@ -161,6 +169,74 @@ function InfoCard({ habit, count }: InfoCardProps) {
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+interface JournalEntry {
+  text: string;
+  createdAt: Date;
+  updatedAt: Date | null;
+}
+
+export function Journal() {
+  const journalEntries = [
+    {
+      id: 1,
+      createdAt: new Date(),
+      updatedAt: null,
+      text: 'a blah and a blah and I blah blah blahed weeee',
+    },
+    {
+      id: 2,
+      createdAt: new Date('10/12/2023 00:00'),
+      updatedAt: new Date('10/13/2023 00:00'),
+      text: 'a blah and a blah and I blah blah blahed weeee',
+    },
+    {
+      id: 3,
+      createdAt: new Date('10/11/2023 00:00'),
+      updatedAt: null,
+      text: 'a blah and a blah and I blah blah blahed weeee',
+    },
+  ];
+  return (
+    <div className='space-8 mx-8 -mt-5 grid h-full grid-cols-1 gap-4 p-4'>
+      <Card className='h-[350px]'>
+        <CardHeader>
+          <CardTitle className='flex flex-row items-center justify-between'>
+            Journal
+            <Button variant='ghostPrimary'>
+              <BookOpen className='mr-2' />
+              <span className='sr-only'>Write</span>
+            </Button>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ul>
+            {journalEntries.map((entry) => {
+              return (
+                <li key={entry.id}>
+                  {entry.updatedAt ? (
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          {entry.createdAt.toDateString()}
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          Last Updated: {entry.updatedAt?.toDateString() ?? ''}
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  ) : (
+                    <span>{entry.createdAt.toDateString()}</span>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
 
