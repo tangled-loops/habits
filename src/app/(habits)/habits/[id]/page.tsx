@@ -3,15 +3,6 @@ import Link from 'next/link';
 
 import { DetailSection } from '@/components/habits/detail';
 import { Button } from '@/components/ui/button';
-import {
-  Menubar,
-  MenubarContent,
-  MenubarItem,
-  MenubarMenu,
-  MenubarSeparator,
-  MenubarShortcut,
-  MenubarTrigger,
-} from '@/components/ui/menubar';
 import { FrontendHabit } from '@/lib/models/habit';
 import { getClient } from '@/server/session';
 

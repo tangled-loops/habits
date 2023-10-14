@@ -1,6 +1,5 @@
 import { ChevronUp, Filter, Plus, SortAsc } from 'lucide-react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
 
 import { HabitCreate } from '@/components/habits/action-dialogs';
 import { HabitsList } from '@/components/habits/list';
@@ -11,11 +10,9 @@ import {
   MenubarItem,
   MenubarMenu,
   MenubarSeparator,
-  MenubarShortcut,
   MenubarTrigger,
 } from '@/components/ui/menubar';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
 import { getClient } from '@/server/session';
 
 import { Button } from '$/ui/button';
@@ -36,18 +33,101 @@ function Header() {
   );
 }
 
+export type FilterType =
+  | 'all'
+  | 'retired'
+  | 'deleted'
+  | 'no-response'
+  | 'needs-response'
+  | 'needs-response-today'
+  | 'needs-response-week';
+
+function FilterMenu({ filters }: { filters: Array<FilterType> }) {
+  const filtersFor = (newFilter: FilterType) => {
+    return `${newFilter},${filters.filter((f) => f !== newFilter).join(',')}`;
+  };
+  return (
+    <MenubarMenu>
+      <MenubarTrigger className='ml-10'>
+        <Filter />
+      </MenubarTrigger>
+      <MenubarContent>
+        <Link href={`/habits?filters=${filtersFor('retired')}`} passHref>
+          <MenubarItem>Retired</MenubarItem>
+        </Link>
+        <Link href={`/habits?filters=${filtersFor('deleted')}`} passHref>
+          <MenubarItem>Deleted</MenubarItem>
+        </Link>
+        <MenubarSeparator />
+        <Link href={`/habits?filters=${filtersFor('needs-response')}`} passHref>
+          <MenubarItem>Needs Responses</MenubarItem>
+        </Link>
+        <Link
+          href={`/habits?filters=${filtersFor('needs-response-today')}`}
+          passHref
+        >
+          <MenubarItem>Needs Response Today</MenubarItem>
+        </Link>
+        <Link
+          href={`/habits?filters=${filtersFor('needs-response-week')}`}
+          passHref
+        >
+          <MenubarItem>Needs Response this Week</MenubarItem>
+        </Link>
+        <MenubarSeparator />
+        <Link href={`/habits`} passHref>
+          <MenubarItem>Clear All</MenubarItem>
+        </Link>
+      </MenubarContent>
+    </MenubarMenu>
+  );
+}
+
+function SortMenu() {
+  return (
+    <MenubarMenu>
+      <MenubarTrigger className='mr-[10px]'>
+        <SortAsc />
+      </MenubarTrigger>
+      <MenubarContent>
+        <MenubarItem>
+          Priority <ChevronUp className='ml-2' />
+        </MenubarItem>
+        <MenubarItem>
+          Created <ChevronUp className='ml-2' />
+        </MenubarItem>
+        <MenubarItem>
+          Updated <ChevronUp className='ml-2' />
+        </MenubarItem>
+        <MenubarItem>
+          Responses <ChevronUp className='ml-2' />
+        </MenubarItem>
+        <MenubarSeparator />
+        <MenubarItem>Clear All</MenubarItem>
+      </MenubarContent>
+    </MenubarMenu>
+  );
+}
+
+/** For sorting yes but not sure about stacking filters like this... hmm */
+
 export default async function Habits({
   searchParams,
 }: {
-  searchParams: { page: number };
+  searchParams: { page: number; filters?: string };
 }) {
   const client = await getClient();
-  const total = await client.habits.totalCount({
-    limit: 100,
-  });
+  // const total = await client.habits.totalCount({
+  //   limit: 100,
+  // });
+  const filters =
+    (searchParams.filters
+      ?.split(',')
+      .filter((f) => f.length > 0) as Array<FilterType>) ?? [];
   const habits = await client.habits.findAll({
     limit: 100,
     page: Number(searchParams.page ?? 1),
+    filters: filters,
   });
   return (
     <>
@@ -56,44 +136,8 @@ export default async function Habits({
         <Header />
         <Menubar className='-mx-5 flex flex-row justify-start border-0 border-b'>
           <div className='flex flex-row'>
-            <MenubarMenu>
-              <MenubarTrigger className='ml-10'>
-                <Filter />
-              </MenubarTrigger>
-              <MenubarContent>
-                <MenubarItem>All</MenubarItem>
-                <MenubarItem>Deleted</MenubarItem>
-                <MenubarItem>Completed</MenubarItem>
-                {/* <MenubarSeparator />
-                <MenubarItem>No Responses</MenubarItem>
-                <MenubarItem>Needs Response</MenubarItem>
-                <MenubarItem>Needs Response Today</MenubarItem>
-                <MenubarItem>Needs Response for the Week</MenubarItem> */}
-                <MenubarSeparator />
-                <MenubarItem>Clear All</MenubarItem>
-              </MenubarContent>
-            </MenubarMenu>
-            <MenubarMenu>
-              <MenubarTrigger className='mr-[10px]'>
-                <SortAsc />
-              </MenubarTrigger>
-              <MenubarContent>
-                <MenubarItem>
-                  Priority <ChevronUp className='ml-2' />
-                </MenubarItem>
-                <MenubarItem>
-                  Created <ChevronUp className='ml-2' />
-                </MenubarItem>
-                <MenubarItem>
-                  Updated <ChevronUp className='ml-2' />
-                </MenubarItem>
-                <MenubarItem>
-                  Responses <ChevronUp className='ml-2' />
-                </MenubarItem>
-                <MenubarSeparator />
-                <MenubarItem>Clear All</MenubarItem>
-              </MenubarContent>
-            </MenubarMenu>
+            <FilterMenu filters={filters} />
+            <SortMenu />
           </div>
           <MenubarMenu>
             <Input

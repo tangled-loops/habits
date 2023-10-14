@@ -1,5 +1,6 @@
 import { relations } from 'drizzle-orm';
 import {
+  boolean,
   integer,
   json,
   pgTable,
@@ -97,6 +98,9 @@ export const habits = pgTable('habits', {
   selectedDays: json('selected_days').$type<Array<string>>(),
   frequency: varchar('frequency').notNull(),
   goal: integer('goal').notNull().default(1),
+  responseCount: integer('response_count').notNull().default(0),
+  retired: boolean('retired').default(false),
+  deleted: boolean('deleted').default(false),
   color: varchar('color'),
   icon: varchar('icon'),
   userId: uuid('user_id')

@@ -1,4 +1,4 @@
-import { drizzle } from 'drizzle-orm/postgres-js';
+import { PostgresJsDatabase, drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 
 import { registerService } from '../register-service';
@@ -9,6 +9,6 @@ import * as schema from './schema';
 //   connectionString: process.env.DATABASE_URL!,
 // });
 
-export const db = registerService('db', () =>
+export const db: PostgresJsDatabase<typeof schema> = registerService('db', () =>
   drizzle(postgres(process.env.DATABASE_URL!), { logger: true, schema })
 );

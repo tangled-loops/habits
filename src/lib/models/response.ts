@@ -1,13 +1,13 @@
 import { and, desc, eq, gt, sql } from 'drizzle-orm';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 
 import { responses } from '@/server/db/schema';
 
 import * as schema from '~/db/schema';
+import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 
 
 export async function responsesSince(
-  db: NodePgDatabase<typeof schema>,
+  db: PostgresJsDatabase<typeof schema>,
   habitId: string,
   frequency: string | undefined,
   since?: Date | undefined,
@@ -41,7 +41,7 @@ export async function responsesSince(
 }
 
 export async function responseCountSince(
-  db: NodePgDatabase<typeof schema>,
+  db: PostgresJsDatabase<typeof schema>,
   habitId: string,
   frequency: string | undefined,
   since?: Date | undefined,

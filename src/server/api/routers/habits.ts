@@ -6,6 +6,7 @@ import { frontendHabitSchema } from '@/lib/models/habit';
 import { createTRPCRouter, protectedProcedure } from '~/api/trpc';
 import { habits, habitsTags, Tag, tags } from '~/db/schema';
 import { responseCountSince } from '@/lib/models/response';
+import { FilterType } from '../../../app/(habits)/habits/page';
 
 export const habitsRouter = createTRPCRouter({
   totalCount: protectedProcedure
@@ -20,16 +21,38 @@ export const habitsRouter = createTRPCRouter({
       return Math.round(habitsResult[0].count / limit)
     }),
   findAll: protectedProcedure
-    .input(z.object({ limit: z.number(), page: z.number() }))
-    .query(async ({ ctx: { db, session }, input: { limit, page } }) => {
-      const habitsResult = await db
+    .input(z.object({ limit: z.number(), page: z.number(), filters: z.array(z.string()) }))
+    .query(async ({ ctx: { db, session }, input: { limit, page, filters } }) => {
+      console.log(filters)
+      let baseQuery = db
         .select()
         .from(habits)
         .where(eq(habits.userId, session.user.id))
         .orderBy(desc(habits.createdAt))
-        .offset((limit*page) - limit)
-        .limit(limit)
 
+      for (const filter of filters as Array<FilterType>) {
+        switch (filter) {
+          case 'retired': {
+            baseQuery.where(eq(habits.retired, true))
+            break;
+          }
+          case 'needs-response': {
+            // these will be more complicated
+            break;
+          }
+          case 'needs-response-today': {
+            break;
+          }
+          case 'needs-response-week': {
+            break;
+          }
+        }
+      }
+
+        // .offset((limit*page) - limit)
+        // .limit(limit)
+
+      const habitsResult = await baseQuery.execute()
       const items = [];
 
       for (const habit of habitsResult) {
