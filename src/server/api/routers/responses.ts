@@ -29,14 +29,14 @@ export const responsesRouter = createTRPCRouter({
     )
     .query(async ({ ctx: { db }, input: { habitId, since, frequency } }) => {
       if (!since && frequency) {
-        return await responsesSince(db, habitId, frequency);
+        return await responsesSince({ db, habitId, frequency });
       }
-      
+
       if (!since) {
         throw new Error('need frequency if no since date is provided');
       }
 
-      return responsesSince(db, habitId, undefined, since);
+      return responsesSince({ db, habitId, since });
     }),
   allTimeCount: protectedProcedure
     .input(z.object({ habitId: z.string() }))
@@ -53,13 +53,13 @@ export const responsesRouter = createTRPCRouter({
     )
     .query(async ({ ctx: { db }, input: { habitId, since, frequency } }) => {
       if (!since && frequency) {
-        return await responseCountSince(db, habitId, frequency);
+        return await responseCountSince({ db, habitId, frequency });
       }
 
       if (!since) {
         throw new Error('need frequency if no since date is provided');
       }
 
-      return responseCountSince(db, habitId, undefined, since);
+      return responseCountSince({ db, habitId, since });
     }),
 });

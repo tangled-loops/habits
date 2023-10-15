@@ -99,7 +99,7 @@ export const habits = pgTable('habits', {
   frequency: varchar('frequency').notNull(),
   goal: integer('goal').notNull().default(1),
   responseCount: integer('response_count').notNull().default(0),
-  retired: boolean('retired').default(false),
+  archived: boolean('archived').default(false),
   deleted: boolean('deleted').default(false),
   color: varchar('color'),
   icon: varchar('icon'),

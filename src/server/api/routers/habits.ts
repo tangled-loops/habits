@@ -1,58 +1,99 @@
-import { desc, eq, inArray, sql } from 'drizzle-orm';
+import { and, desc, eq, gt, inArray, lt, not, or, sql } from 'drizzle-orm';
 import { z } from 'zod';
 
-import { frontendHabitSchema } from '@/lib/models/habit';
+import { filters } from '../../../app/(habits)/habits/page';
+
+import { frontendHabitSchema, Habit } from '@/lib/models/habit';
+import { dateSinceBy, responseCountSince } from '@/lib/models/response';
 
 import { createTRPCRouter, protectedProcedure } from '~/api/trpc';
-import { habits, habitsTags, Tag, tags } from '~/db/schema';
-import { responseCountSince } from '@/lib/models/response';
-import { FilterType } from '../../../app/(habits)/habits/page';
+import { habits, habitsTags, responses, Tag, tags } from '~/db/schema';
 
 export const habitsRouter = createTRPCRouter({
   totalCount: protectedProcedure
-    .input(z.object({ limit: z.number(), }))
-    .query(async ({ ctx: { db, session }, input: { limit }}) => {
+    .input(z.object({ limit: z.number() }))
+    .query(async ({ ctx: { db, session }, input: { limit } }) => {
       const habitsResult = await db
-        .select({ count: sql<number>`count(*)`})
+        .select({ count: sql<number>`count(*)` })
         .from(habits)
         .where(eq(habits.userId, session.user.id))
         .groupBy(habits.userId)
-        .limit(1)
-      return Math.round(habitsResult[0].count / limit)
+        .limit(1);
+      return Math.round(habitsResult[0].count / limit);
     }),
   findAll: protectedProcedure
-    .input(z.object({ limit: z.number(), page: z.number(), filters: z.array(z.string()) }))
-    .query(async ({ ctx: { db, session }, input: { limit, page, filters } }) => {
-      console.log(filters)
-      let baseQuery = db
-        .select()
-        .from(habits)
-        .where(eq(habits.userId, session.user.id))
-        .orderBy(desc(habits.createdAt))
+    .input(
+      z.object({
+        limit: z.number(),
+        page: z.number(),
+        filter: z.enum(filters),
+      }),
+    )
+    .query(async ({ ctx: { db, session }, input: { limit, page, filter } }) => {
+      let result: Array<Habit> = [];
+      /**
+       * Theres probably a much better pattern to use for updating the base of
+       * the query like this, not sure what the best approach is yet though.
+       */
+      switch (filter) {
+        case 'none': {
+          result = await db
+            .select()
+            .from(habits)
+            .where(eq(habits.userId, session.user.id))
+            .orderBy(habits.createdAt, habits.updatedAt);
+          break;
+        }
+        case 'archived': {
+          result = await db
+            .select()
+            .from(habits)
+            .where(
+              and(
+                eq(habits.archived, true),
+                eq(habits.userId, session.user.id),
+              ),
+            )
+            .orderBy(habits.updatedAt, habits.createdAt);
 
-      for (const filter of filters as Array<FilterType>) {
-        switch (filter) {
-          case 'retired': {
-            baseQuery.where(eq(habits.retired, true))
-            break;
-          }
-          case 'needs-response': {
-            // these will be more complicated
-            break;
-          }
-          case 'needs-response-today': {
-            break;
-          }
-          case 'needs-response-week': {
-            break;
-          }
+          break;
+        }
+        case 'needs-response': {
+          const startOfDay = dateSinceBy({ frequency: 'Daily', at: 'start-of-day' })
+          const endOfDay = dateSinceBy({ frequency: 'Daily', at: 'end-of-day' })
+          const responseResult = await db
+            .select({ habitId: responses.habitId, count: sql<number>`count(*)`, goal: habits.goal })
+            .from(responses)
+            .innerJoin(habits, eq(habits.id, responses.habitId))
+            .where(and(lt(responses.createdAt, endOfDay), gt(responses.createdAt, startOfDay)))
+            .groupBy(habits.goal, responses.habitId);
+          const counts = responseResult.reduce((pre: Array<string>, nxt) => {
+            if (Number(nxt.count) < nxt.goal) {
+              pre.push(nxt.habitId)
+            }
+            return pre
+          }, [])
+          const habitData = await db
+            .select({ habits })
+            .from(habits)
+            .innerJoin(responses, eq(habits.id, responses.habitId))
+            .where(
+              and(
+                inArray(habits.id, counts),
+                eq(habits.userId, session.user.id),
+              ),
+            )
+            .orderBy(habits.createdAt, habits.updatedAt)
+            .groupBy(habits.id, responses.habitId);
+          result = habitData.map((data) => data.habits);
+          break;
         }
       }
 
-        // .offset((limit*page) - limit)
-        // .limit(limit)
+      // .offset((limit*page) - limit)
+      // .limit(limit)
 
-      const habitsResult = await baseQuery.execute()
+      const habitsResult = result;
       const items = [];
 
       for (const habit of habitsResult) {
@@ -62,11 +103,14 @@ export const habitsRouter = createTRPCRouter({
           .innerJoin(habitsTags, eq(tags.id, habitsTags.tagId))
           .where(eq(habitsTags.habitId, habit.id));
 
-
         items.push(
           frontendHabitSchema.parse({
             ...habit,
-            responses: await responseCountSince(db, habit.id, habit.frequency),
+            responses: await responseCountSince({
+              db,
+              habitId: habit.id,
+              frequency: habit.frequency,
+            }),
             tags: tagsResult.map((t) => t.name),
           }),
         );
@@ -104,7 +148,11 @@ export const habitsRouter = createTRPCRouter({
         items.push(
           frontendHabitSchema.parse({
             ...habit,
-            responses: await responseCountSince(db, habit.id, habit.frequency),
+            responses: await responseCountSince({
+              db,
+              habitId: habit.id,
+              frequency: habit.frequency,
+            }),
             tags: tagsResult.map((t) => t.name),
           }),
         );
@@ -122,12 +170,12 @@ export const habitsRouter = createTRPCRouter({
     }),
   findById: protectedProcedure
     .input(z.object({ id: z.string() }))
-    .query(async ({ ctx, input }) => {
-      const habit = await ctx.db.query.habits.findFirst({
+    .query(async ({ ctx: { db, session }, input }) => {
+      const habit = await db.query.habits.findFirst({
         where: eq(habits.id, input.id),
       });
 
-      const tagsResult = await ctx.db
+      const tagsResult = await db
         .select({ name: tags.name })
         .from(tags)
         .innerJoin(habitsTags, eq(tags.id, habitsTags.tagId))
@@ -137,7 +185,11 @@ export const habitsRouter = createTRPCRouter({
 
       return frontendHabitSchema.parse({
         ...habit,
-        responses: await responseCountSince(ctx.db, habit.id, habit.frequency),
+        responses: await responseCountSince({
+          db,
+          habitId: habit.id,
+          frequency: habit.frequency,
+        }),
         tags: tagsResult.map((t) => t.name),
       });
     }),
@@ -199,7 +251,6 @@ export const habitsRouter = createTRPCRouter({
         const toCreateTags = input.tags.filter(
           (tag) => !allTagNames.includes(tag) && !usersTagsNames.includes(tag),
         );
-        console.log('making new tags: ', toCreateTags);
 
         let newTags: Array<Tag> = [];
         if (toCreateTags.length > 0) {
@@ -284,4 +335,7 @@ export const habitsRouter = createTRPCRouter({
           .where(eq(habits.id, input.id));
       }
     }),
+  archive: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {}),
 });

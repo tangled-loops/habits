@@ -79,11 +79,10 @@ function ResponsesCard({ habit, count }: HasHabitAndTRPC) {
           Recent Responses ({count.data} / {habit.goal})
           <Button variant='ghostPrimary' onClick={updateResponse}>
             <Plus className='mr-2' />
-            {/* Mark Performed */}
           </Button>
         </CardTitle>
       </CardHeader>
-      <Separator />
+      <Separator className={cn(backgroundColor(habit.color as Color))} />
       <CardContent className='-mb-3 mt-2'>
         {responses.data ? (
           <ScrollArea className='h-[200px] border p-4 shadow'>

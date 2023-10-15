@@ -19,7 +19,7 @@ import { Button } from '$/ui/button';
 
 function Header() {
   return (
-    <div className='-mt-4 border-y p-4 md:-mx-4'>
+    <div className='-mx-3 -mt-4 border-y p-4 md:-mx-4'>
       <div className='mx-8 flex flex-row items-center justify-between'>
         <h1 className='text-xl font-normal'>Habit Tracker</h1>
         <Link href='/habits?create=true' passHref>
@@ -33,55 +33,35 @@ function Header() {
   );
 }
 
-export type FilterType =
-  | 'all'
-  | 'retired'
-  | 'deleted'
-  | 'no-response'
-  | 'needs-response'
-  | 'needs-response-today'
-  | 'needs-response-week';
+export const filters = ['none', 'archived', 'needs-response'] as const;
+export type FilterType = (typeof filters)[number];
 
-function FilterMenu({ filters }: { filters: Array<FilterType> }) {
-  const filtersFor = (newFilter: FilterType) => {
-    return `${newFilter},${filters.filter((f) => f !== newFilter).join(',')}`;
-  };
+function FilterMenu() {
   return (
     <MenubarMenu>
       <MenubarTrigger className='ml-10'>
         <Filter />
       </MenubarTrigger>
       <MenubarContent>
-        <Link href={`/habits?filters=${filtersFor('retired')}`} passHref>
-          <MenubarItem>Retired</MenubarItem>
+        <Link href={`/habits?filter=archived`} passHref>
+          <MenubarItem>Archived</MenubarItem>
         </Link>
-        <Link href={`/habits?filters=${filtersFor('deleted')}`} passHref>
-          <MenubarItem>Deleted</MenubarItem>
-        </Link>
-        <MenubarSeparator />
-        <Link href={`/habits?filters=${filtersFor('needs-response')}`} passHref>
+        <Link href={`/habits?filter=needs-response`} passHref>
           <MenubarItem>Needs Responses</MenubarItem>
-        </Link>
-        <Link
-          href={`/habits?filters=${filtersFor('needs-response-today')}`}
-          passHref
-        >
-          <MenubarItem>Needs Response Today</MenubarItem>
-        </Link>
-        <Link
-          href={`/habits?filters=${filtersFor('needs-response-week')}`}
-          passHref
-        >
-          <MenubarItem>Needs Response this Week</MenubarItem>
         </Link>
         <MenubarSeparator />
         <Link href={`/habits`} passHref>
-          <MenubarItem>Clear All</MenubarItem>
+          <MenubarItem>Clear</MenubarItem>
         </Link>
       </MenubarContent>
     </MenubarMenu>
   );
 }
+
+//{ filter }: { filter: FilterType }) {
+// const filtersFor = (newFilter: FilterType) => {
+//   return `${newFilter},${filters.filter((f) => f !== newFilter).join(',')}`;
+// };
 
 function SortMenu() {
   return (
@@ -109,26 +89,20 @@ function SortMenu() {
   );
 }
 
-/** For sorting yes but not sure about stacking filters like this... hmm */
-
 export default async function Habits({
   searchParams,
 }: {
-  searchParams: { page: number; filters?: string };
+  searchParams: { page: number; filter?: string };
 }) {
   const client = await getClient();
   // const total = await client.habits.totalCount({
   //   limit: 100,
   // });
-  const filters =
-    (searchParams.filters
-      ?.split(',')
-      .filter((f) => f.length > 0) as Array<FilterType>) ?? [];
-  const habits = await client.habits.findAll({
-    limit: 100,
-    page: Number(searchParams.page ?? 1),
-    filters: filters,
-  });
+  const page = Number(searchParams.page ?? 1);
+  const limit = 100;
+  const filter = (searchParams.filter ?? 'none') as FilterType;
+  console.log(filter);
+  const habits = await client.habits.findAll({ limit, page, filter });
   return (
     <>
       <HabitCreate />
@@ -136,7 +110,7 @@ export default async function Habits({
         <Header />
         <Menubar className='-mx-5 flex flex-row justify-start border-0 border-b'>
           <div className='flex flex-row'>
-            <FilterMenu filters={filters} />
+            <FilterMenu />
             <SortMenu />
           </div>
           <MenubarMenu>

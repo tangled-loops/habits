@@ -340,7 +340,7 @@ function HabitCard({ habit }: HasHabit) {
               handleSubmit={handleSubmit}
               habit={_habit}
             />
-            <Separator className={backgroundColor(_habit.color as Color)} />
+            <Separator className={cn(backgroundColor(_habit.color as Color))} />
           </CardHeader>
           <Days habit={_habit} />
         </div>
