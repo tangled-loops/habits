@@ -10,6 +10,7 @@ import {
   View,
 } from 'lucide-react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { Dispatch, SetStateAction, useState } from 'react';
 
 import { HabitEdit } from './action-dialogs';
@@ -304,6 +305,8 @@ function Title({ habit, editing, setEditing, handleSubmit }: TitleProps) {
 }
 
 function HabitCard({ habit }: HasHabit) {
+  const params = useSearchParams();
+
   const { data, refetch } = trpc.habits.findById.useQuery(
     { id: habit.id || '' },
     { enabled: false },
@@ -326,9 +329,17 @@ function HabitCard({ habit }: HasHabit) {
     setResponses(responses + 1);
   };
 
+  const editingEnabled =
+    !!params.get('edit') &&
+    !!params.get('id') &&
+    params.get('id') === _habit.id!;
   return (
     <>
-      <HabitEdit habit={_habit} handleSubmit={handleSubmit} />
+      <HabitEdit
+        habit={_habit}
+        open={editingEnabled}
+        handleSubmit={handleSubmit}
+      />
       <Card className='p-2'>
         <div className='flex flex-row items-center'>
           {_habit.icon.length > 0 &&

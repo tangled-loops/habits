@@ -1,4 +1,4 @@
-import { and, desc, eq, gt, inArray, lt, not, or, sql } from 'drizzle-orm';
+import { and, desc, eq, gt, ilike, inArray, like, lt, not, or, sql } from 'drizzle-orm';
 import { z } from 'zod';
 
 import { filters } from '../../../app/(habits)/habits/page';
@@ -27,9 +27,10 @@ export const habitsRouter = createTRPCRouter({
         limit: z.number(),
         page: z.number(),
         filter: z.enum(filters),
+        search: z.string().nullish()
       }),
     )
-    .query(async ({ ctx: { db, session }, input: { limit, page, filter } }) => {
+    .query(async ({ ctx: { db, session }, input: { limit, page, filter, search } }) => {
       let result: Array<Habit> = [];
       /**
        * Theres probably a much better pattern to use for updating the base of
@@ -37,23 +38,44 @@ export const habitsRouter = createTRPCRouter({
        */
       switch (filter) {
         case 'none': {
+          let where;
+          if (search) {
+            where = and(
+              eq(habits.archived, false),
+              eq(habits.userId, session.user.id),
+              ilike(habits.name, `%${search}%`),
+            )
+          } else {
+            where = and(
+              eq(habits.archived, false),
+              eq(habits.userId, session.user.id)
+            )
+          }
           result = await db
             .select()
             .from(habits)
-            .where(eq(habits.userId, session.user.id))
+            .where(where)
             .orderBy(habits.createdAt, habits.updatedAt);
           break;
         }
         case 'archived': {
+          let where;
+          if (search) {
+            where = and(
+              eq(habits.archived, true),
+              eq(habits.userId, session.user.id),
+              ilike(habits.name, `%${search}%`),
+            )
+          } else {
+            where = and(
+              eq(habits.archived, true),
+              eq(habits.userId, session.user.id),
+            )
+          }
           result = await db
             .select()
             .from(habits)
-            .where(
-              and(
-                eq(habits.archived, true),
-                eq(habits.userId, session.user.id),
-              ),
-            )
+            .where(where)
             .orderBy(habits.updatedAt, habits.createdAt);
 
           break;
@@ -65,24 +87,42 @@ export const habitsRouter = createTRPCRouter({
             .select({ habitId: responses.habitId, count: sql<number>`count(*)`, goal: habits.goal })
             .from(responses)
             .innerJoin(habits, eq(habits.id, responses.habitId))
-            .where(and(lt(responses.createdAt, endOfDay), gt(responses.createdAt, startOfDay)))
+            .where(and(lt(responses.createdAt, endOfDay), gt(responses.createdAt, startOfDay), eq(habits.archived, false)))
             .groupBy(habits.goal, responses.habitId);
           const counts = responseResult.reduce((pre: Array<string>, nxt) => {
-            if (Number(nxt.count) < nxt.goal) {
+            if (Number(nxt.count) >= nxt.goal) {
               pre.push(nxt.habitId)
             }
             return pre
           }, [])
+
+          let inPart;
+          if (counts.length > 0) {
+            inPart = not(inArray(habits.id, counts))
+          } else {
+            inPart = undefined
+          }
+          let where;
+          if (search) {
+            where = and(
+              and(
+                inPart,
+                eq(habits.userId, session.user.id),
+                ilike(habits.name, `%${search}%`),
+              )
+            )
+          } else {
+            where = and(
+              inPart,
+              eq(habits.userId, session.user.id),
+            )
+          }
+          
           const habitData = await db
             .select({ habits })
             .from(habits)
             .innerJoin(responses, eq(habits.id, responses.habitId))
-            .where(
-              and(
-                inArray(habits.id, counts),
-                eq(habits.userId, session.user.id),
-              ),
-            )
+            .where(where)
             .orderBy(habits.createdAt, habits.updatedAt)
             .groupBy(habits.id, responses.habitId);
           result = habitData.map((data) => data.habits);

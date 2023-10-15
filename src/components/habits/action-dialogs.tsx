@@ -18,19 +18,6 @@ import { FrontendHabit } from '@/lib/models/habit';
 
 import { Button } from '$/ui/button';
 
-function handleOpenChange(
-  allow: boolean,
-  viewModel: FormViewModel,
-  setShow: Dispatch<SetStateAction<boolean>>,
-) {
-  if (allow) {
-    setShow(false);
-    viewModel.router.replace(viewModel.redirectTo);
-    viewModel.router.refresh();
-  }
-  return (open: boolean) => {};
-}
-
 function HabitCreate() {
   const params = useSearchParams();
 
@@ -77,19 +64,27 @@ function HabitCreate() {
   );
 }
 
+function handleOpenChange(
+  allow: boolean,
+  viewModel: FormViewModel,
+  // setShow: Dispatch<SetStateAction<boolean>>,
+) {
+  if (allow) {
+    // setShow(false);
+    viewModel.router.replace(viewModel.redirectTo);
+    // viewModel.router.refresh();
+  }
+  return (open: boolean) => {};
+}
+
 interface HabitEditProps {
   habit: FrontendHabit;
-  forceOpen?: boolean;
+  open?: boolean;
   handleSubmit?: () => void;
 }
 
-function HabitEdit({ habit, forceOpen, handleSubmit }: HabitEditProps) {
+function HabitEdit({ habit, open, handleSubmit }: HabitEditProps) {
   const path = usePathname();
-  const params = useSearchParams();
-
-  const [show, setShow] = useState(forceOpen ?? true);
-
-  const thisDialog = habit.id === (params.get('id') ?? '');
 
   const viewModel = useFormViewModel({ habit, redirectTo: path });
 
@@ -99,10 +94,7 @@ function HabitEdit({ habit, forceOpen, handleSubmit }: HabitEditProps) {
   };
 
   return (
-    <Dialog
-      open={!!forceOpen || (show && thisDialog)}
-      onOpenChange={handleOpenChange(false, viewModel, setShow)}
-    >
+    <Dialog open={open} onOpenChange={handleOpenChange(false, viewModel)}>
       <DialogContent className='md:min-w-[500px] lg:min-w-[800px]'>
         <DialogHeader>
           <DialogTitle>Editing...</DialogTitle>
@@ -117,7 +109,7 @@ function HabitEdit({ habit, forceOpen, handleSubmit }: HabitEditProps) {
         <DialogFooter className='-mb-4 sm:justify-between'>
           <Button
             variant='destructive'
-            onClick={() => handleOpenChange(true, viewModel, setShow)}
+            onClick={() => handleOpenChange(true, viewModel)}
           >
             Cancel
           </Button>

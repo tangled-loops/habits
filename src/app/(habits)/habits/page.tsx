@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 import { HabitCreate } from '@/components/habits/action-dialogs';
 import { HabitsList } from '@/components/habits/list';
-import { Input } from '@/components/ui/input';
+import { SearchInput } from '@/components/habits/search-input';
 import {
   Menubar,
   MenubarContent,
@@ -92,7 +92,7 @@ function SortMenu() {
 export default async function Habits({
   searchParams,
 }: {
-  searchParams: { page: number; filter?: string };
+  searchParams: { page: number; search?: string; filter?: string };
 }) {
   const client = await getClient();
   // const total = await client.habits.totalCount({
@@ -101,8 +101,8 @@ export default async function Habits({
   const page = Number(searchParams.page ?? 1);
   const limit = 100;
   const filter = (searchParams.filter ?? 'none') as FilterType;
-  console.log(filter);
-  const habits = await client.habits.findAll({ limit, page, filter });
+  const search = searchParams.search;
+  const habits = await client.habits.findAll({ limit, page, filter, search });
   return (
     <>
       <HabitCreate />
@@ -114,13 +114,10 @@ export default async function Habits({
             <SortMenu />
           </div>
           <MenubarMenu>
-            <Input
-              className='w-[40%] border-0 hover:border-0'
-              placeholder='Search...'
-            />
+            <SearchInput />
           </MenubarMenu>
         </Menubar>
-        <ScrollArea className='absolute bottom-0 -mx-4 h-[87vh] md:-mx-2 lg:-mx-4'>
+        <ScrollArea className='absolute bottom-0 -mx-4 h-[80vh] md:-mx-2 lg:-mx-4'>
           <div className='px-8 py-2 pb-[200px]'>
             <HabitsList habits={habits} />
           </div>

@@ -3,7 +3,7 @@
 import { TRPCClientErrorBase } from '@trpc/client';
 import { UseTRPCQueryResult } from '@trpc/react-query/shared';
 import { DefaultErrorShape } from '@trpc/server';
-import { BookOpen, ChevronLeft, Dot, Edit, Plus } from 'lucide-react';
+import { BookOpen, ChevronLeft, Dot, Edit } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useState } from 'react';
@@ -303,7 +303,7 @@ function DetailSection({ habit }: HasHabit) {
       <Header habit={habitQuery.data ?? _habit} />
       <HabitEdit
         habit={_habit}
-        forceOpen={!!params.get('edit')}
+        open={!!params.get('edit')}
         handleSubmit={handleSubmit}
       />
       <div className='space-8 mx-8 my-1 grid h-full grid-cols-1 gap-4 p-4 lg:grid-cols-2'>
