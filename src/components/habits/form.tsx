@@ -4,11 +4,13 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { TRPCClientErrorBase } from '@trpc/client';
 import { UseTRPCQueryResult } from '@trpc/react-query/shared';
 import { DefaultErrorShape } from '@trpc/server';
-import { Activity, AlarmPlus, Anchor, Binary, Box, Dot } from 'lucide-react';
+import { Dot } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import React, { ReactElement } from 'react';
+import React from 'react';
 import { ControllerRenderProps, useForm, UseFormReturn } from 'react-hook-form';
 
+import { ToastProps } from '../ui/toast';
+import { useToast } from '../ui/use-toast';
 import { icon } from './icon';
 
 import {
@@ -20,7 +22,6 @@ import {
   Frequency,
   FrontendHabit,
   frontendHabitSchema,
-  Icon,
   icons,
   textColor,
 } from '@/lib/models/habit';
@@ -51,14 +52,66 @@ import { Textarea } from '$/ui/textarea';
 
 type MutateFn = (data: FrontendHabit) => Promise<void>;
 
-interface FormViewModelOptions {
+interface UseFormViewModelOptions {
   habit?: FrontendHabit;
+  redirectTo: string;
+  onMutate?: MutateFn;
+}
+
+export function useFormViewModel({
+  habit,
+  onMutate,
+  redirectTo,
+}: UseFormViewModelOptions) {
+  const router = useRouter();
+
+  const { toast } = useToast();
+
+  const tagsQuery = trpc.tags.findAll.useQuery();
+  const { mutateAsync } = trpc.habits.createOrUpdate.useMutation();
+
+  const [tags, setTags] = React.useState<Array<OptionType>>([]);
+
+  const viewModel = new FormViewModel({
+    tags,
+    habit,
+    toast,
+    router,
+    mutate: async (data: FrontendHabit) => {
+      await mutateAsync(data);
+      await onMutate?.(data);
+    },
+    setTags,
+    tagsQuery,
+    redirectTo,
+  });
+
+  const form = useForm<FrontendHabit>({
+    resolver: zodResolver(frontendHabitSchema),
+    defaultValues: viewModel.defaultValues,
+  });
+
+  const watcher = form.watch();
+
+  viewModel.form = form;
+  viewModel.watcher = watcher;
+  return viewModel;
+}
+
+interface FormViewModelOptions extends UseFormViewModelOptions {
+  tags: Array<OptionType>;
+  toast: ({ ...props }: ToastProps) => {
+    id: string;
+    dismiss: () => void;
+    update: (props: any) => void;
+  };
+  mutate: MutateFn;
+  router: ReturnType<typeof useRouter>;
+  setTags: React.Dispatch<React.SetStateAction<Array<OptionType>>>;
   tagsQuery: UseTRPCQueryResult<
     string[],
     TRPCClientErrorBase<DefaultErrorShape>
   >;
-  redirectTo: string;
-  mutate: MutateFn;
 }
 
 export class FormViewModel {
@@ -67,38 +120,43 @@ export class FormViewModel {
   redirectTo: string;
   tagOptions: Array<OptionType>;
 
-  form: UseFormReturn<FrontendHabit>;
-  watcher: FrontendHabit;
+  form?: UseFormReturn<FrontendHabit>;
+  watcher?: FrontendHabit;
 
+  toast: ({ ...props }: ToastProps) => {
+    id: string;
+    dismiss: () => void;
+    update: (props: any) => void;
+  };
   router: ReturnType<typeof useRouter>;
+
   setTags: React.Dispatch<React.SetStateAction<Array<OptionType>>>;
   tagsQuery: UseTRPCQueryResult<
     string[],
     TRPCClientErrorBase<DefaultErrorShape>
   >;
 
-  constructor({ habit, tagsQuery, redirectTo, mutate }: FormViewModelOptions) {
+  constructor({
+    tags,
+    toast,
+    habit,
+    router,
+    mutate,
+    setTags,
+    tagsQuery,
+    redirectTo,
+  }: FormViewModelOptions) {
+    this.toast = toast;
     this.habit = habit;
     this.mutate = mutate;
-    this.redirectTo = redirectTo;
-    this.tagsQuery = tagsQuery;
-
-    this.router = useRouter();
-
-    const [_tags, setTags] = React.useState(this.makeTagOptions);
-    this.tagOptions = _tags;
+    this.router = router;
     this.setTags = setTags;
-
-    this.form = useForm<FrontendHabit>({
-      resolver: zodResolver(frontendHabitSchema),
-      defaultValues: this.defaultValues,
-    });
-    this.watcher = this.form.watch();
+    this.tagOptions = tags;
+    this.tagsQuery = tagsQuery;
+    this.redirectTo = redirectTo;
 
     setTimeout(() => {
-      if (tagsQuery.data) {
-        setTags(this.makeTagOptions);
-      }
+      if (tagsQuery.data) setTags(this.makeTagOptions);
     }, 250);
   }
 
@@ -153,7 +211,9 @@ export class FormViewModel {
   async onSubmit(data: FrontendHabit) {
     await this.mutate(data);
     this.router.replace(this.redirectTo);
-
+    this.toast({
+      title: 'Success',
+    });
     // @todo add a toast
   }
 
@@ -196,11 +256,11 @@ interface HabitsFormProps {
 
 export default function HabitsForm({ viewModel }: HabitsFormProps) {
   return (
-    <Form {...viewModel.form}>
-      <form onSubmit={viewModel.form.handleSubmit(viewModel.onSubmit)}>
+    <Form {...viewModel.form!}>
+      <form onSubmit={viewModel.form!.handleSubmit(viewModel.onSubmit)}>
         <div className='m-4 grid grid-cols-1 gap-4'>
           <FormField
-            control={viewModel.form.control}
+            control={viewModel.form!.control}
             name='name'
             render={({ field }) => (
               <FormItem>
@@ -217,7 +277,7 @@ export default function HabitsForm({ viewModel }: HabitsFormProps) {
           />
           <div className='grid grid-cols-2 gap-4'>
             <FormField
-              control={viewModel.form.control}
+              control={viewModel.form!.control}
               name='color'
               render={({ field }) => (
                 <FormItem>
@@ -263,7 +323,7 @@ export default function HabitsForm({ viewModel }: HabitsFormProps) {
               )}
             />
             <FormField
-              control={viewModel.form.control}
+              control={viewModel.form!.control}
               name='icon'
               render={({ field }) => (
                 <FormItem>
@@ -281,7 +341,7 @@ export default function HabitsForm({ viewModel }: HabitsFormProps) {
                       {icons.map((ico) => {
                         return (
                           <SelectItem id={ico} value={ico}>
-                            {icon(ico)}
+                            {icon(ico, viewModel.watcher!.color as Color)}
                           </SelectItem>
                         );
                       })}
@@ -296,13 +356,13 @@ export default function HabitsForm({ viewModel }: HabitsFormProps) {
         <div
           className={cn(
             'm-4 grid grid-cols-1 gap-4',
-            viewModel.watcher.frequency === Frequency[Frequency.Daily]
+            viewModel.watcher!.frequency === Frequency[Frequency.Daily]
               ? 'lg:grid-cols-3'
               : 'lg:grid-cols-2',
           )}
         >
           <FormField
-            control={viewModel.form.control}
+            control={viewModel.form!.control}
             name='frequency'
             render={({ field }) => (
               <FormItem>
@@ -331,9 +391,9 @@ export default function HabitsForm({ viewModel }: HabitsFormProps) {
               </FormItem>
             )}
           />
-          {viewModel.watcher.frequency === Frequency[Frequency.Daily] ? (
+          {viewModel.watcher!.frequency === Frequency[Frequency.Daily] ? (
             <FormField
-              control={viewModel.form.control}
+              control={viewModel.form!.control}
               name='selectedDays'
               render={({ field }) => (
                 <FormItem>
@@ -358,9 +418,9 @@ export default function HabitsForm({ viewModel }: HabitsFormProps) {
               )}
             />
           ) : null}
-          {viewModel.watcher.frequency ? (
+          {viewModel.watcher!.frequency ? (
             <FormField
-              control={viewModel.form.control}
+              control={viewModel.form!.control}
               name='goal'
               render={({ field }) => (
                 <FormItem>
@@ -384,7 +444,7 @@ export default function HabitsForm({ viewModel }: HabitsFormProps) {
         <div className='m-4 grid grid-cols-1 gap-8'></div>
         <div className='m-4 grid grid-cols-1 gap-8'>
           <FormField
-            control={viewModel.form.control}
+            control={viewModel.form!.control}
             name='tags'
             render={({ field }) => (
               <FormItem>
@@ -407,7 +467,7 @@ export default function HabitsForm({ viewModel }: HabitsFormProps) {
             )}
           />
           <FormField
-            control={viewModel.form.control}
+            control={viewModel.form!.control}
             name='notes'
             render={({ field }) => (
               <FormItem>

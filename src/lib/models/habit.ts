@@ -63,16 +63,16 @@ const colors = ['red', 'green', 'blue', 'orange', 'purple'] as const;
 type Color = (typeof colors)[number];
 
 /**
- * Can't use string interpolation for class names for some reason...
+ * Can't use string interpolation for class names 
  */
 
-function backgroundColor(color: Color, muted: boolean = false) {
+function backgroundColor(color: Color, muted: boolean = false, hover: boolean = false) {
   switch (color as Color) {
-    case 'blue': return muted ? 'bg-blue-500/20' : 'bg-blue-500'
-    case 'green': return muted ? 'bg-green-500/20' : 'bg-green-500'
-    case 'orange': return muted ? 'bg-orange-500/20' : 'bg-orange-500'
-    case 'purple': return muted ? 'bg-purple-500/20' : 'bg-purple-500'
-    case 'red': return muted ? 'bg-red-500/20' : 'bg-red-500'
+    case 'blue': return hover ? 'hover:bg-blue-500/50' : (muted ? 'bg-blue-500/20' : 'bg-blue-500')
+    case 'green': return hover ? 'hover:bg-green-500/50' : (muted ? 'bg-green-500/50' : 'bg-green-500')
+    case 'orange': return hover ? 'hover:bg-orange-500/50' : (muted ? 'bg-orange-500/50' : 'bg-orange-500')
+    case 'purple': return hover ? 'hover:bg-purple-500/50' : (muted ? 'bg-purple-500/50' : 'bg-purple-500')
+    case 'red': return hover ? 'hover:bg-red-500/50' : (muted ? 'bg-red-500/50' : 'bg-red-500')
   }
 }
 

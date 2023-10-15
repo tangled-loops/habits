@@ -118,7 +118,7 @@ function Sidebar() {
     icon: <LogOut className='mr-2 h-5 w-5' />,
   };
   return (
-    <aside className='fixed bottom-0 left-0 top-0 hidden h-[100%] border-r-[1px] border-primary bg-card sm:block md:w-[200px]'>
+    <aside className='fixed inset-y-0 left-0 hidden h-[100%] border-r-[1px] border-primary bg-card sm:block md:w-[200px]'>
       <h1 className='text-semibold mx-1 p-4 text-xl'>Habits</h1>
       <div className='mt-1'>
         <div className='w-full'>
@@ -141,7 +141,7 @@ function Nav() {
   const path = useRootPath();
   return (
     <>
-      <NavigationMenu className='fixed inset-x-0 top-0 h-[44px] max-w-full justify-start space-x-5 bg-card'>
+      <NavigationMenu className='fixed inset-0 h-[44px] max-w-full justify-start space-x-5 bg-card'>
         <NavigationMenuList className='bg-card'>
           <NavigationMenuItem>
             <h1 className='ml-5 whitespace-nowrap text-center text-xl'>

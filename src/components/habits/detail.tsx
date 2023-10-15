@@ -3,17 +3,25 @@
 import { TRPCClientErrorBase } from '@trpc/client';
 import { UseTRPCQueryResult } from '@trpc/react-query/shared';
 import { DefaultErrorShape } from '@trpc/server';
-import { BookOpen, Dot, Plus } from 'lucide-react';
+import { BookOpen, ChevronLeft, Dot, Edit, Plus } from 'lucide-react';
+import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import { useState } from 'react';
 import { GridLoader } from 'react-spinners';
 
 import { HabitEdit } from './action-dialogs';
+import { icon } from './icon';
 
 import { Badge } from '@/components/ui/badge';
 import { DaysField } from '@/components/ui/days-input';
-import { FrontendHabit } from '@/lib/models/habit';
+import {
+  backgroundColor,
+  Color,
+  FrontendHabit,
+  Icon,
+} from '@/lib/models/habit';
 import { trpc } from '@/lib/trpc';
-import { Response } from '@/server/db/schema';
+import { cn } from '@/lib/utils';
 
 import { Button } from '$/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '$/ui/card';
@@ -32,6 +40,12 @@ interface TRPCData {
   count: UseTRPCQueryResult<number, TRPCClientErrorBase<DefaultErrorShape>>;
 }
 
+interface HasHabit {
+  habit: FrontendHabit;
+}
+
+type HasHabitAndTRPC = TRPCData & HasHabit;
+
 interface ResponseCountProps extends TRPCData {
   initial: number;
 }
@@ -45,21 +59,16 @@ function ResponseCount({ count, initial }: ResponseCountProps) {
   );
 }
 
-interface ResponsesCardProps extends TRPCData {
-  habit: FrontendHabit;
-  responses: Array<Response>;
-}
-
-function ResponsesCard({ habit, responses, count }: ResponsesCardProps) {
+function ResponsesCard({ habit, count }: HasHabitAndTRPC) {
   const { mutateAsync } = trpc.responses.add.useMutation();
-  const _responses = trpc.responses.since.useQuery({
+  const responses = trpc.responses.since.useQuery({
     habitId: habit.id!,
     frequency: habit.frequency,
   });
 
   const updateResponse = async () => {
     await mutateAsync({ habitId: habit.id! });
-    await _responses.refetch();
+    await responses.refetch();
     await count.refetch();
   };
 
@@ -76,14 +85,14 @@ function ResponsesCard({ habit, responses, count }: ResponsesCardProps) {
       </CardHeader>
       <Separator />
       <CardContent className='-mb-3 mt-2'>
-        {_responses.data ? (
+        {responses.data ? (
           <ScrollArea className='h-[200px] border p-4 shadow'>
             <Table>
               <TableHead>
                 <TableHeader>Date</TableHeader>
               </TableHead>
               <TableBody className='rounded-lg border'>
-                {_responses.data.map((response) => {
+                {responses.data.map((response) => {
                   return (
                     <TableRow key={response.id}>
                       <TableCell>
@@ -120,11 +129,7 @@ function ResponsesCard({ habit, responses, count }: ResponsesCardProps) {
   );
 }
 
-interface InfoCardProps extends TRPCData {
-  habit: FrontendHabit;
-}
-
-function InfoCard({ habit, count }: InfoCardProps) {
+function InfoCard({ habit, count }: HasHabitAndTRPC) {
   return (
     <Card>
       <CardHeader className='grow p-4'>
@@ -153,7 +158,17 @@ function InfoCard({ habit, count }: InfoCardProps) {
           <span>Tags</span>
           <span>
             {habit.tags.map((tag) => {
-              return <Badge className='m-1'>{tag}</Badge>;
+              return (
+                <Badge
+                  className={cn(
+                    backgroundColor(habit.color as Color),
+                    backgroundColor(habit.color as Color, false, true),
+                    'm-1',
+                  )}
+                >
+                  {tag}
+                </Badge>
+              );
             })}
           </span>
         </div>
@@ -235,24 +250,66 @@ export function Journal() {
   );
 }
 
-function DetailSection({
-  habit,
-  responses,
-}: {
-  habit: FrontendHabit;
-  responses: Array<Response>;
-}) {
+function Header({ habit }: { habit: FrontendHabit }) {
+  return (
+    <div className='border px-8 py-6 md:-mx-12'>
+      <div className='flex flex-row items-center justify-between'>
+        <h2 className='flex flex-row items-center text-xl font-normal'>
+          <Link href={`/habits?page=1`} passHref className='-mx-6'>
+            <Button variant='ghostPrimary'>
+              <ChevronLeft className='mr-0' />
+              Back
+            </Button>
+          </Link>
+          <div className='mx-8'>
+            <div className='flex flex-row space-x-6'>
+              {icon(habit.icon as Icon, habit.color as Color)}
+              {habit.name}
+            </div>
+            <Separator
+              className={cn('ml-10', backgroundColor(habit.color as Color))}
+            />
+          </div>
+        </h2>
+        <Link href={`/habits/${habit.id}?edit=true&id=${habit.id}`} passHref>
+          <Button variant='ghostPrimary'>
+            <Edit className='mr-2' />
+            Edit
+          </Button>
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+function DetailSection({ habit }: HasHabit) {
   const params = useSearchParams();
+  const [_habit, setHabit] = useState(habit);
   const count = trpc.responses.countSince.useQuery({
     habitId: habit.id!,
     frequency: habit.frequency,
   });
+  const habitQuery = trpc.habits.findById.useQuery(
+    { id: habit.id! },
+    { enabled: false },
+  );
+  const handleSubmit = async () => {
+    await habitQuery.refetch();
+    setTimeout(async () => {
+      if (habitQuery.data) setHabit(habitQuery.data);
+    }, 250);
+  };
   return (
     <>
-      <HabitEdit habit={habit} forceOpen={!!params.get('edit')} />
+      <Header habit={habitQuery.data ?? _habit} />
+      <HabitEdit
+        habit={_habit}
+        forceOpen={!!params.get('edit')}
+        handleSubmit={handleSubmit}
+      />
       <div className='space-8 mx-8 my-1 grid h-full grid-cols-1 gap-4 p-4 lg:grid-cols-2'>
-        <InfoCard habit={habit} count={count} />
-        <ResponsesCard habit={habit} responses={responses} count={count} />
+        <InfoCard habit={habitQuery.data ?? _habit} count={count} />
+        <ResponsesCard habit={habitQuery.data ?? _habit} count={count} />
       </div>
       <Journal />
     </>

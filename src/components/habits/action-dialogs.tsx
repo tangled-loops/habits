@@ -1,9 +1,9 @@
 'use client';
 
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { Dispatch, SetStateAction, useState } from 'react';
 
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Card, CardContent } from '../ui/card';
 import {
   Dialog,
   DialogContent,
@@ -12,10 +12,9 @@ import {
   DialogTitle,
 } from '../ui/dialog';
 import { ScrollArea } from '../ui/scroll-area';
-import HabitsForm, { FormViewModel } from './form';
+import HabitsForm, { FormViewModel, useFormViewModel } from './form';
 
 import { FrontendHabit } from '@/lib/models/habit';
-import { trpc } from '@/lib/trpc';
 
 import { Button } from '$/ui/button';
 
@@ -37,14 +36,9 @@ function HabitCreate() {
 
   const [show, setShow] = useState(true);
 
-  const tagsQuery = trpc.tags.findAll.useQuery();
-  const mutation = trpc.habits.createOrUpdate.useMutation();
-
-  const viewModel = new FormViewModel({
-    tagsQuery,
+  const viewModel = useFormViewModel({
     redirectTo: '/habits?page=1',
-    mutate: async (data: FrontendHabit) => {
-      mutation.mutate(data);
+    onMutate: async () => {
       setShow(false);
     },
   });
@@ -73,7 +67,7 @@ function HabitCreate() {
           <span></span>
           <Button
             type='submit'
-            onClick={() => viewModel.onSubmit(viewModel.watcher)}
+            onClick={() => viewModel.onSubmit(viewModel.watcher!)}
           >
             Save
           </Button>
@@ -83,16 +77,13 @@ function HabitCreate() {
   );
 }
 
-function HabitEdit({
-  habit,
-  forceOpen,
-  handleSubmit,
-}: {
+interface HabitEditProps {
   habit: FrontendHabit;
   forceOpen?: boolean;
   handleSubmit?: () => void;
-}) {
-  const ctx = trpc.useContext();
+}
+
+function HabitEdit({ habit, forceOpen, handleSubmit }: HabitEditProps) {
   const path = usePathname();
   const params = useSearchParams();
 
@@ -100,25 +91,10 @@ function HabitEdit({
 
   const thisDialog = habit.id === (params.get('id') ?? '');
 
-  const tagsQuery = trpc.tags.findAll.useQuery();
-  const mutation = trpc.habits.createOrUpdate.useMutation({
-    onSuccess() {
-      console.log('success');
-      // ctx.habits.findById.invalidate();
-      // ctx.tags.invalidate();
-    },
-  });
+  const viewModel = useFormViewModel({ habit, redirectTo: path });
 
-  const viewModel = new FormViewModel({
-    habit,
-    tagsQuery,
-    redirectTo: path,
-    mutate: async (data: FrontendHabit) => await mutation.mutateAsync(data),
-  });
-
-  const onSubmit = () => {
-    viewModel.onSubmit(viewModel.watcher);
-    console.log('this');
+  const onSubmit = async () => {
+    await viewModel.onSubmit(viewModel.watcher!);
     handleSubmit?.();
   };
 
