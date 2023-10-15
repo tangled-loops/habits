@@ -9,6 +9,11 @@ import { dateSinceBy, responseCountSince } from '@/lib/models/response';
 import { createTRPCRouter, protectedProcedure } from '~/api/trpc';
 import { habits, habitsTags, responses, Tag, tags } from '~/db/schema';
 
+/**
+ * @todo start moving chunks of functionality to the habit model and consolodate
+ * @todo improve efficiency by reducing the number of queries
+ * @todo implement some form of pagination for the main list page
+ */
 export const habitsRouter = createTRPCRouter({
   totalCount: protectedProcedure
     .input(z.object({ limit: z.number() }))
@@ -55,7 +60,7 @@ export const habitsRouter = createTRPCRouter({
             .select()
             .from(habits)
             .where(where)
-            .orderBy(habits.createdAt, habits.updatedAt);
+            .orderBy(desc(habits.createdAt), desc(habits.updatedAt));
           break;
         }
         case 'archived': {
@@ -76,7 +81,7 @@ export const habitsRouter = createTRPCRouter({
             .select()
             .from(habits)
             .where(where)
-            .orderBy(habits.updatedAt, habits.createdAt);
+            .orderBy(desc(habits.updatedAt), desc(habits.createdAt));
 
           break;
         }
@@ -108,12 +113,14 @@ export const habitsRouter = createTRPCRouter({
               and(
                 inPart,
                 eq(habits.userId, session.user.id),
+                eq(habits.archived, false),
                 ilike(habits.name, `%${search}%`),
               )
             )
           } else {
             where = and(
               inPart,
+              eq(habits.archived, false),
               eq(habits.userId, session.user.id),
             )
           }
@@ -123,7 +130,7 @@ export const habitsRouter = createTRPCRouter({
             .from(habits)
             .innerJoin(responses, eq(habits.id, responses.habitId))
             .where(where)
-            .orderBy(habits.createdAt, habits.updatedAt)
+            .orderBy(desc(habits.createdAt), desc(habits.updatedAt))
             .groupBy(habits.id, responses.habitId);
           result = habitData.map((data) => data.habits);
           break;
@@ -377,5 +384,12 @@ export const habitsRouter = createTRPCRouter({
     }),
   archive: protectedProcedure
     .input(z.object({ id: z.string() }))
-    .mutation(async ({ ctx, input }) => {}),
+    .mutation(async ({ ctx: { db, session }, input: { id } }) => {
+      await db.update(habits).set({ archived: true }).where(eq(habits.id, id))
+    }),
+  unarchive: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx: { db, session }, input: { id } }) => {
+      await db.update(habits).set({ archived: false }).where(eq(habits.id, id))
+    }),
 });

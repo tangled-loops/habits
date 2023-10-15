@@ -3,7 +3,7 @@
 import { TRPCClientErrorBase } from '@trpc/client';
 import { UseTRPCQueryResult } from '@trpc/react-query/shared';
 import { DefaultErrorShape } from '@trpc/server';
-import { BookOpen, ChevronLeft, Dot, Edit } from 'lucide-react';
+import { BookOpen, ChevronLeft, Dot, Edit, Plus } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useState } from 'react';
@@ -78,7 +78,7 @@ function ResponsesCard({ habit, count }: HasHabitAndTRPC) {
         <CardTitle className='flex flex-row items-center justify-between'>
           Recent Responses ({count.data} / {habit.goal})
           <Button variant='ghostPrimary' onClick={updateResponse}>
-            <Plus className='mr-2' />
+            <Plus />
           </Button>
         </CardTitle>
       </CardHeader>
@@ -162,7 +162,7 @@ function InfoCard({ habit, count }: HasHabitAndTRPC) {
                   className={cn(
                     backgroundColor(habit.color as Color),
                     backgroundColor(habit.color as Color, false, true),
-                    'm-1',
+                    'm-1 text-white',
                   )}
                 >
                   {tag}
@@ -214,7 +214,7 @@ export function Journal() {
           <CardTitle className='flex flex-row items-center justify-between'>
             Journal
             <Button variant='ghostPrimary'>
-              <BookOpen className='mr-2' />
+              <BookOpen />
               <span className='sr-only'>Write</span>
             </Button>
           </CardTitle>
@@ -266,7 +266,10 @@ function Header({ habit }: { habit: FrontendHabit }) {
               {habit.name}
             </div>
             <Separator
-              className={cn('ml-10', backgroundColor(habit.color as Color))}
+              className={cn(
+                habit.icon.length > 0 && 'ml-10',
+                backgroundColor(habit.color as Color),
+              )}
             />
           </div>
         </h2>

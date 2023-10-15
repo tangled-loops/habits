@@ -10,9 +10,10 @@ import {
   View,
 } from 'lucide-react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
-import { Dispatch, SetStateAction, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 
+import { useToast } from '../ui/use-toast';
 import { HabitEdit } from './action-dialogs';
 import { EditField, Field } from './edit-field';
 import { icon } from './icon';
@@ -90,7 +91,7 @@ function Days({ habit }: HasHabit) {
             className={cn(
               backgroundColor(habit.color as Color),
               backgroundColor(habit.color as Color, false, true),
-              'mr-4 text-center text-background',
+              'mr-4 text-center text-white',
             )}
           >
             <p>{habit.frequency}</p>
@@ -107,7 +108,7 @@ function Days({ habit }: HasHabit) {
                     return (
                       <Badge
                         variant='secondary'
-                        className='bg-primary text-center text-background hover:bg-primary/50'
+                        className='bg-primary text-center text-white hover:bg-primary/50'
                       >
                         {sday.slice(0, sliceTo)}
                       </Badge>
@@ -116,7 +117,7 @@ function Days({ habit }: HasHabit) {
                   return (
                     <Badge
                       variant='outline'
-                      className='text-center text-background'
+                      className='text-center text-accent'
                     >
                       {sday.slice(0, sliceTo)}
                     </Badge>
@@ -147,7 +148,11 @@ function Tags({ habit, className }: HasHabit & { className?: string }) {
           return (
             <Badge
               id={tag}
-              className={cn(backgroundColor(habit.color as Color))}
+              className={cn(
+                'text-white',
+                backgroundColor(habit.color as Color),
+                backgroundColor(habit.color as Color, false, true),
+              )}
             >
               {tag}
             </Badge>
@@ -161,7 +166,7 @@ const TagsAccordianItem = ({ habit }: HasHabit) => {
   if (habit.tags.length === 0) return null;
   return (
     <AccordionItem value='item-1'>
-      {habit.tags.length > 3 ? (
+      {habit.tags.length > 4 ? (
         <>
           <AccordionTrigger>
             <div className='flex flex-row items-center'>
@@ -177,8 +182,7 @@ const TagsAccordianItem = ({ habit }: HasHabit) => {
         <div className='flex flex-col justify-center py-4'>
           <div className='flex flex-row items-center'>
             <Tag className={cn('mr-2', textColor(habit.color as Color))} />
-            Tags
-            <Tags habit={habit} className='-mb-4 ml-6 space-y-0' />
+            <Tags habit={habit} className='-mb-4 ml-4 space-y-0' />
           </div>
         </div>
       )}
@@ -188,33 +192,50 @@ const TagsAccordianItem = ({ habit }: HasHabit) => {
 
 interface ActionsProps extends HasHabit {
   onRespond: () => void;
+  onArchive: () => void;
 }
 
-function Actions({ habit, onRespond }: ActionsProps) {
+function Actions({ habit, onRespond, onArchive }: ActionsProps) {
+  const [doop, setDoop] = useState(false);
+  useEffect(() => setDoop(true), []);
+  if (!doop) return null;
   return (
     <div className='-mb-2 grid grid-cols-2'>
       <Button
         onClick={onRespond}
         size='sm'
-        className={cn(backgroundColor(habit.color as Color), 'w-[60%]')}
+        className={cn(
+          backgroundColor(habit.color as Color),
+          'w-[60%] text-white',
+        )}
       >
         <Plus className='mr-2' />
         Respond
       </Button>
       <div className='flex flex-row justify-end'>
-        <Link href={`/habits?archive=true&id=${habit.id}`} passHref>
-          <Button variant='ghost' className='w-full cursor-pointer text-left'>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger>
-                  <Archive className='text-destructive' />
-                  <span className='sr-only'>Archive</span>
-                </TooltipTrigger>
-                <TooltipContent>Archive</TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </Button>
-        </Link>
+        <Button
+          variant='ghost'
+          className='w-full cursor-pointer text-left'
+          onClick={onArchive}
+        >
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger>
+                <Archive
+                  className={cn(
+                    habit.archived ? 'text-primary' : 'text-destructive',
+                  )}
+                />
+                <span className='sr-only'>Archive</span>
+              </TooltipTrigger>
+              <TooltipContent className='text-white'>
+                {habit.archived ? 'Unarchive' : 'Archive'}
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </Button>
+        {/* <Link href={`/habits?archive=true&id=${habit.id}`} passHref>
+        </Link> */}
         <Link href={`/habits?edit=true&id=${habit.id}`} passHref>
           <Button
             variant='ghost'
@@ -305,6 +326,8 @@ function Title({ habit, editing, setEditing, handleSubmit }: TitleProps) {
 }
 
 function HabitCard({ habit }: HasHabit) {
+  const router = useRouter();
+  const { toast } = useToast();
   const params = useSearchParams();
 
   const { data, refetch } = trpc.habits.findById.useQuery(
@@ -312,7 +335,9 @@ function HabitCard({ habit }: HasHabit) {
     { enabled: false },
   );
 
-  const { mutateAsync } = trpc.responses.add.useMutation();
+  const add = trpc.responses.add.useMutation();
+  const archive = trpc.habits.archive.useMutation();
+  const unarchive = trpc.habits.unarchive.useMutation();
 
   const [_habit, setHabit] = useState<FrontendHabit>(data ?? habit);
   const [editing, setEditing] = useState<Field>('none');
@@ -325,8 +350,25 @@ function HabitCard({ habit }: HasHabit) {
   };
 
   const updateResponse = async () => {
-    await mutateAsync({ habitId: _habit.id! });
+    await add.mutateAsync({ habitId: _habit.id! });
     setResponses(responses + 1);
+  };
+
+  const handleArchive = async () => {
+    const isArchived = _habit.archived;
+    if (isArchived) {
+      await unarchive.mutateAsync({ id: _habit.id! });
+    } else {
+      await archive.mutateAsync({ id: _habit.id! });
+    }
+
+    router.refresh();
+
+    const title = isArchived
+      ? `${_habit.name} is no longer archive`
+      : `Archived ${_habit.name}`;
+    const variant = isArchived ? 'success' : 'destructive';
+    toast({ title, variant });
   };
 
   const editingEnabled =
@@ -365,7 +407,11 @@ function HabitCard({ habit }: HasHabit) {
           </Accordion>
         </CardContent>
         <CardFooter className='mb-0 grid gap-2 p-3'>
-          <Actions habit={_habit} onRespond={updateResponse} />
+          <Actions
+            habit={_habit}
+            onRespond={updateResponse}
+            onArchive={handleArchive}
+          />
           <ProgressDisplay habit={_habit} responses={responses} />
         </CardFooter>
       </Card>

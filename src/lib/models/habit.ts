@@ -55,6 +55,7 @@ const frontendHabitSchema = z.object({
   icon: z.string(),
   tags: z.array(z.string()),
   responses: z.coerce.number().nullish(),
+  archived: z.boolean()
 });
 
 type FrontendHabit = z.infer<typeof frontendHabitSchema>;

@@ -54,6 +54,7 @@ function HabitCreate() {
           <span></span>
           <Button
             type='submit'
+            className='text-white'
             onClick={() => viewModel.onSubmit(viewModel.watcher!)}
           >
             Save
@@ -113,7 +114,9 @@ function HabitEdit({ habit, open, handleSubmit }: HabitEditProps) {
           >
             Cancel
           </Button>
-          <Button onClick={onSubmit}>Save</Button>
+          <Button className='text-primary-background' onClick={onSubmit}>
+            Save
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
