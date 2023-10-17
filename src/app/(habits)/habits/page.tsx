@@ -1,9 +1,12 @@
-import { ChevronUp, Filter, Plus, SortAsc } from 'lucide-react';
+import { ChevronUp, Dot, Filter, Plus, SortAsc } from 'lucide-react';
 import Link from 'next/link';
+import router from 'next/navigation';
 
 import { HabitCreate } from '@/components/habits/action-dialogs';
 import { HabitsList } from '@/components/habits/list';
+import { MenuSelect } from '@/components/habits/menu-select';
 import { SearchInput } from '@/components/habits/search-input';
+import { FormControl } from '@/components/ui/form';
 import {
   Menubar,
   MenubarContent,
@@ -13,6 +16,15 @@ import {
   MenubarTrigger,
 } from '@/components/ui/menubar';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Color, colors, FilterType, textColor } from '@/lib/models/habit';
+import { cn } from '@/lib/utils';
 import { getClient } from '@/server/session';
 
 import { Button } from '$/ui/button';
@@ -33,28 +45,16 @@ function Header() {
   );
 }
 
-export const filters = ['none', 'archived', 'needs-response'] as const;
-export type FilterType = (typeof filters)[number];
-
-function FilterMenu() {
+function FilterMenu({ filter }: { filter?: string }) {
   return (
-    <MenubarMenu>
-      <MenubarTrigger className='ml-10'>
-        <Filter />
-      </MenubarTrigger>
-      <MenubarContent>
-        <Link href={`/habits?filter=archived`} passHref>
-          <MenubarItem>Archived</MenubarItem>
-        </Link>
-        <Link href={`/habits?filter=needs-response`} passHref>
-          <MenubarItem>Needs Responses</MenubarItem>
-        </Link>
-        <MenubarSeparator />
-        <Link href={`/habits`} passHref>
-          <MenubarItem>Clear</MenubarItem>
-        </Link>
-      </MenubarContent>
-    </MenubarMenu>
+    <MenuSelect
+      paramKey='filter'
+      value={filter}
+      options={[
+        { key: 'archived', title: 'Archived' },
+        { key: 'needs-response', title: 'Respond' },
+      ]}
+    />
   );
 }
 
@@ -63,36 +63,29 @@ function FilterMenu() {
 //   return `${newFilter},${filters.filter((f) => f !== newFilter).join(',')}`;
 // };
 
-function SortMenu() {
+function SortMenu({ sort }: { sort?: string }) {
   return (
-    <MenubarMenu>
-      <MenubarTrigger className='mr-[10px]'>
-        <SortAsc />
-      </MenubarTrigger>
-      <MenubarContent>
-        <MenubarItem>
-          Priority <ChevronUp className='ml-2' />
-        </MenubarItem>
-        <MenubarItem>
-          Created <ChevronUp className='ml-2' />
-        </MenubarItem>
-        <MenubarItem>
-          Updated <ChevronUp className='ml-2' />
-        </MenubarItem>
-        <MenubarItem>
-          Responses <ChevronUp className='ml-2' />
-        </MenubarItem>
-        <MenubarSeparator />
-        <MenubarItem>Clear All</MenubarItem>
-      </MenubarContent>
-    </MenubarMenu>
+    <MenuSelect
+      paramKey='sort'
+      value={sort}
+      options={[
+        { key: 'priority', title: 'Priority' },
+        { key: 'created', title: 'Created' },
+        { key: 'updated', title: 'Updated' },
+      ]}
+    />
   );
 }
 
 export default async function Habits({
   searchParams,
 }: {
-  searchParams: { page: number; search?: string; filter?: string };
+  searchParams: {
+    page: number;
+    search?: string;
+    filter?: string;
+    sort?: string;
+  };
 }) {
   const client = await getClient();
   // const total = await client.habits.totalCount({
@@ -101,8 +94,15 @@ export default async function Habits({
   const page = Number(searchParams.page ?? 1);
   const limit = 100;
   const filter = (searchParams.filter ?? 'none') as FilterType;
+  const sort = searchParams.sort ?? '';
   const search = searchParams.search;
-  const habits = await client.habits.findAll({ limit, page, filter, search });
+  const habits = await client.habits.findAll({
+    limit,
+    page,
+    filter,
+    search,
+    sort,
+  });
   return (
     <>
       <HabitCreate />
@@ -110,8 +110,8 @@ export default async function Habits({
         <Header />
         <Menubar className='-mx-5 flex flex-row justify-start border-0 border-b'>
           <div className='flex flex-row'>
-            <FilterMenu />
-            <SortMenu />
+            <FilterMenu filter={searchParams.filter} />
+            <SortMenu sort={searchParams.sort} />
           </div>
           <MenubarMenu>
             <SearchInput />

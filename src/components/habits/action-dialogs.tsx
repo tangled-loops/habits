@@ -26,7 +26,7 @@ function HabitCreate() {
   const viewModel = useFormViewModel({
     redirectTo: '/habits?page=1',
     onMutate: async () => {
-      setShow(false);
+      viewModel.router.refresh();
     },
   });
 
@@ -114,7 +114,7 @@ function HabitEdit({ habit, open, handleSubmit }: HabitEditProps) {
           >
             Cancel
           </Button>
-          <Button className='text-primary-background' onClick={onSubmit}>
+          <Button className='text-white' onClick={onSubmit}>
             Save
           </Button>
         </DialogFooter>

@@ -1,14 +1,6 @@
 'use client';
 
-import {
-  Archive,
-  Edit,
-  LucideStickyNote,
-  Plus,
-  Search,
-  Tag,
-  View,
-} from 'lucide-react';
+import { Archive, Edit, LucideStickyNote, Plus, Tag, View } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
@@ -107,6 +99,7 @@ function Days({ habit }: HasHabit) {
                   if (habit.selectedDays?.includes(sday)) {
                     return (
                       <Badge
+                        key={i}
                         variant='secondary'
                         className='bg-primary text-center text-white hover:bg-primary/50'
                       >
@@ -116,6 +109,7 @@ function Days({ habit }: HasHabit) {
                   }
                   return (
                     <Badge
+                      key={i}
                       variant='outline'
                       className='text-center text-accent'
                     >
@@ -147,7 +141,7 @@ function Tags({ habit, className }: HasHabit & { className?: string }) {
         habit.tags.map((tag) => {
           return (
             <Badge
-              id={tag}
+              key={tag}
               className={cn(
                 'text-white',
                 backgroundColor(habit.color as Color),
@@ -196,9 +190,12 @@ interface ActionsProps extends HasHabit {
 }
 
 function Actions({ habit, onRespond, onArchive }: ActionsProps) {
-  const [doop, setDoop] = useState(false);
-  useEffect(() => setDoop(true), []);
-  if (!doop) return null;
+  const [active, setActive] = useState(false);
+
+  useEffect(() => setActive(true), []);
+
+  if (!active) return null;
+
   return (
     <div className='-mb-2 grid grid-cols-2'>
       <Button
@@ -352,6 +349,7 @@ function HabitCard({ habit }: HasHabit) {
   const updateResponse = async () => {
     await add.mutateAsync({ habitId: _habit.id! });
     setResponses(responses + 1);
+    if (responses + 1 >= habit.goal && !!params.get('filter')) router.refresh();
   };
 
   const handleArchive = async () => {
@@ -425,11 +423,9 @@ function HabitsList({ habits }: { habits: Array<FrontendHabit> }) {
       <div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3'>
         {habits.map((habit) => {
           return (
-            <>
-              <div>
-                <HabitCard key={habit.id} habit={habit} />
-              </div>
-            </>
+            <div key={habit.id}>
+              <HabitCard habit={habit} />
+            </div>
           );
         })}
       </div>

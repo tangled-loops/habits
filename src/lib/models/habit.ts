@@ -5,7 +5,7 @@ import z from 'zod';
 
 import { habits } from '@/server/db/schema';
 import { ReactElement } from 'react';
-import { Activity, AlarmPlus, Anchor, Box, Binary } from 'lucide-react';
+import { Activity, AlarmPlus, Anchor, Box, Binary, Filter } from 'lucide-react';
 
 enum Frequency {
   Daily,
@@ -63,6 +63,9 @@ type FrontendHabit = z.infer<typeof frontendHabitSchema>;
 const colors = ['red', 'green', 'blue', 'orange', 'purple'] as const;
 type Color = (typeof colors)[number];
 
+const filters = ['none', 'archived', 'needs-response'] as const;
+type FilterType = (typeof filters)[number];
+
 /**
  * Can't use string interpolation for class names 
  */
@@ -98,6 +101,7 @@ export {
   Frequency, 
   icons,
   colors,
+  filters,
   days,
   frequencies,
   backgroundColor,
@@ -112,5 +116,6 @@ export type {
   Icon,
   Color,
   DayKeys,
-  FrequencyKeys
+  FrequencyKeys,
+  FilterType,
 };

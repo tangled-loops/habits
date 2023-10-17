@@ -204,12 +204,13 @@ export class FormViewModel {
         color: this.color,
         icon: this.icon,
         tags: this.tags,
+        notes: '',
       };
     }
   }
 
   async onSubmit(data: FrontendHabit) {
-    await this.mutate(data);
+    await this.mutate({ ...data, archived: false });
     this.router.replace(this.redirectTo);
     this.toast({
       title: 'Success',

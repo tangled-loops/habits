@@ -123,7 +123,7 @@ function Sidebar() {
       <div className='mt-1'>
         <div className='w-full'>
           {items('mr-2 h-5 w-5').map((link) => (
-            <SidebarLink link={link} path={path} />
+            <SidebarLink key={link.id} link={link} path={path} />
           ))}
         </div>
         <SidebarLink
