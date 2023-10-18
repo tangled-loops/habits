@@ -67,7 +67,7 @@ export function useFormViewModel({
 
   const { toast } = useToast();
 
-  const tagsQuery = trpc.tags.findAll.useQuery();
+  const tagsQuery = trpc.tags.findAllNames.useQuery();
   const { mutateAsync } = trpc.habits.createOrUpdate.useMutation();
 
   const [tags, setTags] = React.useState<Array<OptionType>>([]);

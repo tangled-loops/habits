@@ -66,7 +66,7 @@ function ProgressDisplay({ habit, responses }: ProgressDisplayProps) {
           />
         </TooltipTrigger>
         <TooltipContent>
-          ({habit.responses} / {habit.goal})
+          ({responses} / {habit.goal})
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
@@ -370,8 +370,8 @@ function HabitCard({ habit }: HasHabit) {
   };
 
   const editingEnabled =
-    !!params.get('edit') &&
     !!params.get('id') &&
+    !!params.get('edit') &&
     params.get('id') === _habit.id!;
   return (
     <>

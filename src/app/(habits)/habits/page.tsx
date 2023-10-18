@@ -27,6 +27,8 @@ import { Color, colors, FilterType, textColor } from '@/lib/models/habit';
 import { cn } from '@/lib/utils';
 import { getClient } from '@/server/session';
 
+import { Tag } from '~/db/schema';
+
 import { Button } from '$/ui/button';
 
 function Header() {
@@ -77,6 +79,16 @@ function SortMenu({ sort }: { sort?: string }) {
   );
 }
 
+function TagsMenu({ tags, allTags }: { tags?: string; allTags: Tag[] }) {
+  return (
+    <MenuSelect
+      paramKey='tags'
+      value={tags}
+      options={allTags.map((tag) => ({ key: tag.id, title: tag.name }))}
+    />
+  );
+}
+
 export default async function Habits({
   searchParams,
 }: {
@@ -85,23 +97,25 @@ export default async function Habits({
     search?: string;
     filter?: string;
     sort?: string;
+    tags?: string;
   };
 }) {
   const client = await getClient();
-  // const total = await client.habits.totalCount({
-  //   limit: 100,
-  // });
+  const allTags = await client.tags.findAll();
+
   const page = Number(searchParams.page ?? 1);
   const limit = 100;
   const filter = (searchParams.filter ?? 'none') as FilterType;
-  const sort = searchParams.sort ?? '';
+  const sort = searchParams.sort ?? 'none';
   const search = searchParams.search;
+  const tags = searchParams.tags ?? '';
   const habits = await client.habits.findAll({
     limit,
     page,
     filter,
     search,
     sort,
+    tagId: tags,
   });
   return (
     <>
@@ -112,6 +126,7 @@ export default async function Habits({
           <div className='flex flex-row'>
             <FilterMenu filter={searchParams.filter} />
             <SortMenu sort={searchParams.sort} />
+            <TagsMenu tags={searchParams.tags} allTags={allTags} />
           </div>
           <MenubarMenu>
             <SearchInput />

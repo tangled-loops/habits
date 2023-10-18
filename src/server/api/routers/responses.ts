@@ -17,7 +17,7 @@ export const responsesRouter = createTRPCRouter({
       if (!habit) return
       await ctx.db
         .update(habits)
-        .set({ responseCount: habit.responseCount + 1 });
+        .set({ responseCount: habit.responseCount + 1, updatedAt: new Date() });
     }),
   since: protectedProcedure
     .input(

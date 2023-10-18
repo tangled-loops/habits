@@ -1,5 +1,6 @@
 import {
   and,
+  asc,
   desc,
   eq,
   gt,
@@ -49,19 +50,20 @@ export const habitsRouter = createTRPCRouter({
         filter: z.enum(filters),
         search: z.string().nullish(),
         sort: z.string().nullish(),
+        tagId: z.string().nullish(),
       }),
     )
     .query(
       async ({
         ctx: { db, session },
-        input: { limit, page, filter, search, sort },
+        input: { limit, page, filter, search, sort, tagId },
       }) => {
         let result: Array<Habit> = [];
 
         let orderBy 
         switch (sort) {
           case 'priority':
-            const below = await habitsBoundedByGoal({ db, type: 'below' })
+            const below = await habitsBoundedByGoal({ db, type: 'above' })
             orderBy = (query) => {
               return query.orderBy(`array_position(ARRAY[${below}], id)`)
             }
@@ -71,100 +73,71 @@ export const habitsRouter = createTRPCRouter({
             break;
           case 'created':
             orderBy = (query) => query.orderBy(desc(habits.createdAt))
-          
             break;
           default: 
-            orderBy = (query) => query
+            orderBy = (query) => query.orderBy(asc(habits.updatedAt), desc(habits.createdAt))
         }
 
-        /**
-         * Theres probably a much better pattern to use for updating the base of
-         * the query like this, not sure what the best approach is yet though.
-         * Would be cool to be able to apply multiple filters this way, not sure
-         * yet about the best way to build the sql for that. Especially with overlap
-         * between different ones, but you could segment it by sections and allow
-         * one selection per section, where each section does not directly conflict?
-         */
+        const parts = [eq(habits.userId, session.user.id)]
+
+        if (search && search.length > 0) {
+          parts.push(ilike(habits.name, `%${search}%`))
+        }
+
+        if (tagId && tagId.length > 0) {
+          parts.push(eq(habitsTags.tagId, tagId))
+        }
+        
         switch (filter) {
           case 'none': {
-            let where;
-            if (search) {
-              where = and(
-                eq(habits.archived, false),
-                eq(habits.userId, session.user.id),
-                ilike(habits.name, `%${search}%`),
-              );
-            } else {
-              where = and(
-                eq(habits.archived, false),
-                eq(habits.userId, session.user.id),
-              );
-            }
-            result = await db
-              .select()
-              .from(habits)
-              .where(where)
-              .orderBy(desc(habits.createdAt), desc(habits.updatedAt));
+            parts.push(eq(habits.archived, false))
+            result = await orderBy(
+              db
+                .select({ 
+                  name: habits.name,
+                  notes: habits.notes,
+                  frequency: habits.frequency,
+                  archived: habits.archived,
+                  color: habits.color,
+                  icon: habits.icon,
+                  responses: habits.responseCount,
+                })
+                .from(habits)
+                .leftJoin(habitsTags, eq(habits.id, habitsTags.habitId))
+                .where(and(...parts))
+            )
+              
             break;
           }
           case 'archived': {
-            let where;
-            if (search) {
-              where = and(
-                eq(habits.archived, true),
-                eq(habits.userId, session.user.id),
-                ilike(habits.name, `%${search}%`),
-              );
-            } else {
-              where = and(
-                eq(habits.archived, true),
-                eq(habits.userId, session.user.id),
-              );
-            }
+            parts.push(eq(habits.archived, true))
             result = await orderBy(
               db
                 .select()
                 .from(habits)
-                .where(where)
+                .where(and(...parts))
             )
-              // .orderBy(desc(habits.updatedAt), desc(habits.createdAt));
-
             break;
           }
           case 'needs-response': {
-            const counts = await habitsBoundedByGoal({ db, type: 'below' })
-
-            let inPart;
+            parts.push(eq(habits.archived, false))
+            
+            const counts = await habitsBoundedByGoal({ db, type: 'above' })
             if (counts.length > 0) {
-              inPart = not(inArray(habits.id, counts));
-            } else {
-              inPart = undefined;
+              parts.push(not(inArray(habits.id, counts)));
             }
-            let where;
-            if (search) {
-              where = and(
-                and(
-                  inPart,
-                  eq(habits.userId, session.user.id),
-                  eq(habits.archived, false),
-                  ilike(habits.name, `%${search}%`),
-                ),
-              );
-            } else {
-              where = and(
-                inPart,
-                eq(habits.archived, false),
-                eq(habits.userId, session.user.id),
-              );
+            if (search && search.length > 0) {
+              parts.push(ilike(habits.name, `%${search}%`))
             }
-
-            const habitData = await db
+        
+            const habitData = await orderBy(db
               .select({ habits })
               .from(habits)
-              .innerJoin(responses, eq(habits.id, responses.habitId))
-              .where(where)
-              .orderBy(desc(habits.createdAt), desc(habits.updatedAt))
-              .groupBy(habits.id, responses.habitId);
+              .leftJoin(responses, eq(habits.id, responses.habitId))
+              .leftJoin(habitsTags, eq(habits.id, habitsTags.habitId))
+              .where(and(...parts))
+              // .orderBy(desc(habits.createdAt), desc(habits.updatedAt))
+              ).groupBy(habits.id, responses.habitId);
 
             result = habitData.map((data) => data.habits);
             break;
@@ -307,7 +280,7 @@ export const habitsRouter = createTRPCRouter({
         // update the habit
         await ctx.db
           .update(habits)
-          .set(valuesToSet)
+          .set({ updatedAt: new Date(), ...valuesToSet })
           .where(eq(habits.id, input.id))
           .returning();
 
@@ -419,22 +392,22 @@ export const habitsRouter = createTRPCRouter({
       const habitsUpdate = ctx.db.update(habits);
       if (input.type === 'notes') {
         await habitsUpdate
-          .set({ notes: input.notes })
+          .set({ updatedAt: new Date(), notes: input.notes })
           .where(eq(habits.id, input.id));
       } else {
         await habitsUpdate
-          .set({ name: input.name })
+          .set({ updatedAt: new Date(), name: input.name })
           .where(eq(habits.id, input.id));
       }
     }),
   archive: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx: { db, session }, input: { id } }) => {
-      await db.update(habits).set({ archived: true }).where(eq(habits.id, id));
+      await db.update(habits).set({ updatedAt: new Date(), archived: true }).where(eq(habits.id, id));
     }),
   unarchive: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx: { db, session }, input: { id } }) => {
-      await db.update(habits).set({ archived: false }).where(eq(habits.id, id));
+      await db.update(habits).set({ updatedAt: new Date(), archived: false }).where(eq(habits.id, id));
     }),
 });
