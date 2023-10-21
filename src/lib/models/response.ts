@@ -123,7 +123,7 @@ export async function habitsBoundedByGoal({
   const result = await db
     .select({
       habitId: responses.habitId,
-      count: sql<number>`count(*)`,
+      count: sql<number>`count(responses)`,
       goal: habits.goal,
     })
     .from(responses)
@@ -142,7 +142,6 @@ export async function habitsBoundedByGoal({
         if (Number(nxt.count) === nxt.goal) pre.push(nxt.habitId);
         break;
     }
-
     return pre;
   }, []);
 }

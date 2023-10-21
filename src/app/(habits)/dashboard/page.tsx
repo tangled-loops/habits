@@ -1,60 +1,65 @@
-import { Button } from '$/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '$/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+
 import { Separator } from '$/ui/separator';
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '$/ui/table';
 
 export default async function Dashboard() {
   return (
     <>
-      <div className='border-1 rounded-xl shadow'>
-        <h1 className='p-5 text-center text-2xl'>Recent Updates</h1>
-        <Separator className='my-3 ml-[40%] w-[20%]' />
+      <div className='rounded-xl border-0'>
+        <h1 className='p-5 text-2xl'>Dashboard</h1>
+        <Separator className='my-3 w-full' />
         <div className='grid grid-cols-1 gap-4 p-4'>
-          <Card className=''>
-            <CardHeader>
-              <CardTitle>Habits</CardTitle>
-              <CardDescription>
-                Never put off what can be done today.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableCaption>Most recently tracked Habits.</TableCaption>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className='w-[100px]'>Title</TableHead>
-                    <TableHead>Priority</TableHead>
-                    <TableHead>Performed</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  <TableRow key={1}>
-                    <TableCell className='font-medium'>Brush Teeth</TableCell>
-                    <TableCell>High</TableCell>
-                    <TableCell>0</TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </CardContent>
-            <CardFooter className='flex justify-end'>
-              <Button>View Habits</Button>
-            </CardFooter>
-          </Card>
+          <div className='grid grid-cols-2 gap-4'>
+            <Card>
+              <CardHeader>
+                <CardTitle>Recent Activity</CardTitle>
+              </CardHeader>
+              <CardContent>
+                This should be a list of updates that have happened recently
+                maybe we should make a separate table to keep a timeline of
+                changes, or could show recently updated / created. I think try
+                the timeline thing and see if it works out, what else is the
+                point of this project except trying things that may not work
+                well to learn from it.
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>Priority Today</CardTitle>
+              </CardHeader>
+              <CardContent>
+                I guess show all the habits that need responses either because
+                the day is selected, or because it hasn't been responded to this
+                week.
+              </CardContent>
+            </Card>
+          </div>
+          <div className='grid grid-cols-4 gap-4'>
+            <Card>
+              <CardHeader>
+                <CardTitle>Priority Today</CardTitle>
+              </CardHeader>
+              <CardContent></CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>Priority Today</CardTitle>
+              </CardHeader>
+              <CardContent></CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>Priority Today</CardTitle>
+              </CardHeader>
+              <CardContent></CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>Priority Today</CardTitle>
+              </CardHeader>
+              <CardContent></CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     </>

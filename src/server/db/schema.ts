@@ -93,19 +93,19 @@ export type HabitJournal = {
 export const habits = pgTable('habits', {
   id: uuid('id').notNull().defaultRandom().primaryKey(),
   name: varchar('name').notNull(),
-  notes: text('notes'),
-  journal: json('journal').$type<HabitJournal>(),
-  selectedDays: json('selected_days').$type<Array<string>>(),
-  frequency: varchar('frequency').notNull(),
   goal: integer('goal').notNull().default(1),
-  responseCount: integer('response_count').notNull().default(0),
-  archived: boolean('archived').default(false),
-  deleted: boolean('deleted').default(false),
   color: varchar('color'),
   icon: varchar('icon'),
+  notes: text('notes'),
+  journal: json('journal').$type<HabitJournal>(),
+  frequency: varchar('frequency').notNull(),
+  selectedDays: json('selected_days').$type<Array<string>>(),
+  responseCount: integer('response_count').notNull().default(0),
   userId: uuid('user_id')
-    .notNull()
-    .references(() => users.id),
+  .notNull()
+  .references(() => users.id),
+  deleted: boolean('deleted').default(false),
+  archived: boolean('archived').default(false),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at'),
 });

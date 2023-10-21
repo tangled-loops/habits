@@ -24,6 +24,7 @@ import {
 
 import { createTRPCRouter, protectedProcedure } from '~/api/trpc';
 import { habits, habitsTags, responses, Tag, tags } from '~/db/schema';
+import { PgSelectQueryBuilder } from 'drizzle-orm/pg-core';
 
 /**
  * @todo start moving chunks of functionality to the habit model and consolodate
@@ -58,26 +59,21 @@ export const habitsRouter = createTRPCRouter({
         ctx: { db, session },
         input: { limit, page, filter, search, sort, tagId },
       }) => {
-        let result: Array<Habit> = [];
-
-        let orderBy 
-        switch (sort) {
-          case 'priority':
-            const below = await habitsBoundedByGoal({ db, type: 'above' })
-            orderBy = (query) => {
-              return query.orderBy(`array_position(ARRAY[${below}], id)`)
-            }
-            break;
-          case 'updated':
-            orderBy = (query) => query.orderBy(desc(habits.updatedAt))
-            break;
-          case 'created':
-            orderBy = (query) => query.orderBy(desc(habits.createdAt))
-            break;
-          default: 
-            orderBy = (query) => query.orderBy(asc(habits.updatedAt), desc(habits.createdAt))
+        const select = {
+          id: habits.id,
+          name: habits.name,
+          notes: habits.notes,
+          goal: habits.goal,
+          icon: habits.icon,
+          color: habits.color,
+          archived: habits.archived,
+          responses: habits.responseCount,
+          frequency: habits.frequency,
+          tagsCount: sql<number>`count(habits_tags)::integer as tags_count`,
+          lastResponse: sql<number>`max(responses.created_at) as last_response`,
+          responsesInWindow: sql<number>`count(responses.created_at) as responses_in_window`,
         }
-
+       
         const parts = [eq(habits.userId, session.user.id)]
 
         if (search && search.length > 0) {
@@ -87,68 +83,64 @@ export const habitsRouter = createTRPCRouter({
         if (tagId && tagId.length > 0) {
           parts.push(eq(habitsTags.tagId, tagId))
         }
-        
+
+        // @todo apply filter to only get responses that are in the right window
+        //  right now responsesInWindow is really just total responses, which is
+        //  similar to `habits.responseCount`
+
         switch (filter) {
           case 'none': {
             parts.push(eq(habits.archived, false))
-            result = await orderBy(
-              db
-                .select({ 
-                  name: habits.name,
-                  notes: habits.notes,
-                  frequency: habits.frequency,
-                  archived: habits.archived,
-                  color: habits.color,
-                  icon: habits.icon,
-                  responses: habits.responseCount,
-                })
-                .from(habits)
-                .leftJoin(habitsTags, eq(habits.id, habitsTags.habitId))
-                .where(and(...parts))
-            )
-              
             break;
           }
           case 'archived': {
             parts.push(eq(habits.archived, true))
-            result = await orderBy(
-              db
-                .select()
-                .from(habits)
-                .where(and(...parts))
-            )
             break;
           }
           case 'needs-response': {
             parts.push(eq(habits.archived, false))
             
-            const counts = await habitsBoundedByGoal({ db, type: 'above' })
+            const counts = await habitsBoundedByGoal({ db, type: 'below' })
             if (counts.length > 0) {
-              parts.push(not(inArray(habits.id, counts)));
+              parts.push(inArray(habits.id, counts));
             }
             if (search && search.length > 0) {
               parts.push(ilike(habits.name, `%${search}%`))
             }
-        
-            const habitData = await orderBy(db
-              .select({ habits })
-              .from(habits)
-              .leftJoin(responses, eq(habits.id, responses.habitId))
-              .leftJoin(habitsTags, eq(habits.id, habitsTags.habitId))
-              .where(and(...parts))
-              // .orderBy(desc(habits.createdAt), desc(habits.updatedAt))
-              ).groupBy(habits.id, responses.habitId);
-
-            result = habitData.map((data) => data.habits);
             break;
           }
+        }
+
+        const query = db
+          .select(select)
+          .from(habits)
+          .leftJoin(responses, eq(habits.id, responses.habitId))
+          .leftJoin(habitsTags, eq(habits.id, habitsTags.habitId))
+          .where(and(...parts))
+          .groupBy(habits.id)
+
+        switch (sort) {
+          case 'priority': {
+            query.orderBy(sql`last_response asc`) //, asc(responses.createdAt))
+            break;
+          }
+          case 'updated': {
+            query.orderBy(sql`last_response desc`, desc(habits.updatedAt))
+            break;
+          }
+          case 'created': {
+            query.orderBy(desc(habits.createdAt))
+            break;
+          }
+          default: 
+            query.orderBy(desc(habits.updatedAt), desc(habits.createdAt))
         }
 
         // .offset((limit*page) - limit)
         // .limit(limit)
 
-        const habitsResult = result;
         const items = [];
+        const habitsResult = await query;
 
         const tagsResult = await db
           .select({ name: tags.name, habitId: habitsTags.habitId })
@@ -174,8 +166,8 @@ export const habitsRouter = createTRPCRouter({
           items.push(
             frontendHabitSchema.parse({
               ...habit,
-              responses: responseHash[habit.id] ?? 0,
               tags: tagHash[habit.id] ?? [],
+              responses: responseHash[habit.id] ?? 0,
             }),
           );
         }
