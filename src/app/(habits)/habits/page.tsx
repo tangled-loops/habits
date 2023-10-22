@@ -1,30 +1,13 @@
-import { ChevronUp, Dot, Filter, Plus, SortAsc } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import Link from 'next/link';
-import router from 'next/navigation';
 
 import { HabitCreate } from '@/components/habits/action-dialogs';
 import { HabitsList } from '@/components/habits/list';
 import { MenuSelect } from '@/components/habits/menu-select';
 import { SearchInput } from '@/components/habits/search-input';
-import { FormControl } from '@/components/ui/form';
-import {
-  Menubar,
-  MenubarContent,
-  MenubarItem,
-  MenubarMenu,
-  MenubarSeparator,
-  MenubarTrigger,
-} from '@/components/ui/menubar';
+import { Menubar, MenubarMenu } from '@/components/ui/menubar';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Color, colors, FilterType, textColor } from '@/lib/models/habit';
-import { cn } from '@/lib/utils';
+import { FilterType } from '@/lib/models/habit';
 import { getClient } from '@/server/session';
 
 import { Tag } from '~/db/schema';
@@ -59,11 +42,6 @@ function FilterMenu({ filter }: { filter?: string }) {
     />
   );
 }
-
-//{ filter }: { filter: FilterType }) {
-// const filtersFor = (newFilter: FilterType) => {
-//   return `${newFilter},${filters.filter((f) => f !== newFilter).join(',')}`;
-// };
 
 function SortMenu({ sort }: { sort?: string }) {
   return (

@@ -6,15 +6,10 @@ import { DefaultErrorShape } from '@trpc/server';
 import { BookOpen, ChevronLeft, Dot, Edit, Plus } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { Suspense, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { GridLoader } from 'react-spinners';
 
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogTrigger,
-} from '../ui/dialog';
+import { Dialog, DialogContent, DialogTrigger } from '../ui/dialog';
 import { Textarea } from '../ui/textarea';
 import {
   Tooltip,

@@ -19,6 +19,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import {
+  abbrev,
   backgroundColor,
   Color,
   Day,
@@ -95,7 +96,6 @@ function Days({ habit }: HasHabit) {
               <div className='grid grid-cols-7 gap-0.5'>
                 {days().map((day, i) => {
                   const sday = Day[day];
-                  const sliceTo = i === (Day.Thursday || Day.Sunday) ? 2 : 1;
                   if (habit.selectedDays?.includes(sday)) {
                     return (
                       <Badge
@@ -103,7 +103,7 @@ function Days({ habit }: HasHabit) {
                         variant='secondary'
                         className='bg-primary text-center text-white hover:bg-primary/50'
                       >
-                        {sday.slice(0, sliceTo)}
+                        {abbrev(sday)}
                       </Badge>
                     );
                   }
@@ -113,7 +113,7 @@ function Days({ habit }: HasHabit) {
                       variant='outline'
                       className='text-center text-accent'
                     >
-                      {sday.slice(0, sliceTo)}
+                      {abbrev(sday)}
                     </Badge>
                   );
                 })}

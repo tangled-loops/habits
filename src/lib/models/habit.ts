@@ -81,6 +81,15 @@ type FilterType = (typeof filters)[number];
  * Can't use string interpolation for class names 
  */
 
+function colorCss(color: Color) {
+  return {
+    background: backgroundColor(color),
+    muted: backgroundColor(color, true),
+    hover: backgroundColor(color, false, true),
+    text: textColor(color)
+  }
+}
+
 function backgroundColor(color: Color, muted: boolean = false, hover: boolean = false) {
   switch (color as Color) {
     case 'blue': return hover ? 'hover:bg-blue-500/50' : (muted ? 'bg-blue-500/20' : 'bg-blue-500')
@@ -115,6 +124,7 @@ export {
   filters,
   days,
   abbrev,
+  colorCss,
   frequencies,
   backgroundColor,
   textColor,

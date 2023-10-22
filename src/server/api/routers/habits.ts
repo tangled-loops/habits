@@ -4,8 +4,6 @@ import {
   eq,
   ilike,
   inArray,
-  like,
-  lt,
   not,
   sql,
 } from 'drizzle-orm';
@@ -131,10 +129,9 @@ export const habitsRouter = createTRPCRouter({
           default: 
             query.orderBy(desc(habits.updatedAt), desc(habits.createdAt))
         }
-
-        // .offset((limit*page) - limit)
-        // .limit(limit)
-
+        console.log(limit)
+        console.log(page)
+        
         const items = [];
         const habitsResult = await query;
 
@@ -223,7 +220,7 @@ export const habitsRouter = createTRPCRouter({
     }),
   findById: protectedProcedure
     .input(z.object({ id: z.string() }))
-    .query(async ({ ctx: { db, session }, input }) => {
+    .query(async ({ ctx: { db }, input }) => {
       const habit = await db.query.habits.findFirst({
         where: eq(habits.id, input.id),
       });

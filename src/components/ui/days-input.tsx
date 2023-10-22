@@ -16,7 +16,7 @@ const DaysField = ({ selected, className, ...props }: DaysFieldProps) => {
       className={cn('grid cursor-pointer grid-cols-7 gap-0.5', className)}
       {...props}
     >
-      {days().map((day, i) => {
+      {days().map((day) => {
         const sday = Day[day];
         return (
           <Badge
@@ -53,7 +53,7 @@ const DaysInput = ({
       className={cn('grid cursor-pointer grid-cols-7 gap-0.5', className)}
       {...props}
     >
-      {days().map((day, i) => {
+      {days().map((day) => {
         const sday = Day[day];
         return (
           <Badge

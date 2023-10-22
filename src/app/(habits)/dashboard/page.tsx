@@ -29,7 +29,7 @@ export default async function Dashboard() {
               </CardHeader>
               <CardContent>
                 I guess show all the habits that need responses either because
-                the day is selected, or because it hasn't been responded to this
+                the day is selected, or because it hasnt been responded to this
                 week.
               </CardContent>
             </Card>

@@ -1,7 +1,7 @@
 'use client';
 
 import { usePathname, useSearchParams } from 'next/navigation';
-import { Dispatch, SetStateAction, useState } from 'react';
+import { useState } from 'react';
 
 import { Card, CardContent } from '../ui/card';
 import {
@@ -66,16 +66,11 @@ function HabitCreate() {
   );
 }
 
-function handleOpenChange(
-  allow: boolean,
-  viewModel: FormViewModel,
-  // setShow: Dispatch<SetStateAction<boolean>>,
-) {
+function handleOpenChange(allow: boolean, viewModel: FormViewModel) {
   if (allow) {
-    // setShow(false);
     viewModel.router.replace(viewModel.redirectTo);
-    // viewModel.router.refresh();
   }
+  // eslint-disable-next-line no-unused-vars
   return (open: boolean) => {};
 }
 

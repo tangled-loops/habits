@@ -102,9 +102,11 @@ export function useFormViewModel({
   return viewModel;
 }
 
+// eslint-disable-next-line no-unused-vars
 type Toast = ({ ...props }: ToastProps) => {
   id: string;
   dismiss: () => void;
+  // eslint-disable-next-line no-unused-vars
   update: (props: any) => void;
 };
 
