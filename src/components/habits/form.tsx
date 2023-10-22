@@ -50,19 +50,22 @@ import {
 } from '$/ui/select';
 import { Textarea } from '$/ui/textarea';
 
+// eslint-disable-next-line no-unused-vars
 type MutateFn = (data: FrontendHabit) => Promise<void>;
 
 interface UseFormViewModelOptions {
   habit?: FrontendHabit;
   redirectTo: string;
+  toastTitle?: string;
   onMutate?: MutateFn;
 }
 
 export function useFormViewModel({
   habit,
   onMutate,
+  toastTitle,
   redirectTo,
-}: UseFormViewModelOptions) {
+}: UseFormViewModelOptions): FormViewModel {
   const router = useRouter();
 
   const { toast } = useToast();
@@ -84,6 +87,7 @@ export function useFormViewModel({
     setTags,
     tagsQuery,
     redirectTo,
+    toastTitle,
   });
 
   const form = useForm<FrontendHabit>({
@@ -98,13 +102,15 @@ export function useFormViewModel({
   return viewModel;
 }
 
+type Toast = ({ ...props }: ToastProps) => {
+  id: string;
+  dismiss: () => void;
+  update: (props: any) => void;
+};
+
 interface FormViewModelOptions extends UseFormViewModelOptions {
   tags: Array<OptionType>;
-  toast: ({ ...props }: ToastProps) => {
-    id: string;
-    dismiss: () => void;
-    update: (props: any) => void;
-  };
+  toast: Toast;
   mutate: MutateFn;
   router: ReturnType<typeof useRouter>;
   setTags: React.Dispatch<React.SetStateAction<Array<OptionType>>>;
@@ -115,6 +121,8 @@ interface FormViewModelOptions extends UseFormViewModelOptions {
 }
 
 export class FormViewModel {
+  toastTitle?: string;
+
   habit: Partial<FrontendHabit> | null | undefined;
   mutate: MutateFn;
   redirectTo: string;
@@ -123,11 +131,7 @@ export class FormViewModel {
   form?: UseFormReturn<FrontendHabit>;
   watcher?: FrontendHabit;
 
-  toast: ({ ...props }: ToastProps) => {
-    id: string;
-    dismiss: () => void;
-    update: (props: any) => void;
-  };
+  toast: Toast;
   router: ReturnType<typeof useRouter>;
 
   setTags: React.Dispatch<React.SetStateAction<Array<OptionType>>>;
@@ -145,6 +149,7 @@ export class FormViewModel {
     setTags,
     tagsQuery,
     redirectTo,
+    toastTitle,
   }: FormViewModelOptions) {
     this.toast = toast;
     this.habit = habit;
@@ -154,6 +159,7 @@ export class FormViewModel {
     this.tagOptions = tags;
     this.tagsQuery = tagsQuery;
     this.redirectTo = redirectTo;
+    this.toastTitle = toastTitle;
 
     setTimeout(() => {
       if (tagsQuery.data) setTags(this.makeTagOptions);
@@ -173,7 +179,7 @@ export class FormViewModel {
   }
 
   get icon() {
-    return this.habit?.icon ?? 'none';
+    return this.habit?.icon ?? '';
   }
 
   get goal() {
@@ -213,9 +219,9 @@ export class FormViewModel {
     await this.mutate({ ...data, archived: false });
     this.router.replace(this.redirectTo);
     this.toast({
-      title: 'Success',
+      title: this.toastTitle ?? 'Success',
+      variant: 'success',
     });
-    // @todo add a toast
   }
 
   handleNewTag(
@@ -269,9 +275,6 @@ export default function HabitsForm({ viewModel }: HabitsFormProps) {
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
-                <FormDescription>
-                  If I could name them, I could tame them.
-                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}

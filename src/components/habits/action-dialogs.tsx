@@ -28,6 +28,7 @@ function HabitCreate() {
     onMutate: async () => {
       viewModel.router.refresh();
     },
+    toastTitle: 'New Habit Added',
   });
 
   return (
@@ -87,7 +88,11 @@ interface HabitEditProps {
 function HabitEdit({ habit, open, handleSubmit }: HabitEditProps) {
   const path = usePathname();
 
-  const viewModel = useFormViewModel({ habit, redirectTo: path });
+  const viewModel = useFormViewModel({
+    habit,
+    redirectTo: path,
+    toastTitle: `Edit Successful`,
+  });
 
   const onSubmit = async () => {
     await viewModel.onSubmit(viewModel.watcher!);

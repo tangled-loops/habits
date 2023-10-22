@@ -1,22 +1,18 @@
 import {
   and,
-  asc,
   desc,
   eq,
-  gt,
   ilike,
   inArray,
   like,
   lt,
   not,
-  or,
   sql,
 } from 'drizzle-orm';
 import { z } from 'zod';
 
-import { filters, frontendHabitSchema, Habit } from '@/lib/models/habit';
+import { filters, frontendHabitSchema } from '@/lib/models/habit';
 import {
-  dateSinceBy,
   habitsBoundedByGoal,
   responseCounts,
   responseCountSince,
@@ -24,7 +20,6 @@ import {
 
 import { createTRPCRouter, protectedProcedure } from '~/api/trpc';
 import { habits, habitsTags, responses, Tag, tags } from '~/db/schema';
-import { PgSelectQueryBuilder } from 'drizzle-orm/pg-core';
 
 /**
  * @todo start moving chunks of functionality to the habit model and consolodate
@@ -100,9 +95,10 @@ export const habitsRouter = createTRPCRouter({
           case 'needs-response': {
             parts.push(eq(habits.archived, false))
             
-            const counts = await habitsBoundedByGoal({ db, type: 'below' })
+            const counts = await habitsBoundedByGoal({ db, type: 'above' })
+            console.log(counts)
             if (counts.length > 0) {
-              parts.push(inArray(habits.id, counts));
+              parts.push(not(inArray(habits.id, counts)));
             }
             if (search && search.length > 0) {
               parts.push(ilike(habits.name, `%${search}%`))
@@ -394,12 +390,12 @@ export const habitsRouter = createTRPCRouter({
     }),
   archive: protectedProcedure
     .input(z.object({ id: z.string() }))
-    .mutation(async ({ ctx: { db, session }, input: { id } }) => {
+    .mutation(async ({ ctx: { db }, input: { id } }) => {
       await db.update(habits).set({ updatedAt: new Date(), archived: true }).where(eq(habits.id, id));
     }),
   unarchive: protectedProcedure
     .input(z.object({ id: z.string() }))
-    .mutation(async ({ ctx: { db, session }, input: { id } }) => {
+    .mutation(async ({ ctx: { db }, input: { id } }) => {
       await db.update(habits).set({ updatedAt: new Date(), archived: false }).where(eq(habits.id, id));
     }),
 });

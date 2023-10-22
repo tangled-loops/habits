@@ -1,18 +1,16 @@
 import { and, desc, eq, gt, lt, or, sql } from 'drizzle-orm';
-import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
+
+import { HasDB } from '.';
 
 import { habits, responses } from '@/server/db/schema';
+import z from 'zod';
 
-import * as schema from '~/db/schema';
+export type Response = typeof responses.$inferSelect
 
 interface DateSinceOptions {
   frequency?: string;
   since?: Date;
   at?: string;
-}
-
-interface HasDB {
-  db: PostgresJsDatabase<typeof schema>;
 }
 
 type DateSinceHasDBOptions = DateSinceOptions & HasDB;
@@ -21,6 +19,8 @@ export function dateSinceBy({ frequency, since, at }: DateSinceOptions) {
   if (!frequency && !since) {
     throw new Error('Need frequency or since');
   }
+  if (since && !frequency) return since;
+
   const timeOfDay = at ?? 'start-of-day';
   const timeString = timeOfDay === 'start-of-day' ? '00:00' : '23:59';
   let date: Date = new Date();
@@ -28,17 +28,16 @@ export function dateSinceBy({ frequency, since, at }: DateSinceOptions) {
     const today = new Date();
     switch (frequency) {
       case 'Daily': {
-        date = new Date(`${today.toDateString()} ${timeString}`);
+        date = new Date(`${today.toLocaleDateString()} ${timeString}`);
         break;
       }
       case 'Weekly': {
         const startOfWeek = new Date(today.getDate() - today.getDay() - 6); // check that this is correct :)
-        date = new Date(`${startOfWeek.toDateString()} ${timeString}`);
+        date = new Date(`${startOfWeek.toLocaleDateString()} ${timeString}`);
         break;
       }
     }
   }
-  if (since && !frequency) date = since;
   return date;
 }
 
@@ -112,9 +111,6 @@ export async function responseCounts({ db }: HasDB) {
   }, {});
 }
 
-/**
- * @todo make this variable if needed so over goal or under goal etc
- */
 export async function habitsBoundedByGoal({
   db,
   type,
@@ -124,12 +120,14 @@ export async function habitsBoundedByGoal({
     .select({
       habitId: responses.habitId,
       count: sql<number>`count(responses)`,
-      goal: habits.goal,
+      goal: sql<number>`max(habits.goal) as goal`,
     })
     .from(responses)
     .innerJoin(habits, eq(habits.id, responses.habitId))
     .where(or(daily, weekly))
-    .groupBy(habits.goal, responses.habitId);
+    .orderBy(sql`goal`)
+    .groupBy(responses.habitId);
+  console.log(result)
   return result.reduce((pre: Array<string>, nxt) => {
     switch (type) {
       case 'above':
@@ -144,4 +142,52 @@ export async function habitsBoundedByGoal({
     }
     return pre;
   }, []);
+}
+
+interface AddOptions extends HasDB {
+  habitId: string;
+}
+
+export async function add({ db, habitId }: AddOptions) {
+  await db.insert(responses).values({ habitId: habitId });
+  const habit = await db.query.habits.findFirst({
+    where: eq(habits.id, habitId),
+  });
+  if (!habit) return;
+  await db
+    .update(habits)
+    .set({ responseCount: habit.responseCount + 1, updatedAt: new Date() });
+}
+
+export const frequencyBySchema = z.object({
+  habitId: z.string(),
+  since: z.date().optional(),
+  frequency: z.string().optional(),
+})
+export interface FrequencyByOptions<T> {
+  since?: Date;
+  frequency?: string;
+  callbacks: {
+    since: () => T;
+    frequency: () => T;
+    error?: () => void;
+  };
+}
+
+export async function frequencyBy<T>({
+  since,
+  frequency,
+  callbacks,
+}: FrequencyByOptions<T>) {
+  if (!since && frequency) {
+    return callbacks.frequency?.();
+  }
+  if (!since) {
+    if (callbacks.error) {
+      callbacks.error?.();
+      return;
+    }
+    throw new Error('need frequency if no since date is provided');
+  }
+  return callbacks.since?.();
 }

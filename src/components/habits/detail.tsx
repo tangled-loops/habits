@@ -6,9 +6,22 @@ import { DefaultErrorShape } from '@trpc/server';
 import { BookOpen, ChevronLeft, Dot, Edit, Plus } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { GridLoader } from 'react-spinners';
 
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogTrigger,
+} from '../ui/dialog';
+import { Textarea } from '../ui/textarea';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '../ui/tooltip';
 import { HabitEdit } from './action-dialogs';
 import { icon } from './icon';
 
@@ -20,6 +33,7 @@ import {
   FrontendHabit,
   Icon,
 } from '@/lib/models/habit';
+import { Response } from '@/lib/models/response';
 import { trpc } from '@/lib/trpc';
 import { cn } from '@/lib/utils';
 
@@ -37,7 +51,10 @@ import {
 } from '$/ui/table';
 
 interface TRPCData {
-  count: UseTRPCQueryResult<number, TRPCClientErrorBase<DefaultErrorShape>>;
+  count: UseTRPCQueryResult<
+    number | undefined,
+    TRPCClientErrorBase<DefaultErrorShape>
+  >;
 }
 
 interface HasHabit {
@@ -53,9 +70,55 @@ interface ResponseCountProps extends TRPCData {
 function ResponseCount({ count, initial }: ResponseCountProps) {
   return (
     <div className='grid'>
-      <span>Tracked</span>
+      <span className='font-semibold'>Tracked</span>
       <span className='text-center'>{count.data ?? initial}</span>
     </div>
+  );
+}
+
+function ResponseCardContent({ responses }: { responses?: Response[] }) {
+  if (!responses) {
+    return (
+      <div className='flex h-[200px] w-full flex-col items-center justify-center'>
+        <div className='flex flex-row items-center justify-center'>
+          <GridLoader color='#3bdb6b' />
+        </div>
+      </div>
+    );
+  }
+
+  if (responses.length === 0) {
+    return <span></span>;
+  }
+
+  return (
+    <ScrollArea className='h-[200px] border p-4 shadow'>
+      <Table>
+        <TableHead>
+          <TableHeader>Date</TableHeader>
+        </TableHead>
+        <TableBody className='rounded-lg border'>
+          {responses.map((response) => {
+            return (
+              <TableRow key={response.id}>
+                <TableCell>
+                  <div className='flex flex-row'>
+                    <div className='flex flex-col items-center justify-center'>
+                      <Dot />
+                    </div>
+                    <div className='flex w-full flex-row space-x-2'>
+                      <span>{response.createdAt.toLocaleDateString()}</span>
+                      <span>at</span>
+                      <span>{response.createdAt.toLocaleTimeString()}</span>
+                    </div>
+                  </div>
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
+    </ScrollArea>
   );
 }
 
@@ -76,7 +139,10 @@ function ResponsesCard({ habit, count }: HasHabitAndTRPC) {
     <Card>
       <CardHeader>
         <CardTitle className='flex flex-row items-center justify-between'>
-          Recent Responses ({count.data} / {habit.goal})
+          <p>
+            Recent Responses{' '}
+            {count.data ? `(${count.data} / ${habit.goal})` : '(0)'}
+          </p>
           <Button variant='ghostPrimary' onClick={updateResponse}>
             <Plus />
           </Button>
@@ -84,45 +150,7 @@ function ResponsesCard({ habit, count }: HasHabitAndTRPC) {
       </CardHeader>
       <Separator className={cn(backgroundColor(habit.color as Color))} />
       <CardContent className='-mb-3 mt-2'>
-        {responses.data ? (
-          <ScrollArea className='h-[200px] border p-4 shadow'>
-            <Table>
-              <TableHead>
-                <TableHeader>Date</TableHeader>
-              </TableHead>
-              <TableBody className='rounded-lg border'>
-                {responses.data.map((response) => {
-                  return (
-                    <TableRow key={response.id}>
-                      <TableCell>
-                        <div className='flex flex-row'>
-                          <div className='flex flex-col items-center justify-center'>
-                            <Dot />
-                          </div>
-                          <div className='flex w-full flex-row space-x-2'>
-                            <span>
-                              {response.createdAt.toLocaleDateString()}
-                            </span>
-                            <span>at</span>
-                            <span>
-                              {response.createdAt.toLocaleTimeString()}
-                            </span>
-                          </div>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </ScrollArea>
-        ) : (
-          <div className='flex h-[200px] w-full flex-col items-center justify-center'>
-            <div className='flex flex-row items-center justify-center'>
-              <GridLoader color='#3bdb6b' />
-            </div>
-          </div>
-        )}
+        <ResponseCardContent responses={responses.data} />
       </CardContent>
     </Card>
   );
@@ -138,7 +166,7 @@ function InfoCard({ habit, count }: HasHabitAndTRPC) {
         <div className='mt-4 grid'>
           <div className='flex flex-row justify-around'>
             <div className='grid'>
-              <span>Goal</span>
+              <span className='font-semibold'>Goal</span>
               <span className='text-center'>{habit.goal}</span>
             </div>
             <div className='grid gap-4'>
@@ -154,7 +182,7 @@ function InfoCard({ habit, count }: HasHabitAndTRPC) {
           </div>
         </div>
         <div className='mt-4 grid'>
-          <span>Tags</span>
+          <span className='font-semibold'>Tags</span>
           <span>
             {habit.tags.map((tag) => {
               return (
@@ -172,7 +200,7 @@ function InfoCard({ habit, count }: HasHabitAndTRPC) {
           </span>
         </div>
         <div className='space-4 mt-4 grid grid-cols-1'>
-          <span>Notes</span>
+          <span className='font-semibold'>Notes</span>
           <span className='m-1'>{habit.notes}</span>
         </div>
       </CardContent>
@@ -181,13 +209,18 @@ function InfoCard({ habit, count }: HasHabitAndTRPC) {
 }
 
 interface JournalEntry {
+  id: number;
   text: string;
   createdAt: Date;
   updatedAt: Date | null;
 }
 
 export function Journal() {
-  const journalEntries = [
+  const [active, setActive] = useState(false);
+
+  useEffect(() => setActive(true), []);
+
+  const journalEntries: JournalEntry[] = [
     {
       id: 1,
       createdAt: new Date(),
@@ -213,17 +246,33 @@ export function Journal() {
         <CardHeader>
           <CardTitle className='flex flex-row items-center justify-between'>
             Journal
-            <Button variant='ghostPrimary'>
-              <BookOpen />
-              <span className='sr-only'>Write</span>
-            </Button>
+            {active ? (
+              <Dialog>
+                <DialogTrigger>
+                  <Button variant='ghostPrimary'>
+                    <BookOpen />
+                    <span className='sr-only'>Write</span>
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <form>
+                    <Textarea />
+                  </form>
+                </DialogContent>
+              </Dialog>
+            ) : (
+              <Button variant='ghostPrimary'>
+                <BookOpen />
+                <span className='sr-only'>Write</span>
+              </Button>
+            )}
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {/* <ul>
+          <ul>
             {journalEntries.map((entry) => {
               return (
-                <li key={entry.id}>
+                <li key={entry.id} className='w-full p-4'>
                   {entry.updatedAt ? (
                     <TooltipProvider>
                       <Tooltip>
@@ -236,13 +285,15 @@ export function Journal() {
                       </Tooltip>
                     </TooltipProvider>
                   ) : (
-                    <span>{entry.createdAt.toDateString()}</span>
+                    <span className='grid grid-cols-1 gap-0'>
+                      <p className='font-semibold text-primary'>Created</p>
+                      {entry.createdAt.toDateString()}
+                    </span>
                   )}
                 </li>
               );
             })}
-          </ul> */}
-          {/* <Editor /> */}
+          </ul>
         </CardContent>
       </Card>
     </div>
@@ -267,7 +318,7 @@ function Header({ habit }: { habit: FrontendHabit }) {
             </div>
             <Separator
               className={cn(
-                habit.icon.length > 0 && 'ml-10',
+                habit.icon.length > 0 ? 'ml-10' : '',
                 backgroundColor(habit.color as Color),
               )}
             />
@@ -286,7 +337,6 @@ function Header({ habit }: { habit: FrontendHabit }) {
 
 function DetailSection({ habit }: HasHabit) {
   const params = useSearchParams();
-  const [_habit, setHabit] = useState(habit);
   const count = trpc.responses.countSince.useQuery({
     habitId: habit.id!,
     frequency: habit.frequency,
@@ -297,21 +347,18 @@ function DetailSection({ habit }: HasHabit) {
   );
   const handleSubmit = async () => {
     await habitQuery.refetch();
-    setTimeout(async () => {
-      if (habitQuery.data) setHabit(habitQuery.data);
-    }, 250);
   };
   return (
     <>
-      <Header habit={habitQuery.data ?? _habit} />
+      <Header habit={habitQuery.data ?? habit} />
       <HabitEdit
-        habit={_habit}
+        habit={habitQuery.data ?? habit}
         open={!!params.get('edit')}
         handleSubmit={handleSubmit}
       />
       <div className='space-8 mx-8 my-1 grid h-full grid-cols-1 gap-4 p-4 lg:grid-cols-2'>
-        <InfoCard habit={habitQuery.data ?? _habit} count={count} />
-        <ResponsesCard habit={habitQuery.data ?? _habit} count={count} />
+        <InfoCard habit={habitQuery.data ?? habit} count={count} />
+        <ResponsesCard habit={habitQuery.data ?? habit} count={count} />
       </div>
       <Journal />
     </>

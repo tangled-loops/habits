@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Day, days } from '@/lib/models/habit';
+import { abbrev, Day, days } from '@/lib/models/habit';
 import { cn } from '@/lib/utils';
 
 import { Badge } from '$/ui/badge';
@@ -18,7 +18,6 @@ const DaysField = ({ selected, className, ...props }: DaysFieldProps) => {
     >
       {days().map((day, i) => {
         const sday = Day[day];
-        const sliceTo = i === (Day.Thursday || Day.Sunday) ? 2 : 1;
         return (
           <Badge
             variant={selected.includes(sday) ? 'secondary' : 'outline'}
@@ -29,7 +28,7 @@ const DaysField = ({ selected, className, ...props }: DaysFieldProps) => {
               'flex flex-row items-center justify-center',
             )}
           >
-            {sday.slice(0, sliceTo)}
+            {abbrev(sday)}
           </Badge>
         );
       })}
@@ -56,7 +55,6 @@ const DaysInput = ({
     >
       {days().map((day, i) => {
         const sday = Day[day];
-        const sliceTo = i === (Day.Thursday || Day.Sunday) ? 2 : 1;
         return (
           <Badge
             variant={selected.includes(sday) ? 'secondary' : 'outline'}
@@ -74,7 +72,7 @@ const DaysInput = ({
               )
             }
           >
-            {sday.slice(0, sliceTo)}
+            {abbrev(sday)}
           </Badge>
         );
       })}

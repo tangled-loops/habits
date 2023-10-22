@@ -4,12 +4,11 @@ import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
 import z from 'zod';
 
 import { habits } from '@/server/db/schema';
-import { ReactElement } from 'react';
-import { Activity, AlarmPlus, Anchor, Box, Binary, Filter } from 'lucide-react';
+
 
 enum Frequency {
-  Daily,
-  Weekly,
+  Daily = 'Daily',
+  Weekly = 'Weekly',
 }
 type FrequencyKeys = keyof typeof Frequency;
 
@@ -18,16 +17,28 @@ function frequencies() {
 }
 
 enum Day {
-  Monday,
-  Tuesday,
-  Wednsday,
-  Thursday,
-  Friday,
-  Saturday,
-  Sunday,
+  Monday = 'Monday',
+  Tuesday = 'Tuesday',
+  Wednsday = 'Wednsday',
+  Thursday = 'Thursday',
+  Friday = 'Friday',
+  Saturday = 'Saturday',
+  Sunday = 'Sunday',
 }
 
 type DayKeys = keyof typeof Day;
+
+function abbrev(day: Day) {
+  switch (day) {
+    case Day.Monday: return 'M'
+    case Day.Tuesday: return 'T'
+    case Day.Wednsday: return 'W'
+    case Day.Thursday: return 'Th'
+    case Day.Friday: return 'F'
+    case Day.Saturday: return 'S'
+    case Day.Sunday: return 'Su'
+  }
+}
 
 function days() {
   return [
@@ -103,6 +114,7 @@ export {
   colors,
   filters,
   days,
+  abbrev,
   frequencies,
   backgroundColor,
   textColor,
