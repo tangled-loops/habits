@@ -76,7 +76,12 @@ export function MenuSelect({
         <SelectContent>
           {options.map((filtr) => {
             return (
-              <SelectItem id={filtr.key} value={filtr.key} className='mr-2'>
+              <SelectItem
+                key={filtr.key}
+                id={filtr.key}
+                value={filtr.key}
+                className='mr-2'
+              >
                 {filtr.title}
               </SelectItem>
             );

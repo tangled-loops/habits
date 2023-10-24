@@ -10,8 +10,8 @@ export async function ensureAuth() {
 }
 
 export async function getCurrentUser() {
-  const session = await getServerSession(authOptions);
-  return session?.user;
+  const api = await getClient()
+  return api.users.findBy({});
 }
 
 export async function getClient() {

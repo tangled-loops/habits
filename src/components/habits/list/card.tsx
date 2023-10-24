@@ -1,16 +1,21 @@
-'use client';
-
-import { Archive, Edit, LucideStickyNote, Plus, Tag, View } from 'lucide-react';
-import Link from 'next/link';
+import { Info } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useState } from 'react';
 
-import { useToast } from '../ui/use-toast';
-import { HabitEdit } from './action-dialogs';
-import { EditField, Field } from './edit-field';
-import { icon } from './icon';
+import { HabitEdit } from '../action-dialogs';
+import { EditField, Field } from '../edit-field';
+import { icon } from '../icon';
+import { Actions } from './actions';
+import { NotesAccordianItem } from './notes';
+import { TagsAccordianItem } from './tags';
+import { HasColors, HasHabit } from './types';
 
-import { Button } from '@/components/ui/button';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
 import {
   Card,
   CardContent,
@@ -18,38 +23,29 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import {
-  abbrev,
-  backgroundColor,
-  Color,
-  Day,
-  days,
-  FrontendHabit,
-  Icon,
-  textColor,
-} from '@/lib/models/habit';
-import { trpc } from '@/lib/trpc';
-import { cn } from '@/lib/utils';
-
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from '$/ui/accordion';
-import { Badge } from '$/ui/badge';
-import { Progress } from '$/ui/progress';
-import { Separator } from '$/ui/separator';
+import { Progress } from '@/components/ui/progress';
+import { Separator } from '@/components/ui/separator';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '$/ui/tooltip';
+} from '@/components/ui/tooltip';
+import { useToast } from '@/components/ui/use-toast';
+import {
+  abbrev,
+  backgroundColor,
+  Color,
+  colorCss,
+  Day,
+  days,
+  FrontendHabit,
+  Icon,
+} from '@/lib/models/habit';
+import { trpc } from '@/lib/trpc';
+import { cn } from '@/lib/utils';
 
-interface HasHabit {
-  habit: FrontendHabit;
-}
+import { Badge } from '$/ui/badge';
 
 interface ProgressDisplayProps extends HasHabit {
   responses: number;
@@ -128,166 +124,33 @@ function Days({ habit }: HasHabit) {
   );
 }
 
-function Tags({ habit, className }: HasHabit & { className?: string }) {
+const InfoAccordianItem = ({ habit, colors }: HasHabit & HasColors) => {
   return (
-    <div
-      className={cn(
-        'h-[40px]',
-        'mb-2 flex-1 flex-row items-center space-x-2 space-y-2 pb-4',
-        className,
-      )}
-    >
-      {habit.tags &&
-        habit.tags.map((tag) => {
-          return (
-            <Badge
-              key={tag}
-              className={cn(
-                'text-white',
-                backgroundColor(habit.color as Color),
-                backgroundColor(habit.color as Color, false, true),
-              )}
-            >
-              {tag}
-            </Badge>
-          );
-        })}
-    </div>
-  );
-}
-
-const TagsAccordianItem = ({ habit }: HasHabit) => {
-  if (habit.tags.length === 0) return null;
-  return (
-    <AccordionItem value='item-1'>
-      {habit.tags.length > 4 ? (
-        <>
-          <AccordionTrigger>
-            <div className='flex flex-row items-center'>
-              <Tag className={cn('mr-2', textColor(habit.color as Color))} />
-              Tags ({habit.tags.length})
-            </div>
-          </AccordionTrigger>
-          <AccordionContent>
-            <Tags habit={habit} />
-          </AccordionContent>
-        </>
-      ) : (
-        <div className='flex flex-col justify-center py-4'>
-          <div className='flex flex-row items-center'>
-            <Tag className={cn('mr-2', textColor(habit.color as Color))} />
-            <Tags habit={habit} className='-mb-4 ml-4 space-y-0' />
-          </div>
-        </div>
-      )}
-    </AccordionItem>
-  );
-};
-
-interface ActionsProps extends HasHabit {
-  onRespond: () => void;
-  onArchive: () => void;
-}
-
-function Actions({ habit, onRespond, onArchive }: ActionsProps) {
-  const [active, setActive] = useState(false);
-
-  useEffect(() => setActive(true), []);
-
-  if (!active) return null;
-
-  return (
-    <div className='-mb-2 grid grid-cols-2'>
-      <Button
-        onClick={onRespond}
-        size='sm'
-        className={cn(
-          backgroundColor(habit.color as Color),
-          'w-[60%] text-white',
-        )}
-      >
-        <Plus className='mr-2' />
-        Respond
-      </Button>
-      <div className='flex flex-row justify-end'>
-        <Button
-          variant='ghost'
-          className='w-full cursor-pointer text-left'
-          onClick={onArchive}
-        >
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger>
-                <Archive
-                  className={cn(
-                    habit.archived ? 'text-primary' : 'text-destructive',
-                  )}
-                />
-                <span className='sr-only'>Archive</span>
-              </TooltipTrigger>
-              <TooltipContent className='text-white'>
-                {habit.archived ? 'Unarchive' : 'Archive'}
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </Button>
-        {/* <Link href={`/habits?archive=true&id=${habit.id}`} passHref>
-        </Link> */}
-        <Link href={`/habits?edit=true&id=${habit.id}`} passHref>
-          <Button
-            variant='ghost'
-            className={cn('w-full cursor-pointer text-left')}
-          >
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger>
-                  <Edit />
-                  <span className='sr-only'>Edit</span>
-                </TooltipTrigger>
-                <TooltipContent>Edit</TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </Button>
-        </Link>
-        <Link href={`/habits/${habit.id}`} passHref>
-          <Button
-            variant='ghost'
-            className={cn('w-full cursor-pointer text-left')}
-          >
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger>
-                  <View />
-                  <span className='sr-only'>View Details</span>
-                </TooltipTrigger>
-                <TooltipContent>View Details</TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </Button>
-        </Link>
-      </div>
-    </div>
-  );
-}
-
-function Notes({ habit }: HasHabit) {
-  return <span>{habit.notes}</span>;
-}
-
-const NotesAccordianItem = ({ habit }: HasHabit) => {
-  if (habit.notes.length === 0) return null;
-  return (
-    <AccordionItem value='item-2'>
+    <AccordionItem value='item-0'>
       <AccordionTrigger>
         <div className='jusity-start flex flex-row items-center space-x-8'>
-          <LucideStickyNote
-            className={cn('mr-2', textColor(habit.color as Color))}
-          />
-          Notes{' '}
+          <Info className={cn('mr-2', colors.text)} /> Info{' '}
         </div>
       </AccordionTrigger>
       <AccordionContent>
-        <Notes habit={habit} />
+        <div className='grid grid-flow-col'>
+          <div className='grid grid-cols-1 gap-2'>
+            <span className='font-semibold'>Total</span>
+            <span className=''>{habit.totalResponses}</span>
+          </div>
+          <div className='grid grid-cols-1 gap-4'>
+            <span className='font-semibold'>In Window</span>
+            <span className=''>{habit.responses}</span>
+          </div>
+          <div className='grid grid-cols-1 gap-4'>
+            <span className='font-semibold'>Goal</span>
+            <span className=''>{habit.goal}</span>
+          </div>
+          <div className='grid grid-cols-1 gap-4'>
+            <span className='font-semibold'>Tracked</span>
+            <span className=''>{habit.frequency}</span>
+          </div>
+        </div>
       </AccordionContent>
     </AccordionItem>
   );
@@ -340,6 +203,8 @@ function HabitCard({ habit }: HasHabit) {
   const [editing, setEditing] = useState<Field>('none');
   const [responses, setResponses] = useState(habit.responses ?? 0);
 
+  const colors = colorCss(habit.color as Color);
+
   const handleSubmit = async () => {
     const { data } = await refetch();
     if (data) setHabit(data);
@@ -349,7 +214,11 @@ function HabitCard({ habit }: HasHabit) {
   const updateResponse = async () => {
     await add.mutateAsync({ habitId: _habit.id! });
     setResponses(responses + 1);
-    if (responses + 1 >= habit.goal && !!params.get('filter')) router.refresh();
+    if (
+      responses + 1 >= habit.goal &&
+      (!!params.get('filter') || !!params.get('sort'))
+    )
+      router.refresh();
   };
 
   const handleArchive = async () => {
@@ -391,14 +260,15 @@ function HabitCard({ habit }: HasHabit) {
               handleSubmit={handleSubmit}
               habit={_habit}
             />
-            <Separator className={cn(backgroundColor(_habit.color as Color))} />
+            <Separator className={cn(colors.background)} />
           </CardHeader>
           <Days habit={_habit} />
         </div>
         <CardContent className='mb-2 p-4 pt-0'>
           <Accordion type='single' collapsible>
-            <NotesAccordianItem habit={_habit} />
-            <TagsAccordianItem habit={_habit} />
+            <InfoAccordianItem habit={_habit} colors={colors} />
+            <NotesAccordianItem habit={_habit} colors={colors} />
+            <TagsAccordianItem habit={_habit} colors={colors} />
             {/* @todo make notes editable */}
             {/* @todo basic info tab */}
             {/* @todo add some sort of responses tab to show the number of responses per day*/}
@@ -407,6 +277,7 @@ function HabitCard({ habit }: HasHabit) {
         <CardFooter className='mb-0 grid gap-2 p-3'>
           <Actions
             habit={_habit}
+            colors={colors}
             onRespond={updateResponse}
             onArchive={handleArchive}
           />
@@ -417,20 +288,4 @@ function HabitCard({ habit }: HasHabit) {
   );
 }
 
-function HabitsList({ habits }: { habits: Array<FrontendHabit> }) {
-  return (
-    <>
-      <div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3'>
-        {habits.map((habit) => {
-          return (
-            <div key={habit.id}>
-              <HabitCard habit={habit} />
-            </div>
-          );
-        })}
-      </div>
-    </>
-  );
-}
-
-export { HabitsList };
+export { HabitCard };

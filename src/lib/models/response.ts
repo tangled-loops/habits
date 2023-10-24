@@ -156,7 +156,8 @@ export async function add({ db, habitId }: AddOptions) {
   if (!habit) return;
   await db
     .update(habits)
-    .set({ responseCount: habit.responseCount + 1, updatedAt: new Date() });
+    .set({ responseCount: habit.responseCount + 1, updatedAt: new Date() })
+    .where(eq(habits.id, habitId));
 }
 
 export const frequencyBySchema = z.object({

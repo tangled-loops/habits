@@ -23,7 +23,7 @@ const DaysField = ({ selected, className, ...props }: DaysFieldProps) => {
             variant={selected.includes(sday) ? 'secondary' : 'outline'}
             className={cn(
               selected.includes(sday)
-                ? 'bg-primary text-background hover:bg-primary/50'
+                ? 'text-accent-background bg-primary hover:bg-primary/50'
                 : 'text-foreground',
               'flex flex-row items-center justify-center',
             )}
@@ -55,6 +55,9 @@ const DaysInput = ({
     >
       {days().map((day) => {
         const sday = Day[day];
+        const value = selected.includes(sday)
+          ? selected.filter((item) => item !== sday)
+          : [...selected, sday];
         return (
           <Badge
             variant={selected.includes(sday) ? 'secondary' : 'outline'}
@@ -64,13 +67,7 @@ const DaysInput = ({
                 : 'text-foreground',
               'flex flex-row items-center justify-center',
             )}
-            onClick={() =>
-              onChange(
-                selected.includes(sday)
-                  ? selected.filter((item) => item !== sday)
-                  : [...selected, sday],
-              )
-            }
+            onClick={() => onChange(value)}
           >
             {abbrev(sday)}
           </Badge>

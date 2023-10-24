@@ -1,3 +1,4 @@
+import { Day } from '@/lib/models/habit';
 import { relations } from 'drizzle-orm';
 import {
   boolean,
@@ -66,6 +67,11 @@ export const verificationTokens = pgTable(
 
 export type Role = 'standard' | 'admin';
 
+interface UserDefaults {
+  days: string[],
+
+}
+
 export const users = pgTable('user', {
   id: uuid('id').notNull().primaryKey(),
   name: text('name'),
@@ -73,6 +79,7 @@ export const users = pgTable('user', {
   emailVerified: timestamp('emailVerified', { mode: 'date' }),
   image: text('image'),
   role: varchar('role').$type<Role>(),
+  defaults: json('defaults').$type<UserDefaults>(),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at'),
 });
@@ -119,13 +126,6 @@ export const habitsRelations = relations(habits, ({ one, many }) => ({
   tags: many(habitsTags),
 }));
 
-/**
- * This is going to be extremely basic, each record represents a response.
- * I think it makes sense to have this as a table though since it will be
- * easier to do statistics this way. They will be non-editable and each one
- * represents a unique response to a habit being tracked, this also will 
- * allow me to expand the feature set if I want to down the line.
- */
 export const responses = pgTable('responses', {
   id: uuid('id').notNull().defaultRandom().primaryKey(),
   habitId: uuid('habit_id')
