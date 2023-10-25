@@ -1,4 +1,3 @@
-import { Day } from '@/lib/models/habit';
 import { relations } from 'drizzle-orm';
 import {
   boolean,

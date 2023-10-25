@@ -1,9 +1,7 @@
 'use client';
 
-import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
-import { Filter, SortAsc, SortDesc, Tag, XCircle } from 'lucide-react';
+import { Filter, SortDesc, Tag, XCircle } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ReactElement } from 'react';
 
 import { Select, SelectContent, SelectTrigger } from '../ui/select';
 
