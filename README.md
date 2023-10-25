@@ -1,42 +1,44 @@
-This is going to be my first next hobby project, that I would like to see through until it is deployed,
-for this reason I am narrowing the focus of the app specifically to tracking habits, which means redesigning
-aspects of it, but I think in the end it will be a good choice, since it does not really make sense to have
-a ToDo and Book Tracker if I make a fully featured habit tracking interface it will be more focused and I'll
-be able to go deeper into the specific design of the habits.
+One month of steady progress but things are slowing down because I don't have 
+a clear vision for where things are going.
 
-- Habit Tracker
-  - My idea for this is for it to be sort of like a ToDo list except that it doesn't get completed in the same way
-    so you'll have a habit group, which needs a better name, that has a set of habits, that are either related in
-    some way or that you are working on specifically forming, you'll be able to go in each day and mark which things
-    you did or did not do, I think for now they will be yes/no, although maybe as I'm developing it there will be
-    an obvious way to add other answers, or maybe it will be more like a counter, although the number of yes and no
-    is sort of like a tracker.
+The most significant things that need to be done before I can consider this even
+close to complete is:
 
-## Getting Started
+- Dashboard
+  - Graphs showing completion rate of various habits
+  - Most important habits listed in a unique way
+  - View of recent activity would be nice, a bunch of ways to implement this
+    so pick one
+- Settings
+  - At least the settings I've already defined along with actually incorporating
+    them into the app
+- Detail Section
+  - Complete this by finishing the journal and adding a completion chart
+    - Go above and beyond by implementing a rich text editor
+- List / General
+  - Need to be able to narrow down to habits that need to be done on a given day
+    and need to show these as important, maybe the progress tracker should not
+    show up unless it is a habit that needs to be completed inside the timeframe.
+    Might need to restructure the database in some ways to make this easier, 
+    currently would need to do searchs in the json array, which would be worth
+    learning more about for sure. 
+  - Weekly timeframe is completely broken, fix this
+- Basic (single page) marketing with pictures and compelling wordses ha.
 
-First, run the development server:
-
-```bash
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+- Above and Beyond (things to add over time but maybe start a new project first)
+  - Habit groups
+    - Basically the ability to define sub-habits this one I would want to flesh
+      out a lot more before going to deep into it.
+  - Todo lists for habits
+    - Things that enable the habit, that are things you have to do each day that
+      the habit is tracked
+  - Notifications
+    - Push / text / email notifications based on preferences, like a weekly
+      digest, daily reminders, etc
+  - Expanded and refined Login and Registration flow
+    - Force users to register so that the information we have is consistent
+    - Implement more common SSO providers
+  - Basic pricing structure, like a free tier and one tier above that as a sub-
+    scription based thing, including wiring up the payment processing
+  - Deploy using SST instead of Vercel
+  - Get an actual domain?
