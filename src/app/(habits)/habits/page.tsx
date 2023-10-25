@@ -7,7 +7,7 @@ import { MenuSelect } from '@/components/habits/menu-select';
 import { SearchInput } from '@/components/habits/search-input';
 import { Menubar, MenubarMenu } from '@/components/ui/menubar';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { FilterType } from '@/lib/models/habit';
+import { Filter } from '@/lib/models/habit';
 import { getClient } from '@/server/session';
 
 import { Tag } from '~/db/schema';
@@ -83,7 +83,7 @@ export default async function Habits({
 
   const page = Number(searchParams.page ?? 1);
   const limit = 100;
-  const filter = (searchParams.filter ?? 'none') as FilterType;
+  const filter = (searchParams.filter ?? 'none') as Filter;
   const sort = searchParams.sort ?? 'none';
   const search = searchParams.search;
   const tags = searchParams.tags ?? '';

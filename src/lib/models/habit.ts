@@ -43,6 +43,7 @@ function days() {
  * Abbreviation for `Day`
  * @param day 
  * @returns string
+ * 
  */
 function abbrev(day: Day) {
   switch (day) {
