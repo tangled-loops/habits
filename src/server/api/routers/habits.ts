@@ -63,6 +63,7 @@ export const habitsRouter = createTRPCRouter({
           responses: habits.responseCount,
           frequency: habits.frequency,
           totalResponses: habits.responseCount,
+          selectedDays: habits.selectedDays,
           tagsCount: sql<number>`count(habits_tags)::integer as tags_count`,
           lastResponse: sql<number>`max(responses.created_at) as last_response`,
           responsesInWindow: sql<number>`count(responses.created_at) as responses_in_window`,

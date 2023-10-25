@@ -11,7 +11,7 @@ export default async function Dashboard() {
           <Separator className='-mx-10 my-2 w-[100hw]' />
         </div>
         <div className='grid grid-cols-1 gap-4 p-4'>
-          <div className='grid grid-cols-4 gap-4'>
+          <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-4'>
             <Card>
               <CardHeader>
                 <CardTitle>Priority Today</CardTitle>
@@ -37,7 +37,7 @@ export default async function Dashboard() {
               <CardContent></CardContent>
             </Card>
           </div>
-          <div className='grid grid-cols-2 gap-4'>
+          <div className='grid gap-4 md:grid-cols-2'>
             <Card>
               <CardHeader>
                 <CardTitle>Recent Activity</CardTitle>

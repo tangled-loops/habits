@@ -6,6 +6,7 @@ import { HabitEdit } from '../action-dialogs';
 import { EditField, Field } from '../edit-field';
 import { icon } from '../icon';
 import { Actions } from './actions';
+import { Days } from './days';
 import { NotesAccordianItem } from './notes';
 import { TagsAccordianItem } from './tags';
 import { HasColors, HasHabit } from './types';
@@ -33,19 +34,14 @@ import {
 } from '@/components/ui/tooltip';
 import { useToast } from '@/components/ui/use-toast';
 import {
-  abbrev,
   backgroundColor,
   Color,
   colorCss,
-  Day,
-  days,
   FrontendHabit,
   Icon,
 } from '@/lib/models/habit';
 import { trpc } from '@/lib/trpc';
 import { cn } from '@/lib/utils';
-
-import { Badge } from '$/ui/badge';
 
 interface ProgressDisplayProps extends HasHabit {
   responses: number;
@@ -64,60 +60,6 @@ function ProgressDisplay({ habit, responses }: ProgressDisplayProps) {
         </TooltipTrigger>
         <TooltipContent>
           ({responses} / {habit.goal})
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
-  );
-}
-
-function Days({ habit }: HasHabit) {
-  return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger className='p-2'>
-          <Badge
-            variant='secondary'
-            className={cn(
-              backgroundColor(habit.color as Color),
-              backgroundColor(habit.color as Color, false, true),
-              'mr-4 text-center text-white',
-            )}
-          >
-            <p>{habit.frequency}</p>
-          </Badge>
-        </TooltipTrigger>
-        <TooltipContent className='-my-4 bg-foreground'>
-          {habit.frequency === 'Daily' ? (
-            <>
-              <div className='grid grid-cols-7 gap-0.5'>
-                {days().map((day, i) => {
-                  const sday = Day[day];
-                  if (habit.selectedDays?.includes(sday)) {
-                    return (
-                      <Badge
-                        key={i}
-                        variant='secondary'
-                        className='bg-primary text-center text-white hover:bg-primary/50'
-                      >
-                        {abbrev(sday)}
-                      </Badge>
-                    );
-                  }
-                  return (
-                    <Badge
-                      key={i}
-                      variant='outline'
-                      className='text-center text-accent'
-                    >
-                      {abbrev(sday)}
-                    </Badge>
-                  );
-                })}
-              </div>
-            </>
-          ) : (
-            <div className='text-center'>Tracked Weekly</div>
-          )}
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
@@ -267,10 +209,9 @@ function HabitCard({ habit }: HasHabit) {
         <CardContent className='mb-2 p-4 pt-0'>
           <Accordion type='single' collapsible>
             <InfoAccordianItem habit={_habit} colors={colors} />
+            {/* @todo make notes editable */}
             <NotesAccordianItem habit={_habit} colors={colors} />
             <TagsAccordianItem habit={_habit} colors={colors} />
-            {/* @todo make notes editable */}
-            {/* @todo basic info tab */}
             {/* @todo add some sort of responses tab to show the number of responses per day*/}
           </Accordion>
         </CardContent>

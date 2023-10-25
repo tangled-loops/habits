@@ -173,14 +173,14 @@ function Nav() {
             </Link>
           </NavigationMenuItem>
           <NavigationMenuItem className='sm:hidden'>
-            <Link href='/profile' legacyBehavior passHref>
+            <Link href='/settings' legacyBehavior passHref>
               <NavigationMenuLink
                 className={cn(
                   linkClasses,
-                  path === 'profile' ? 'text-primary' : 'text-foreground',
+                  path === 'settings' ? 'text-primary' : 'text-foreground',
                 )}
               >
-                Profile
+                Settings
               </NavigationMenuLink>
             </Link>
           </NavigationMenuItem>
