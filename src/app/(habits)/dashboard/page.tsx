@@ -11,54 +11,54 @@ export default async function Dashboard() {
           <Separator className='-mx-10 my-2 w-[100hw]' />
         </div>
         <div className='grid grid-cols-1 gap-4 p-4'>
-          <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-4'>
-            <Card>
-              <CardHeader>
-                <CardTitle>Priority Today</CardTitle>
-              </CardHeader>
-              <CardContent></CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle>Priority Today</CardTitle>
-              </CardHeader>
-              <CardContent></CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle>Priority Today</CardTitle>
-              </CardHeader>
-              <CardContent></CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle>Priority Today</CardTitle>
-              </CardHeader>
-              <CardContent></CardContent>
-            </Card>
-          </div>
-          <div className='grid gap-4 md:grid-cols-2'>
+          <div className='grid min-h-[200px] gap-4 sm:grid-cols-1 lg:grid-cols-3'>
             <Card>
               <CardHeader>
                 <CardTitle>Recent Activity</CardTitle>
               </CardHeader>
               <CardContent>
-                This should be a list of updates that have happened recently
-                maybe we should make a separate table to keep a timeline of
-                changes, or could show recently updated / created. I think try
-                the timeline thing and see if it works out, what else is the
-                point of this project except trying things that may not work
-                well to learn from it.
+                <div className='flex-col justify-center p-6'>
+                  Inspirational quote about doing things, and how you haven
+                  {"'"}t been
+                </div>
               </CardContent>
             </Card>
             <Card>
               <CardHeader>
-                <CardTitle>Priority Today</CardTitle>
+                <CardTitle>Needs Response</CardTitle>
               </CardHeader>
               <CardContent>
-                I guess show all the habits that need responses either because
-                the day is selected, or because it hasnt been responded to this
-                week.
+                <div className='flex-col justify-center p-6'>
+                  There{"'"}s nothing here, track some habits.
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>Completed in Timeframe</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className='flex-col justify-center p-6'>
+                  Nothing yet...
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+          <div className='grid gap-4 md:grid-cols-2'>
+            <Card>
+              <CardHeader>
+                <CardTitle>Habits by Response Rate</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className='min-h-[300px]'>doop</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>Response Rate In Period</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className='min-h-[300px]'>doop</div>
               </CardContent>
             </Card>
           </div>

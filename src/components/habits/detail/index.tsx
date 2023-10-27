@@ -18,7 +18,7 @@ function DetailSection({ habit }: HasHabit) {
     frequency: habit.frequency,
   });
   const habitQuery = trpc.habits.findById.useQuery(
-    { id: habit.id! },
+    { habitId: habit.id! },
     { enabled: false },
   );
   const handleSubmit = async () => {

@@ -28,12 +28,12 @@ export function dateSinceBy({ frequency, since, at }: DateSinceOptions) {
     const today = new Date();
     switch (frequency) {
       case 'Daily': {
-        date = new Date(`${today.toLocaleDateString()} ${timeString}`);
+        date = new Date(`${today.toDateString()} ${timeString}`);
         break;
       }
       case 'Weekly': {
         const startOfWeek = new Date(today.getDate() - today.getDay() - 6); // check that this is correct :)
-        date = new Date(`${startOfWeek.toLocaleDateString()} ${timeString}`);
+        date = new Date(`${startOfWeek.toDateString()} ${timeString}`);
         break;
       }
     }
@@ -56,7 +56,6 @@ export async function responsesSince({
     .select()
     .from(responses)
     .where(and(eq(responses.habitId, habitId), gt(responses.createdAt, date)))
-    // eslint-disable-next-line no-undef
     .orderBy(desc(responses.createdAt));
 }
 

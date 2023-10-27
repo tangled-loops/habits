@@ -3,7 +3,7 @@ import { getClient } from '@/server/session';
 
 export default async function Habits({ params }: { params: { id: string } }) {
   const api = await getClient();
-  const habit = await api.habits.findById({ id: params.id });
+  const habit = await api.habits.findById({ habitId: params.id });
   // const responses = await api.responses.since({
   //   habitId: params.id,
   //   frequency: habit.frequency,

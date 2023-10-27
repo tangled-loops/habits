@@ -1,8 +1,7 @@
-import { Badge } from 'lucide-react';
-
 import { ResponseCount } from './response-card';
 import { HasHabitAndTRPC } from './types';
 
+import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DaysField } from '@/components/ui/days-input';
 import { backgroundColor, Color } from '@/lib/models/habit';

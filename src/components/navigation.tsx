@@ -42,7 +42,7 @@ function items(iconClasses: string): SidebarItem[] {
     },
     {
       id: 2,
-      title: 'Habits',
+      title: 'Tracker',
       href: '/habits',
       icon: <ListPlus className={iconClasses} />,
     },
@@ -168,7 +168,7 @@ function Nav() {
                   path === 'habits' ? 'text-primary' : 'text-foreground',
                 )}
               >
-                Habits
+                Tracker
               </NavigationMenuLink>
             </Link>
           </NavigationMenuItem>

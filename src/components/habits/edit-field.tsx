@@ -9,21 +9,21 @@ import { trpc } from '@/lib/trpc';
 import { Form, FormControl, FormField, FormItem } from '$/ui/form';
 import { Input } from '$/ui/input';
 
-export type Field = 'none' | 'notes' | 'name';
+const fields = ['none', 'notes', 'name'] as const;
+export type Field = (typeof fields)[number];
 
 const editFieldSchema = z.object({
   id: z.string(),
-  type: z.string(),
-  name: z.string().optional(),
-  notes: z.string().optional(),
+  field: z.enum(fields),
+  value: z.string(),
 });
 
 export type EditFieldFormValues = z.infer<typeof editFieldSchema>;
 
 export interface EditFieldProps {
   id: string;
-  value: string | null;
-  field: string;
+  value: string;
+  field: Field;
   handleSubmit: () => void;
 }
 
@@ -31,7 +31,7 @@ export interface EditFieldProps {
 //  the mutation makes it a packaged unit maybe not worth generalizing.
 export function EditField({ id, field, value, handleSubmit }: EditFieldProps) {
   const mutation = trpc.habits.updateField.useMutation();
-  const defaultValues = { id, type: field };
+  const defaultValues = { id, field, value };
 
   const form = useForm<EditFieldFormValues>({
     resolver: zodResolver(editFieldSchema),
@@ -39,7 +39,7 @@ export function EditField({ id, field, value, handleSubmit }: EditFieldProps) {
   });
 
   function onSubmit(data: EditFieldFormValues) {
-    if (data.name || data.notes) mutation.mutate(data);
+    if (data.value) mutation.mutate(data);
     // Need to wait a bit so when we refresh the data it is in fact fresh
     setTimeout(() => handleSubmit(), 250);
   }

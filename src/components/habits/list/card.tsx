@@ -106,7 +106,7 @@ interface TitleProps extends HasHabit {
 
 function Title({ habit, editing, setEditing, handleSubmit }: TitleProps) {
   const content = () => {
-    const editField = (value: string | null) => {
+    const editField = (value: string) => {
       return (
         <EditField
           id={habit.id || ''}
@@ -133,7 +133,7 @@ function HabitCard({ habit }: HasHabit) {
   const params = useSearchParams();
 
   const { data, refetch } = trpc.habits.findById.useQuery(
-    { id: habit.id || '' },
+    { habitId: habit.id || '' },
     { enabled: false },
   );
 

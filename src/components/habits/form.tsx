@@ -70,10 +70,11 @@ export function useFormViewModel({
 
   const { toast } = useToast();
 
-  const tagsQuery = trpc.tags.findAllNames.useQuery();
-  const { mutateAsync } = trpc.habits.createOrUpdate.useMutation();
-
   const [tags, setTags] = React.useState<Array<OptionType>>([]);
+
+  const create = trpc.habits.create.useMutation();
+  const update = trpc.habits.update.useMutation();
+  const tagsQuery = trpc.tags.findAllNames.useQuery();
 
   const viewModel = new FormViewModel({
     tags,
@@ -81,7 +82,11 @@ export function useFormViewModel({
     toast,
     router,
     mutate: async (data: FrontendHabit) => {
-      await mutateAsync(data);
+      if (data.id) {
+        await update.mutateAsync(data);
+      } else {
+        await create.mutateAsync(data);
+      }
       await onMutate?.(data);
     },
     setTags,
