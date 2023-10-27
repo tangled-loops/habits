@@ -1,7 +1,6 @@
 import { Plus } from 'lucide-react';
 import Link from 'next/link';
 
-import { HabitCreate } from '@/components/habits/action-dialogs';
 import { HabitsList } from '@/components/habits/list';
 import { MenuSelect } from '@/components/habits/menu-select';
 import { SearchInput } from '@/components/habits/search-input';
@@ -76,6 +75,7 @@ export default async function Habits({
     filter?: string;
     sort?: string;
     tags?: string;
+    create?: boolean;
   };
 }) {
   const client = await getClient();
@@ -97,7 +97,6 @@ export default async function Habits({
   });
   return (
     <>
-      <HabitCreate />
       <div className='flex max-h-screen min-h-full flex-col'>
         <Header />
         <Menubar className='-mx-5 flex flex-row justify-start border-0 border-b'>

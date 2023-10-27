@@ -1,29 +1,26 @@
 'use client';
 
-import { usePathname, useSearchParams } from 'next/navigation';
-import { useState } from 'react';
+import { usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
-import { Card, CardContent } from '../ui/card';
+import { FormViewModel, HabitsForm, useFormViewModel } from './form';
+
+import { FrontendHabit } from '@/lib/models/habit';
+
+import { Button } from '$/ui/button';
+import { Card, CardContent } from '$/ui/card';
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '../ui/dialog';
-import { ScrollArea } from '../ui/scroll-area';
-import HabitsForm, { FormViewModel, useFormViewModel } from './form';
+} from '$/ui/dialog';
+import { ScrollArea } from '$/ui/scroll-area';
 
-import { FrontendHabit } from '@/lib/models/habit';
-
-import { Button } from '$/ui/button';
-
-function HabitCreate() {
-  const params = useSearchParams();
-
-  const [show, setShow] = useState(true);
-
+function HabitCreate({ open, tags }: { open?: boolean; tags?: string[] }) {
   const viewModel = useFormViewModel({
+    tagNames: tags,
     redirectTo: '/habits?page=1',
     onMutate: async () => {
       viewModel.router.refresh();
@@ -32,7 +29,7 @@ function HabitCreate() {
   });
 
   return (
-    <Dialog open={!!params.get('create') && show} onOpenChange={setShow}>
+    <Dialog open={open} onOpenChange={handleOpenChange(false, viewModel)}>
       <DialogContent className='md:min-w-[500px] lg:min-w-[800px]'>
         <DialogHeader>
           <DialogTitle>Create a Habit to Track...</DialogTitle>
@@ -48,7 +45,7 @@ function HabitCreate() {
           <Button
             variant='destructive'
             type='submit'
-            onClick={() => setShow(false)}
+            onClick={() => handleOpenChange(true, viewModel)}
           >
             Cancel
           </Button>
@@ -56,7 +53,7 @@ function HabitCreate() {
           <Button
             type='submit'
             className='text-white'
-            onClick={() => viewModel.onSubmit(viewModel.watcher!)}
+            onClick={() => viewModel.onSubmit()}
           >
             Save
           </Button>
@@ -77,22 +74,32 @@ function handleOpenChange(allow: boolean, viewModel: FormViewModel) {
 interface HabitEditProps {
   habit: FrontendHabit;
   open?: boolean;
+  tags?: string[];
   handleSubmit?: () => void;
 }
 
-function HabitEdit({ habit, open, handleSubmit }: HabitEditProps) {
+function HabitEdit({ habit, open, tags, handleSubmit }: HabitEditProps) {
   const path = usePathname();
 
   const viewModel = useFormViewModel({
     habit,
+    tagNames: tags,
     redirectTo: path,
     toastTitle: `Edit Successful`,
   });
 
   const onSubmit = async () => {
-    await viewModel.onSubmit(viewModel.watcher!);
-    handleSubmit?.();
+    const didSubmit = await viewModel.onSubmit();
+    if (didSubmit) handleSubmit?.();
   };
+
+  const [active, setActive] = useState(false);
+
+  useEffect(() => {
+    setActive(true);
+  }, []);
+
+  if (!active) return null;
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange(false, viewModel)}>

@@ -127,7 +127,7 @@ function Title({ habit, editing, setEditing, handleSubmit }: TitleProps) {
   );
 }
 
-function HabitCard({ habit }: HasHabit) {
+function HabitCard({ habit, tags }: HasHabit & { tags?: string[] }) {
   const router = useRouter();
   const { toast } = useToast();
   const params = useSearchParams();
@@ -184,13 +184,19 @@ function HabitCard({ habit }: HasHabit) {
     !!params.get('id') &&
     !!params.get('edit') &&
     params.get('id') === _habit.id!;
+
+  if (editingEnabled) console.log('editing');
+
   return (
     <>
-      <HabitEdit
-        habit={_habit}
-        open={editingEnabled}
-        handleSubmit={handleSubmit}
-      />
+      {editingEnabled && (
+        <HabitEdit
+          habit={_habit}
+          tags={tags}
+          open={editingEnabled}
+          handleSubmit={handleSubmit}
+        />
+      )}
       <Card className='p-2'>
         <div className='flex flex-row items-center'>
           {_habit.icon.length > 0 &&
