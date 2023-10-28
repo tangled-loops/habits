@@ -126,7 +126,6 @@ export async function habitsBoundedByGoal({
     .where(or(daily, weekly))
     .orderBy(sql`goal`)
     .groupBy(responses.habitId);
-  console.log(result)
   return result.reduce((pre: Array<string>, nxt) => {
     switch (type) {
       case 'above':
@@ -190,4 +189,26 @@ export async function frequencyBy<T>({
     throw new Error('need frequency if no since date is provided');
   }
   return callbacks.since?.();
+}
+
+export async function find({ db, habitId }: HasDB & { habitId: string }) {
+  return await db
+    .select()
+    .from(responses)
+    .where(eq(responses.habitId, habitId))
+    .orderBy(desc(responses.createdAt))
+}
+
+export async function findGrouped({ db, habitId }: HasDB & { habitId: string }) {
+  const result = await find({ db, habitId })
+  return result.reduce((p: Record<string, Response[]>, n) => {
+    const date = new Date(n.createdAt.toISOString()).toLocaleDateString()
+    const entry = p[date]
+    if (entry) {
+      p[date].push(n)
+      return p
+    }
+    p[date] = [n]
+    return p
+  }, {})
 }

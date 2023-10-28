@@ -156,11 +156,16 @@ function HabitCard({ habit, tags }: HasHabit & { tags?: string[] }) {
   const updateResponse = async () => {
     await add.mutateAsync({ habitId: _habit.id! });
     setResponses(responses + 1);
+
     if (
       responses + 1 >= habit.goal &&
       (!!params.get('filter') || !!params.get('sort'))
-    )
+    ) {
       router.refresh();
+      return;
+    }
+
+    await handleSubmit();
   };
 
   const handleArchive = async () => {
@@ -184,8 +189,6 @@ function HabitCard({ habit, tags }: HasHabit & { tags?: string[] }) {
     !!params.get('id') &&
     !!params.get('edit') &&
     params.get('id') === _habit.id!;
-
-  if (editingEnabled) console.log('editing');
 
   return (
     <>

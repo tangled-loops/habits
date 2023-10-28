@@ -17,6 +17,7 @@ import {
   DialogTitle,
 } from '$/ui/dialog';
 import { ScrollArea } from '$/ui/scroll-area';
+import { useDelayRender } from '@/lib/hooks/use-delay-render';
 
 function HabitCreate({ open, tags }: { open?: boolean; tags?: string[] }) {
   const viewModel = useFormViewModel({
@@ -27,6 +28,10 @@ function HabitCreate({ open, tags }: { open?: boolean; tags?: string[] }) {
     },
     toastTitle: 'New Habit Added',
   });
+
+  const { active } = useDelayRender();
+
+  if (!active) return null;
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange(false, viewModel)}>
@@ -86,18 +91,14 @@ function HabitEdit({ habit, open, tags, handleSubmit }: HabitEditProps) {
     tagNames: tags,
     redirectTo: path,
     toastTitle: `Edit Successful`,
+    onMutate: async () => {
+      handleSubmit?.();
+    },
   });
 
-  const onSubmit = async () => {
-    const didSubmit = await viewModel.onSubmit();
-    if (didSubmit) handleSubmit?.();
-  };
+  const onSubmit = async () => await viewModel.onSubmit();
 
-  const [active, setActive] = useState(false);
-
-  useEffect(() => {
-    setActive(true);
-  }, []);
+  const { active } = useDelayRender();
 
   if (!active) return null;
 

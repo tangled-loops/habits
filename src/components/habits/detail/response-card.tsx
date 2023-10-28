@@ -1,4 +1,4 @@
-import { Dot, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { GridLoader } from 'react-spinners';
 
 import { HasHabitAndTRPC, TRPCData } from './types';
@@ -7,14 +7,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import { backgroundColor, Color } from '@/lib/models/habit';
 import { trpc } from '@/lib/trpc';
 import { cn } from '@/lib/utils';
@@ -33,7 +25,11 @@ function ResponseCount({ count, initial }: ResponseCountProps) {
   );
 }
 
-function ResponseCardContent({ responses }: { responses?: Response[] }) {
+function ResponseCardContent({
+  responses,
+}: {
+  responses?: Record<string, Response[]>;
+}) {
   if (!responses) {
     return (
       <div className='flex h-[200px] w-full flex-col items-center justify-center'>
@@ -44,50 +40,67 @@ function ResponseCardContent({ responses }: { responses?: Response[] }) {
     );
   }
 
-  if (responses.length === 0) {
+  if (Object.keys(responses).length === 0) {
     return <span></span>;
   }
 
-  return (
-    <ScrollArea className='h-[200px] border p-4 shadow'>
-      <Table>
-        <TableHead>
-          <TableHeader>Date</TableHeader>
-        </TableHead>
-        <TableBody className='rounded-lg border'>
-          {responses.map((response) => {
+  const something = (date: string, _responses: Response[]) => {
+    console.log(_responses);
+    const time = (response: Response) =>
+      new Date(
+        response.createdAt
+          .toISOString()
+          .replaceAll('T', ' ')
+          .replaceAll('Z', ''),
+      );
+    return (
+      <li key={date} className='m-2 grid grid-cols-1 gap-4'>
+        {date}
+        <ul className='ml-5'>
+          {_responses.map((response) => {
             return (
-              <TableRow key={response.id}>
-                <TableCell>
-                  <div className='flex flex-row'>
-                    <div className='flex flex-col items-center justify-center'>
-                      <Dot />
-                    </div>
-                    <div className='flex w-full flex-row space-x-2'>
-                      <span>{response.createdAt.toLocaleDateString()}</span>
-                      <span>at</span>
-                      <span>{response.createdAt.toLocaleTimeString()}</span>
-                    </div>
-                  </div>
-                </TableCell>
-              </TableRow>
+              <li key={date} className='grid grid-cols-1 gap-4'>
+                <span className='m-1'>
+                  {time(response).toLocaleTimeString()}
+                </span>
+              </li>
             );
           })}
-        </TableBody>
-      </Table>
+        </ul>
+      </li>
+    );
+  };
+
+  return (
+    <ScrollArea className='-mb-2 h-[200px] w-full p-4'>
+      <ul className='p-4'>
+        {Object.keys(responses).map((date) => {
+          return (
+            <div className='flex flex-row items-center'>
+              <span>{`(${responses[date].length})`}</span>
+              <span>{something(date, responses[date])}</span>
+            </div>
+          );
+        })}
+      </ul>
     </ScrollArea>
   );
 }
 
 function ResponseCard({ habit, count }: HasHabitAndTRPC) {
   const { mutateAsync } = trpc.responses.add.useMutation();
-  const responses = trpc.responses.since.useQuery({
+  const inWindowResponses = trpc.responses.since.useQuery({
     habitId: habit.id!,
     frequency: habit.frequency,
   });
+  const responses = trpc.responses.findGrouped.useQuery(
+    { habitId: habit.id! },
+    { enabled: true },
+  );
 
   const updateResponse = async () => {
     await mutateAsync({ habitId: habit.id! });
+    await inWindowResponses.refetch();
     await responses.refetch();
     await count.refetch();
   };

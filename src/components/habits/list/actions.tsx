@@ -1,4 +1,5 @@
 import { Archive, Edit, Plus, View } from 'lucide-react';
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
 import { HasColors, HasHabit } from './types';
@@ -10,8 +11,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { useDelayRender } from '@/lib/hooks/use-delay-render';
 import { cn } from '@/lib/utils';
-import Link from 'next/link';
 
 interface ActionsProps extends HasHabit {
   onRespond: () => void;
@@ -24,9 +25,7 @@ function Actions({
   onArchive,
   colors,
 }: ActionsProps & HasColors) {
-  const [active, setActive] = useState(false);
-
-  useEffect(() => setActive(true), []);
+  const { active } = useDelayRender();
 
   if (!active) {
     return (
@@ -34,12 +33,15 @@ function Actions({
         <div
           className={cn(
             buttonVariants({ variant: 'default' }),
-            'mb-1 h-[30px] w-[60%] text-secondary-foreground',
+            'mb-1 h-[30px] w-[60%] text-primary-foreground',
             colors.background,
             colors.hover,
           )}
         >
-          <div className=' text-sm'>Respond</div>
+          <div className='flex flex-row items-center text-sm'>
+            <Plus className='mr-2' />
+            Respond
+          </div>
         </div>
         <div className='flex flex-row justify-end'>
           <div className={cn(buttonVariants({ variant: 'ghost' }))}>

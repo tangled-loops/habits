@@ -26,12 +26,14 @@ function DetailSection({ habit }: HasHabit) {
   };
   return (
     <>
+      {!!params.get('edit') && (
+        <HabitEdit
+          habit={habitQuery.data ?? habit}
+          open={true}
+          handleSubmit={handleSubmit}
+        />
+      )}
       <Header habit={habitQuery.data ?? habit} />
-      <HabitEdit
-        habit={habitQuery.data ?? habit}
-        open={!!params.get('edit')}
-        handleSubmit={handleSubmit}
-      />
       <div className='space-8 mx-8 my-1 grid h-full grid-cols-1 gap-4 p-4 lg:grid-cols-2'>
         <InfoCard habit={habitQuery.data ?? habit} count={count} />
         <ResponseCard habit={habitQuery.data ?? habit} count={count} />

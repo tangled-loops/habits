@@ -2,6 +2,8 @@ import * as z from 'zod';
 
 import {
   add,
+  find,
+  findGrouped,
   frequencyBy,
   frequencyBySchema,
   responseCountSince,
@@ -16,6 +18,19 @@ export const responsesRouter = createTRPCRouter({
     .mutation(async ({ ctx: { db }, input: { habitId } }) => {
       await add({ db, habitId });
     }),
+  find: protectedProcedure
+    .input(z.object({ habitId: z.string() }))
+    .query(async ({ ctx: { db }, input: { habitId }}) => {
+      return await find({ db, habitId })
+    }),
+  findGrouped: protectedProcedure
+    .input(
+      z.object({
+        habitId: z.string()
+      })
+    ).query(async ({ ctx: { db }, input: { habitId }}) => {
+      return await findGrouped({ db, habitId })
+    }),
   since: protectedProcedure
     .input(frequencyBySchema)
     .query(async ({ ctx: { db }, input: { habitId, since, frequency } }) => {
@@ -23,12 +38,8 @@ export const responsesRouter = createTRPCRouter({
         since,
         frequency,
         callbacks: {
-          frequency() {
-            return responsesSince({ db, habitId, frequency });
-          },
-          since() {
-            return responsesSince({ db, habitId, since });
-          },
+          since: () => responsesSince({ db, habitId, since }),
+          frequency: () => responsesSince({ db, habitId, frequency }),
         },
       });
     }),
@@ -39,12 +50,8 @@ export const responsesRouter = createTRPCRouter({
         since,
         frequency,
         callbacks: {
-          frequency() {
-            return responseCountSince({ db, habitId, frequency });
-          },
-          since() {
-            return responseCountSince({ db, habitId, since });
-          },
+          since: () => responseCountSince({ db, habitId, since }),
+          frequency: () => responseCountSince({ db, habitId, frequency }),
         },
       });
     }),

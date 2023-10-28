@@ -108,8 +108,8 @@ export const habits = pgTable('habits', {
   selectedDays: json('selected_days').$type<Array<string>>(),
   responseCount: integer('response_count').notNull().default(0),
   userId: uuid('user_id')
-  .notNull()
-  .references(() => users.id),
+    .notNull()
+    .references(() => users.id),
   deleted: boolean('deleted').default(false),
   archived: boolean('archived').default(false),
   createdAt: timestamp('created_at').notNull().defaultNow(),

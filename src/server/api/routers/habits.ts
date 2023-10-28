@@ -35,6 +35,32 @@ export const habitsRouter = createTRPCRouter({
         .limit(1);
       return Math.round(habitsResult[0].count / limit);
     }),
+  findById: protectedProcedure
+    .input(z.object({ habitId: z.string() }))
+    .query(async ({ ctx: { db }, input: { habitId } }) => {
+      const habit = (
+        await db
+          .select(findAllSelect)
+          .from(habits)
+          .leftJoin(responses, eq(habits.id, responses.habitId))
+          .leftJoin(habitsTags, eq(habits.id, habitsTags.habitId))
+          .where(eq(habits.id, habitId))
+          .groupBy(habits.id)
+          .limit(1)
+      ).shift();
+
+      if (!habit) throw new Error('invalid habit id passed into trpc findById');
+
+      return frontendHabitSchema.parse({
+        ...habit,
+        responses: await responseCountSince({
+          db,
+          habitId,
+          frequency: habit.frequency,
+        }),
+        tags: await tagNamesFor({ db, habitId }),
+      });
+    }),
   findAll: protectedProcedure
     .input(
       z.object({
@@ -51,7 +77,7 @@ export const habitsRouter = createTRPCRouter({
         ctx: { db, session },
         input: { limit, page, filter, search, sort, tagId },
       }) => {
-        console.log(limit, page)
+        console.log(limit, page);
         const parts = [eq(habits.userId, session.user.id)];
 
         if (search && search.length > 0) {
@@ -175,25 +201,6 @@ export const habitsRouter = createTRPCRouter({
         items,
         nextCursor,
       };
-    }),
-  findById: protectedProcedure
-    .input(z.object({ habitId: z.string() }))
-    .query(async ({ ctx: { db }, input: { habitId } }) => {
-      const habit = await db.query.habits.findFirst({
-        where: eq(habits.id, habitId),
-      });
-
-      if (!habit) throw new Error('invalid habit id passed into trpc findById');
-
-      return frontendHabitSchema.parse({
-        ...habit,
-        responses: await responseCountSince({
-          db,
-          habitId,
-          frequency: habit.frequency,
-        }),
-        tags: await tagNamesFor({ db, habitId }),
-      });
     }),
   create: protectedProcedure
     .input(frontendHabitSchema)

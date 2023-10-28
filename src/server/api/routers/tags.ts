@@ -9,9 +9,9 @@ export const tagsRouter = createTRPCRouter({
       .findMany({ where: eq(tags.userId, ctx.session.user.id )})
     return tagsResponse
   }),
-  findAllNames: protectedProcedure.query(async ({ ctx }) => {
-    const tagsResponse = await ctx.db.query.tags
-      .findMany({ where: eq(tags.userId, ctx.session.user.id )})
+  findAllNames: protectedProcedure.query(async ({ ctx: { db, session } }) => {
+    const tagsResponse = await db.query.tags
+      .findMany({ where: eq(tags.userId, session.user.id )})
     return tagsResponse.map(tag => tag.name)
   })
 

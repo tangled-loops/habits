@@ -177,14 +177,16 @@ class FormViewModel {
     let didSubmit = false;
     await this.form?.handleSubmit((data: FrontendHabit) => {
       didSubmit = true;
-      this.mutate({ ...data }).then(() => {
-        this.router.replace(this.redirectTo);
-        this.toast({
-          title: this.toastTitle ?? 'Success',
-          variant: 'success',
-        });
-      });
+      this.mutate({ ...data });
     })();
+    if (didSubmit) {
+      this.router.replace(this.redirectTo);
+      // this.router.refresh()
+      this.toast({
+        title: this.toastTitle ?? 'Success',
+        variant: 'success',
+      });
+    }
     return didSubmit;
   }
 
