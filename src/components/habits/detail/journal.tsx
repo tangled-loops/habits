@@ -10,6 +10,7 @@ import {
   DialogHeader,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { Textarea } from '@/components/ui/textarea';
 import {
   Tooltip,
@@ -27,8 +28,18 @@ interface JournalEntry {
 }
 
 function Create() {
+  const [open, setOpen] = useState(false);
+  const handleOpenChange = (force: boolean) => {
+    if (force) {
+      setOpen(false);
+      return;
+    }
+    return (to: boolean) => {
+      if (!force && !open) setOpen(to);
+    };
+  };
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={handleOpenChange(false)}>
       <DialogTrigger>
         <Button variant='ghostPrimary'>
           <BookOpen />
@@ -47,7 +58,11 @@ function Create() {
         <DialogFooter>
           <div className='grid w-full'>
             <div className='flex flex-row items-center justify-between'>
-              <Button variant='destructive' className='destructive'>
+              <Button
+                variant='destructive'
+                className='destructive'
+                onClick={() => handleOpenChange(true)}
+              >
                 Cancel
               </Button>
               <Button className='primary'>Save</Button>
@@ -99,40 +114,76 @@ export function Journal() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <ul>
-            {journalEntries.map((entry) => {
-              return (
-                <li key={entry.id} className='w-full p-4'>
-                  {entry.updatedAt ? (
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger>
-                          <div className='grid grid-cols-1 gap-0'>
-                            <p className='text-left font-semibold'>Created</p>
-                            {entry.createdAt.toDateString()}
-                          </div>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          Last Updated: {entry.updatedAt?.toDateString() ?? ''}
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  ) : (
-                    <div className='grid-cols-3'>
-                      <span className='grid gap-0'>
-                        <p className='font-semibold'>Created</p>
-                        {entry.createdAt.toDateString()}
-                      </span>
-                      <div className='grid'>
-                        <p className='font-semibold'>Text</p>
-                        {entry.text}
+          <ScrollArea className='h-[250px] rounded-xl border'>
+            <ul>
+              {journalEntries.map((entry) => {
+                return (
+                  <li key={entry.id} className='w-full p-4'>
+                    {entry.updatedAt ? (
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger>
+                            <div className='grid grid-cols-1 gap-0'>
+                              <p className='text-left font-semibold'>Created</p>
+                              {entry.createdAt.toDateString()}
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            Last Updated:{' '}
+                            {entry.updatedAt?.toDateString() ?? ''}
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    ) : (
+                      <div className='grid-cols-3'>
+                        <span className='grid gap-0'>
+                          <p className='font-semibold'>Created</p>
+                          {entry.createdAt.toDateString()}
+                        </span>
+                        <div className='grid'>
+                          <p className='font-semibold'>Text</p>
+                          {entry.text}
+                        </div>
                       </div>
-                    </div>
-                  )}
-                </li>
-              );
-            })}
-          </ul>
+                    )}
+                  </li>
+                );
+              })}
+              {journalEntries.map((entry) => {
+                return (
+                  <li key={entry.id} className='w-full p-4'>
+                    {entry.updatedAt ? (
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger>
+                            <div className='grid grid-cols-1 gap-0'>
+                              <p className='text-left font-semibold'>Created</p>
+                              {entry.createdAt.toDateString()}
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            Last Updated:{' '}
+                            {entry.updatedAt?.toDateString() ?? ''}
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    ) : (
+                      <div className='grid-cols-3'>
+                        <span className='grid gap-0'>
+                          <p className='font-semibold'>Created</p>
+                          {entry.createdAt.toDateString()}
+                        </span>
+                        <div className='grid'>
+                          <p className='font-semibold'>Text</p>
+                          {entry.text}
+                        </div>
+                      </div>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          </ScrollArea>
         </CardContent>
       </Card>
     </div>

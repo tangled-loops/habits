@@ -44,8 +44,7 @@ function ResponseCardContent({
     return <span></span>;
   }
 
-  const something = (date: string, _responses: Response[]) => {
-    console.log(_responses);
+  const something = (date: string, responses: Response[]) => {
     const time = (response: Response) =>
       new Date(
         response.createdAt
@@ -57,7 +56,7 @@ function ResponseCardContent({
       <li key={date} className='m-2 grid grid-cols-1 gap-4'>
         {date}
         <ul className='ml-5'>
-          {_responses.map((response) => {
+          {responses.map((response) => {
             return (
               <li key={date} className='grid grid-cols-1 gap-4'>
                 <span className='m-1'>
@@ -72,12 +71,12 @@ function ResponseCardContent({
   };
 
   return (
-    <ScrollArea className='-mb-2 h-[200px] w-full p-4'>
+    <ScrollArea className='-mb-2 h-[220px] w-full rounded-xl border p-0'>
       <ul className='p-4'>
         {Object.keys(responses).map((date) => {
           return (
-            <div className='flex flex-row items-center'>
-              <span>{`(${responses[date].length})`}</span>
+            <div className='flex flex-row items-center justify-center'>
+              <span className='flex h-full flex-col items-center'>{`(${responses[date].length})`}</span>
               <span>{something(date, responses[date])}</span>
             </div>
           );

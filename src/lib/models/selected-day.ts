@@ -17,7 +17,7 @@ export async function selectedDaysByHabit({ db }: HasDB) {
     .select({ name: days.name, habitId: selectedDays.habitId })
     .from(days)
     .innerJoin(selectedDays, eq(days.id, selectedDays.dayId))
-    .groupBy(days.name)
+    .groupBy(days.name, selectedDays.habitId)
   return result.reduce((n: Record<string, string[]>, p) => {
     if (n[p.habitId]) {
       n[p.habitId].push(p.name)
