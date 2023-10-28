@@ -6,6 +6,7 @@ import {
   findAllSelect,
   frontendHabitSchema,
   handleTags,
+  selectDays,
   valuesFor,
 } from '@/lib/models/habit';
 import {
@@ -17,6 +18,8 @@ import { tagNamesFor, tagsForHabits } from '@/lib/models/tag';
 
 import { createTRPCRouter, protectedProcedure } from '~/api/trpc';
 import { habits, habitsTags, responses } from '~/db/schema';
+import { selectedDaysByHabit, selectedDaysFor } from '@/lib/models/selected-day';
+import { dayNames } from '../../../lib/models/habit';
 
 /**
  * @todo start moving chunks of functionality to the habit model and consolodate
@@ -59,6 +62,7 @@ export const habitsRouter = createTRPCRouter({
           frequency: habit.frequency,
         }),
         tags: await tagNamesFor({ db, habitId }),
+        selectedDays: await selectedDaysFor({ db, habitId })
       });
     }),
   findAll: protectedProcedure
@@ -146,6 +150,7 @@ export const habitsRouter = createTRPCRouter({
 
         const tagHash = await tagsForHabits({ db });
         const responseHash = await responseCounts({ db });
+        const selectedDaysHash = await selectedDaysByHabit({ db })
 
         for (const habit of habitsResult) {
           items.push(
@@ -153,6 +158,7 @@ export const habitsRouter = createTRPCRouter({
               ...habit,
               tags: tagHash[habit.id] ?? [],
               responses: responseHash[habit.id] ?? 0,
+              selectedDays: selectedDaysHash[habit.id] ?? []
             }),
           );
         }
@@ -181,6 +187,7 @@ export const habitsRouter = createTRPCRouter({
       const items = [];
       const tagHash = await tagsForHabits({ db });
       const responseHash = await responseCounts({ db });
+        const selectedDaysHash = await selectedDaysByHabit({ db })
 
       for (const habit of habitsResult) {
         items.push(
@@ -188,6 +195,7 @@ export const habitsRouter = createTRPCRouter({
             ...habit,
             tags: tagHash[habit.id],
             responses: responseHash[habit.id],
+            selectedDays: selectedDaysHash[habit.id],
           }),
         );
       }
@@ -216,12 +224,16 @@ export const habitsRouter = createTRPCRouter({
       const habitId = newHabit.id;
 
       await handleTags({ db, userId, habitId, currentTags: input.tags });
+      await selectDays({ db, userId, habitId, dayNames: input.selectedDays ?? [] })
     }),
   update: protectedProcedure
     .input(frontendHabitSchema)
     .mutation(async ({ ctx: { db, session }, input }) => {
       if (!input.id) throw new Error('invalid update call');
-      // update the habit
+      
+      const userId = session.user.id
+      const habitId = input.id
+      
       await db
         .update(habits)
         .set({ updatedAt: new Date(), ...valuesFor(input, session.user.id) })
@@ -234,6 +246,7 @@ export const habitsRouter = createTRPCRouter({
         habitId: input.id!,
         currentTags: input.tags,
       });
+      await selectDays({ db, userId, habitId, dayNames: input.selectedDays ?? [] })
     }),
   updateField: protectedProcedure
     .input(

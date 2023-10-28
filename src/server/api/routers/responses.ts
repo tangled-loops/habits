@@ -15,8 +15,8 @@ import { createTRPCRouter, protectedProcedure } from '~/api/trpc';
 export const responsesRouter = createTRPCRouter({
   add: protectedProcedure
     .input(z.object({ habitId: z.string() }))
-    .mutation(async ({ ctx: { db }, input: { habitId } }) => {
-      await add({ db, habitId });
+    .mutation(async ({ ctx: { db, session: { user: { id } } }, input: { habitId } }) => {
+      await add({ db, habitId, userId: id });
     }),
   find: protectedProcedure
     .input(z.object({ habitId: z.string() }))

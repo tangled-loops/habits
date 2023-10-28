@@ -3,7 +3,13 @@ import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import {
   Tooltip,
@@ -11,6 +17,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { useDelayRender } from '@/lib/hooks/use-delay-render';
 
 interface JournalEntry {
   id: number;
@@ -19,10 +26,41 @@ interface JournalEntry {
   updatedAt: Date | null;
 }
 
-export function Journal() {
-  const [active, setActive] = useState(false);
+function Create() {
+  return (
+    <Dialog>
+      <DialogTrigger>
+        <Button variant='ghostPrimary'>
+          <BookOpen />
+          <span className='sr-only'>Write</span>
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <h1 className='text-lg font-semibold'>New Journal Entry</h1>
+        </DialogHeader>
+        <div>
+          <form>
+            <Textarea />
+          </form>
+        </div>
+        <DialogFooter>
+          <div className='grid w-full'>
+            <div className='flex flex-row items-center justify-between'>
+              <Button variant='destructive' className='destructive'>
+                Cancel
+              </Button>
+              <Button className='primary'>Save</Button>
+            </div>
+          </div>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
-  useEffect(() => setActive(true), []);
+export function Journal() {
+  const { active } = useDelayRender();
 
   const journalEntries: JournalEntry[] = [
     {
@@ -51,19 +89,7 @@ export function Journal() {
           <CardTitle className='flex flex-row items-center justify-between'>
             Journal
             {active ? (
-              <Dialog>
-                <DialogTrigger>
-                  <Button variant='ghostPrimary'>
-                    <BookOpen />
-                    <span className='sr-only'>Write</span>
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <form>
-                    <Textarea />
-                  </form>
-                </DialogContent>
-              </Dialog>
+              <Create />
             ) : (
               <Button variant='ghostPrimary'>
                 <BookOpen />

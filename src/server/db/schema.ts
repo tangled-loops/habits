@@ -9,6 +9,7 @@ import {
   timestamp,
   uuid,
   varchar,
+  serial,
 } from 'drizzle-orm/pg-core';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
 import { AdapterAccount } from 'next-auth/adapters';
@@ -61,14 +62,13 @@ export const verificationTokens = pgTable(
 );
 
 /**
- * @mark Users
+ * @mark users
  */
 
-export type Role = 'standard' | 'admin';
+export type Role = 'standard' | 'subscriber' | 'admin';
 
 interface UserDefaults {
   days: string[],
-
 }
 
 export const users = pgTable('user', {
@@ -83,18 +83,16 @@ export const users = pgTable('user', {
   updatedAt: timestamp('updated_at'),
 });
 
+export const usersRelations = relations(users, ({ one, many }) => ({
+  tags: many(habitsTags),
+  responses: many(responses),
+  selectedDays: many(selectedDays),
+  journals: many(journals)
+}));
+
 /**
- * @mark Habits
+ * @mark habits
  */
-
-export type HabitJournalEntry = {
-  notes: string;
-  createdAt: Date;
-}
-
-export type HabitJournal = {
-  entries: Array<HabitJournalEntry>;
-}
 
 export const habits = pgTable('habits', {
   id: uuid('id').notNull().defaultRandom().primaryKey(),
@@ -103,13 +101,9 @@ export const habits = pgTable('habits', {
   color: varchar('color'),
   icon: varchar('icon'),
   notes: text('notes'),
-  journal: json('journal').$type<HabitJournal>(),
   frequency: varchar('frequency').notNull(),
-  selectedDays: json('selected_days').$type<Array<string>>(),
-  responseCount: integer('response_count').notNull().default(0),
-  userId: uuid('user_id')
-    .notNull()
-    .references(() => users.id),
+  totalResponseCount: integer('total_response_count').notNull().default(0),
+  userId: uuid('user_id').notNull().references(() => users.id),
   deleted: boolean('deleted').default(false),
   archived: boolean('archived').default(false),
   createdAt: timestamp('created_at').notNull().defaultNow(),
@@ -121,17 +115,55 @@ export const habitsRelations = relations(habits, ({ one, many }) => ({
     fields: [habits.userId],
     references: [users.id],
   }),
-  responses: many(responses),
   tags: many(habitsTags),
+  responses: many(responses),
+  selectedDays: many(selectedDays),
+  journals: many(journals)
 }));
+
+export const days = pgTable('days', {
+  id: uuid('id').notNull().defaultRandom().primaryKey(),
+  name: varchar('name').notNull(),
+  abbrev: varchar('abbrev').notNull(),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+});
+
+export type Day = typeof days.$inferSelect;
+export type NewDay = typeof days.$inferInsert;
+
+export const daysSchema = createSelectSchema(days);
+export const newDaySchema = createInsertSchema(days);
+
+export const selectedDays = pgTable('selected_days', {
+  dayId: uuid('day_id').notNull().references(() => days.id),
+  userId: uuid('user_id').notNull().references(() => users.id),
+  habitId: uuid('habit_id').notNull().references(() => habits.id),
+}, (selection) => ({
+  compoundKey: primaryKey(selection.dayId, selection.habitId, selection.userId),
+}))
+
+export const journals = pgTable('journals', {
+  id: uuid('id').notNull().defaultRandom().primaryKey(),
+  userId: uuid('user_id').notNull().references(() => users.id),
+  habitId: uuid('habit_id').notNull().references(() => habits.id),
+  content: text('content').notNull(),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at'),
+})
+
+export type Journal = typeof journals.$inferSelect;
+export type NewJournal = typeof journals.$inferInsert;
+
+export const journalsSchema = createSelectSchema(journals);
+export const newJournalSchema = createInsertSchema(journals);
 
 export const responses = pgTable('responses', {
   id: uuid('id').notNull().defaultRandom().primaryKey(),
   habitId: uuid('habit_id')
     .notNull()
-    .references(() => habits.id)
-    .notNull(),
-  createdAt: timestamp('created_at').notNull().defaultNow()
+    .references(() => habits.id),
+  userId: uuid('user_id').notNull().references(() => users.id),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
 });
 
 export type Response = typeof responses.$inferSelect;
@@ -152,9 +184,8 @@ export const tags = pgTable('tags', {
   name: varchar('name').notNull(),
   userId: uuid('user_id')
     .references(() => users.id)
-    .notNull()
-    .defaultRandom(),
-  createdAt: timestamp('created_at').defaultNow(),
+    .notNull(),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at'),
 });
 

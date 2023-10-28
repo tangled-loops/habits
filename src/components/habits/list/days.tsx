@@ -7,7 +7,13 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { abbrev, backgroundColor, Color, Day, days } from '@/lib/models/habit';
+import {
+  abbrev,
+  backgroundColor,
+  Color,
+  Day,
+  dayNames,
+} from '@/lib/models/habit';
 import { cn } from '@/lib/utils';
 
 function Days({ habit }: HasHabit) {
@@ -30,7 +36,7 @@ function Days({ habit }: HasHabit) {
           {habit.frequency === 'Daily' ? (
             <>
               <div className='grid grid-cols-7 gap-0.5'>
-                {days().map((day, i) => {
+                {dayNames().map((day, i) => {
                   const sday = Day[day];
                   if (habit.selectedDays?.includes(sday)) {
                     return (

@@ -1,21 +1,31 @@
-import { faker } from '@faker-js/faker';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 
 import * as schema from '~/db/schema';
+import { days } from '~/db/schema';
 
 const main = async () => {
-  const client = postgres(`${process.env.DATABASE_URL}`);
+  const client = postgres(process.env.DATABASE_URL!);
   const db = drizzle(client, { schema });
-  const data: Array<schema.NewTag> = [];
-  for (let i = 0; i < 20; i++) {
+  const data: schema.NewDay[] = []
+  const dayHash: Record<number, { n: string, a: string }> = {
+    0: { n: 'Monday', a: 'M' },
+    1: { n: 'Tuesday', a: 'T' },
+    2: { n: 'Wednsday', a: 'W' },
+    3: { n: 'Thursday', a: 'Th' },
+    4: { n: 'Friday', a: 'F' },
+    5: { n: 'Saturday', a: 'S' },
+    6: { n: 'Sunday', a: 'Su' },
+  }
+  for (let i = 0; i < 7; i++) {
     data.push({
-      name: faker.word.adjective(),
+      name: dayHash[i].n!,
+      abbrev: dayHash[i].a!,
     });
   }
-
+  console.log(data)
   console.log('Seed start');
-  await db.insert(schema.tags).values(data);
+  await db.insert(days).values(data)
   console.log('Seed done');
 };
 

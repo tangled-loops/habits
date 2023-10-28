@@ -1,7 +1,6 @@
 import React from 'react';
-import { RefCallBack } from 'react-hook-form';
 
-import { abbrev, Day, days } from '@/lib/models/habit';
+import { abbrev, Day, dayNames } from '@/lib/models/habit';
 import { cn } from '@/lib/utils';
 
 import { Badge } from '$/ui/badge';
@@ -17,7 +16,7 @@ const DaysField = ({ selected, className, ...props }: DaysFieldProps) => {
       className={cn('grid cursor-pointer grid-cols-7 gap-0.5', className)}
       {...props}
     >
-      {days().map((day) => {
+      {dayNames().map((day) => {
         const sday = Day[day];
         return (
           <Badge
@@ -54,7 +53,7 @@ const DaysInput = ({
       className={cn('grid cursor-pointer grid-cols-7 gap-0.5', className)}
       {...props}
     >
-      {days().map((day) => {
+      {dayNames().map((day) => {
         const sday = Day[day];
         const value = selected.includes(sday)
           ? selected.filter((item) => item !== sday)

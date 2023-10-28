@@ -1,13 +1,20 @@
 /* eslint-disable no-unused-vars */
 
-import { eq, inArray, sql } from 'drizzle-orm';
+import { and, eq, inArray, sql } from 'drizzle-orm';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
 import z from 'zod';
 
 import { HasDB } from '.';
 import { tagsFor } from './tag';
 
-import { habits, habitsTags, Tag, tags } from '@/server/db/schema';
+import {
+  days,
+  habits,
+  habitsTags,
+  selectedDays,
+  Tag,
+  tags,
+} from '@/server/db/schema';
 
 /**
  * frontend
@@ -35,7 +42,7 @@ export function frequencies() {
   return [Frequency.Daily, Frequency.Weekly];
 }
 
-export function days() {
+export function dayNames() {
   return [
     Day.Monday,
     Day.Tuesday,
@@ -226,10 +233,9 @@ export const findAllSelect = {
   icon: habits.icon,
   color: habits.color,
   archived: habits.archived,
-  responses: habits.responseCount,
+  responses: habits.totalResponseCount,
   frequency: habits.frequency,
-  totalResponses: habits.responseCount,
-  selectedDays: habits.selectedDays,
+  totalResponses: habits.totalResponseCount,
   tagsCount: sql<number>`count(habits_tags)::integer as tags_count`,
   lastResponse: sql<number>`max(responses.created_at) as last_response`,
   responsesInWindow: sql<number>`count(responses.created_at) as responses_in_window`,
@@ -237,14 +243,13 @@ export const findAllSelect = {
 
 export function valuesFor(input: FrontendHabit, userId: string) {
   return {
+    userId,
+    goal: input.goal,
     name: input.name,
-    notes: input.notes,
-    frequency: input.frequency,
-    selectedDays: input.selectedDays,
     icon: input.icon,
     color: input.color,
-    goal: input.goal,
-    userId: userId,
+    notes: input.notes,
+    frequency: input.frequency,
   };
 }
 
@@ -333,4 +338,54 @@ export async function handleTags({
     currentTags,
     usersTags,
   });
+}
+
+interface SelectDaysOpts extends HasDB {
+  userId: string;
+  habitId: string;
+  dayNames: string[];
+}
+
+export async function selectDays({
+  db,
+  habitId,
+  userId,
+  dayNames,
+}: SelectDaysOpts) {
+  const allDays = await db.select().from(days);
+  const selectedNames = (
+    await db
+      .select({ name: days.name })
+      .from(selectedDays)
+      .innerJoin(days, eq(selectedDays.dayId, days.id))
+      .where(
+        and(inArray(days.name, dayNames), eq(selectedDays.habitId, habitId)),
+      )
+      .orderBy(days.createdAt)
+  ).map((sn) => sn.name);
+
+  const daysToDelete = allDays
+    .filter((ad) => !dayNames.includes(ad.name))
+    .map((day) => day.id);
+  const daysToSelect = allDays
+    .filter(
+      (ad) => dayNames.includes(ad.name) && !selectedNames.includes(ad.name),
+    )
+    .map((day) => ({ dayId: day.id, userId, habitId }));
+  if (daysToDelete.length === 0 && daysToSelect.length === 0) return;
+
+  if (daysToDelete.length > 0) {
+    await db
+      .delete(selectedDays)
+      .where(
+        and(
+          inArray(selectedDays.dayId, daysToDelete),
+          eq(selectedDays.habitId, habitId),
+        ),
+      );
+  }
+
+  if (daysToSelect.length > 0) {
+    await db.insert(selectedDays).values(daysToSelect);
+  }
 }

@@ -144,17 +144,18 @@ export async function habitsBoundedByGoal({
 
 interface AddOptions extends HasDB {
   habitId: string;
+  userId: string;
 }
 
-export async function add({ db, habitId }: AddOptions) {
-  await db.insert(responses).values({ habitId: habitId });
+export async function add({ db, habitId, userId }: AddOptions) {
+  await db.insert(responses).values({ habitId, userId });
   const habit = await db.query.habits.findFirst({
     where: eq(habits.id, habitId),
   });
   if (!habit) return;
   await db
     .update(habits)
-    .set({ responseCount: habit.responseCount + 1, updatedAt: new Date() })
+    .set({ totalResponseCount: habit.totalResponseCount + 1, updatedAt: new Date() })
     .where(eq(habits.id, habitId));
 }
 

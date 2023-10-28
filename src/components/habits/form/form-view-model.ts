@@ -5,7 +5,6 @@ import { ControllerRenderProps, useForm, UseFormReturn } from 'react-hook-form';
 
 import {
   Day,
-  days,
   Frequency,
   FrontendHabit,
   frontendHabitSchema,
@@ -15,6 +14,7 @@ import { trpc } from '@/lib/trpc';
 import { OptionType } from '$/ui/multi-select';
 import { ToastProps } from '$/ui/toast';
 import { useToast } from '$/ui/use-toast';
+import { dayNames } from '@/lib/models/habit';
 
 // eslint-disable-next-line no-unused-vars
 type MutateFn = (data: FrontendHabit) => Promise<void>;
@@ -217,7 +217,7 @@ class FormViewModel {
       if (field.value && field.value.length === 7) {
         field.onChange([]);
       } else {
-        field.onChange(days().map((day) => Day[day]));
+        field.onChange(dayNames().map((day) => Day[day]));
       }
     };
   }
