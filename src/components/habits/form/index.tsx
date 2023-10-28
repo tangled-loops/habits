@@ -90,6 +90,7 @@ function HabitsForm({ viewModel }: HabitsFormProps) {
                       {colors.map((color) => {
                         return (
                           <SelectItem
+                            key={color}
                             id={color}
                             className={cn(
                               textColor(color),
@@ -125,7 +126,7 @@ function HabitsForm({ viewModel }: HabitsFormProps) {
                     <SelectContent>
                       {icons.map((ico) => {
                         return (
-                          <SelectItem id={ico} value={ico}>
+                          <SelectItem key={ico} id={ico} value={ico}>
                             {icon(ico, viewModel.watcher!.color as Color)}
                           </SelectItem>
                         );
@@ -153,8 +154,8 @@ function HabitsForm({ viewModel }: HabitsFormProps) {
               <FormItem>
                 <FormLabel>Frequency</FormLabel>
                 <Select
-                  onValueChange={field.onChange}
                   defaultValue={field.value}
+                  onValueChange={field.onChange}
                 >
                   <FormControl>
                     <SelectTrigger>
@@ -164,7 +165,11 @@ function HabitsForm({ viewModel }: HabitsFormProps) {
                   <SelectContent>
                     {frequencies().map((freq) => {
                       return (
-                        <SelectItem id={`${freq}`} value={Frequency[freq]}>
+                        <SelectItem
+                          id={`${freq}`}
+                          key={`${freq}`}
+                          value={Frequency[freq]}
+                        >
                           {Frequency[freq]}
                         </SelectItem>
                       );
@@ -196,7 +201,10 @@ function HabitsForm({ viewModel }: HabitsFormProps) {
                       </div>
                     </div>
                   </FormLabel>
-                  <DaysInput {...field} selected={field.value || []} />
+                  <DaysInput
+                    onChange={field.onChange}
+                    selected={field.value || []}
+                  />
                   <FormDescription>On what days.</FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -244,7 +252,7 @@ function HabitsForm({ viewModel }: HabitsFormProps) {
                       Create Tag: {value}
                     </Button>
                   )}
-                  {...field}
+                  onChange={field.onChange}
                   className='sm:w-[510px]'
                 />
                 <FormMessage />

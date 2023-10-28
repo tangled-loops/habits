@@ -39,6 +39,7 @@ export function EditField({ id, field, value, handleSubmit }: EditFieldProps) {
   });
 
   function onSubmit(data: EditFieldFormValues) {
+    console.log(data);
     if (data.value) mutation.mutate(data);
     // Need to wait a bit so when we refresh the data it is in fact fresh
     setTimeout(() => handleSubmit(), 250);
@@ -46,7 +47,7 @@ export function EditField({ id, field, value, handleSubmit }: EditFieldProps) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
+      <form className='space-y-8'>
         <FormField
           control={form.control}
           name={field as keyof EditFieldFormValues}
@@ -58,7 +59,7 @@ export function EditField({ id, field, value, handleSubmit }: EditFieldProps) {
                   autoFocus
                   className='w-[100%]'
                   defaultValue={String(value)}
-                  onBlur={() => onSubmit(defaultValues)}
+                  // onBlur={() => onSubmit(defaultValues)}
                   onKeyDown={(event) => {
                     if (event.code === 'Enter') {
                       form.handleSubmit(onSubmit);

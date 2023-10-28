@@ -74,8 +74,8 @@ export function MultiSelect({
                 onClick={() => handleUnselect(item)}
               >
                 {item}
-                <button
-                  className='ring-offset-background focus:ring-ring ml-1 rounded-full outline-none focus:ring-2 focus:ring-offset-2'
+                <div
+                  className='ml-1 rounded-full outline-none ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2'
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
                       handleUnselect(item);
@@ -87,8 +87,8 @@ export function MultiSelect({
                   }}
                   onClick={() => handleUnselect(item)}
                 >
-                  <X className='text-muted-foreground hover:text-foreground h-3 w-3' />
-                </button>
+                  <X className='h-3 w-3 text-muted-foreground hover:text-foreground' />
+                </div>
               </Badge>
             ))}
           </div>

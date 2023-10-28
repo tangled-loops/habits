@@ -107,6 +107,7 @@ interface TitleProps extends HasHabit {
 function Title({ habit, editing, setEditing, handleSubmit }: TitleProps) {
   const content = () => {
     const editField = (value: string) => {
+      console.log(value);
       return (
         <EditField
           id={habit.id || ''}

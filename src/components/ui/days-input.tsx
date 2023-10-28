@@ -1,4 +1,5 @@
 import React from 'react';
+import { RefCallBack } from 'react-hook-form';
 
 import { abbrev, Day, days } from '@/lib/models/habit';
 import { cn } from '@/lib/utils';
@@ -23,7 +24,7 @@ const DaysField = ({ selected, className, ...props }: DaysFieldProps) => {
             variant={selected.includes(sday) ? 'secondary' : 'outline'}
             className={cn(
               selected.includes(sday)
-                ? 'text-accent-background bg-primary hover:bg-primary/50'
+                ? 'bg-primary text-white hover:bg-primary/50'
                 : 'text-foreground',
               'flex flex-row items-center justify-center',
             )}
@@ -60,6 +61,7 @@ const DaysInput = ({
           : [...selected, sday];
         return (
           <Badge
+            key={day}
             variant={selected.includes(sday) ? 'secondary' : 'outline'}
             className={cn(
               selected.includes(sday)
