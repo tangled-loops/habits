@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
+import { useDelayRender } from '@/lib/hooks/use-delay-render';
 import { backgroundColor, Color } from '@/lib/models/habit';
 import { trpc } from '@/lib/trpc';
 import { cn } from '@/lib/utils';
@@ -53,12 +54,15 @@ function ResponseCardContent({
           .replaceAll('Z', ''),
       );
     return (
-      <li key={date} className='m-2 grid grid-cols-1 gap-4'>
+      <li key={date + '_key'} className='m-2 grid grid-cols-1 gap-4'>
         {date}
         <ul className='ml-5'>
           {responses.map((response) => {
             return (
-              <li key={date} className='grid grid-cols-1 gap-4'>
+              <li
+                key={response.createdAt.toISOString()}
+                className='grid grid-cols-1 gap-4'
+              >
                 <span className='m-1'>
                   {time(response).toLocaleTimeString()}
                 </span>
@@ -75,7 +79,10 @@ function ResponseCardContent({
       <ul className='p-4'>
         {Object.keys(responses).map((date) => {
           return (
-            <div className='flex flex-row items-center justify-center'>
+            <div
+              key={date}
+              className='flex flex-row items-center justify-center'
+            >
               <span className='flex h-full flex-col items-center'>{`(${responses[date].length})`}</span>
               <span>{section(date, responses[date])}</span>
             </div>
@@ -87,6 +94,8 @@ function ResponseCardContent({
 }
 
 function ResponseCard({ habit, count }: HasHabitAndTRPC) {
+  const { active } = useDelayRender();
+
   const { mutateAsync } = trpc.responses.add.useMutation();
   const inWindowResponses = trpc.responses.since.useQuery({
     habitId: habit.id!,
@@ -104,22 +113,47 @@ function ResponseCard({ habit, count }: HasHabitAndTRPC) {
     await count.refetch();
   };
 
+  if (!active)
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>
+            <div className='flex flex-row items-center justify-between'>
+              <p>
+                Recent Responses{' '}
+                {count.data ? `(${count.data} / ${habit.goal})` : '(0)'}
+              </p>
+              <Plus />
+            </div>
+          </CardTitle>
+        </CardHeader>
+        <Separator className={cn(backgroundColor(habit.color as Color))} />
+        <CardContent>
+          <div className='-mb-3 mt-2 h-[225px] rounded-lg border'></div>
+        </CardContent>
+      </Card>
+    );
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle className='flex flex-row items-center justify-between'>
-          <p>
-            Recent Responses{' '}
-            {count.data ? `(${count.data} / ${habit.goal})` : '(0)'}
-          </p>
-          <Button variant='ghostPrimary' onClick={updateResponse}>
-            <Plus />
-          </Button>
+        <CardTitle>
+          <div className='flex flex-row items-center justify-between'>
+            <p>
+              Recent Responses{' '}
+              {count.data ? `(${count.data} / ${habit.goal})` : '(0)'}
+            </p>
+            <Button variant='ghostPrimary' onClick={updateResponse}>
+              <Plus />
+            </Button>
+          </div>
         </CardTitle>
       </CardHeader>
       <Separator className={cn(backgroundColor(habit.color as Color))} />
-      <CardContent className='-mb-3 mt-2'>
-        <ResponseCardContent responses={responses.data} />
+      <CardContent>
+        <div className='-mb-3 mt-2'>
+          <ResponseCardContent responses={responses.data} />
+        </div>
       </CardContent>
     </Card>
   );

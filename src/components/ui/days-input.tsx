@@ -20,6 +20,7 @@ const DaysField = ({ selected, className, ...props }: DaysFieldProps) => {
         const sday = Day[day];
         return (
           <Badge
+            key={day}
             variant={selected.includes(sday) ? 'secondary' : 'outline'}
             className={cn(
               selected.includes(sday)
