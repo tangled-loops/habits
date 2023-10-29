@@ -1,5 +1,6 @@
 import { Plus } from 'lucide-react';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 
 import { HabitsList } from '@/components/habits/list';
 import { MenuSelect } from '@/components/habits/menu-select';
@@ -79,6 +80,7 @@ export default async function Habits({
   };
 }) {
   const client = await getClient();
+  if (!client) redirect('/login');
   const allTags = await client.tags.findAll();
 
   const page = Number(searchParams.page ?? 1);

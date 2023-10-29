@@ -5,8 +5,9 @@ import * as schema from '~/db/schema';
 import { days } from '~/db/schema';
 
 const main = async () => {
-  const client = postgres(process.env.DATABASE_URL!);
+  const client = postgres(process.env.PRODUCTION_DATABASE_URL!);
   const db = drizzle(client, { schema });
+  await db.delete(days)
   const data: schema.NewDay[] = []
   const dayHash: Record<number, { n: string, a: string }> = {
     0: { n: 'Monday', a: 'M' },

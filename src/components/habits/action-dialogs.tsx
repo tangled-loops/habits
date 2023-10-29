@@ -1,10 +1,10 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
 
 import { FormViewModel, HabitsForm, useFormViewModel } from './form';
 
+import { useDelayRender } from '@/lib/hooks/use-delay-render';
 import { FrontendHabit } from '@/lib/models/habit';
 
 import { Button } from '$/ui/button';
@@ -17,7 +17,6 @@ import {
   DialogTitle,
 } from '$/ui/dialog';
 import { ScrollArea } from '$/ui/scroll-area';
-import { useDelayRender } from '@/lib/hooks/use-delay-render';
 
 function HabitCreate({ open, tags }: { open?: boolean; tags?: string[] }) {
   const viewModel = useFormViewModel({

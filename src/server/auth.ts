@@ -2,8 +2,7 @@ import { DrizzleAdapter } from '@auth/drizzle-adapter';
 import { type NextAuthOptions } from 'next-auth';
 import EmailProvider from 'next-auth/providers/email';
 import GithubProvider from 'next-auth/providers/github';
-
-import { db } from '@/server/db/root';
+import { db } from './db/root';
 
 export const authOptions: NextAuthOptions = {
   debug: process.env.NODE_ENV === 'development',

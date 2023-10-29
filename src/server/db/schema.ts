@@ -9,7 +9,6 @@ import {
   timestamp,
   uuid,
   varchar,
-  serial,
 } from 'drizzle-orm/pg-core';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
 import { AdapterAccount } from 'next-auth/adapters';
@@ -83,7 +82,7 @@ export const users = pgTable('user', {
   updatedAt: timestamp('updated_at'),
 });
 
-export const usersRelations = relations(users, ({ one, many }) => ({
+export const usersRelations = relations(users, ({ many }) => ({
   tags: many(habitsTags),
   responses: many(responses),
   selectedDays: many(selectedDays),

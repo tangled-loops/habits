@@ -18,9 +18,10 @@ export const TrpcProvider: React.FC<{ children: React.ReactNode }> = ({
       }),
   );
 
-  const url = process.env.NEXT_PUBLIC_VERCEL_URL
-    ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
-    : 'http://localhost:3000/api/trpc/';
+  const url =
+    process.env.NODE_ENV === 'production'
+      ? `https://habits.tangledloops.io/api/trpc/`
+      : 'http://localhost:3000/api/trpc/';
 
   const [trpcClient] = useState(() =>
     trpc.createClient({
@@ -46,7 +47,7 @@ export const TrpcProvider: React.FC<{ children: React.ReactNode }> = ({
     <trpc.Provider client={trpcClient} queryClient={queryClient}>
       <QueryClientProvider client={queryClient}>
         {children}
-        <ReactQueryDevtools />
+        {process.env.NODE_ENV === 'development' && <ReactQueryDevtools />}
       </QueryClientProvider>
     </trpc.Provider>
   );

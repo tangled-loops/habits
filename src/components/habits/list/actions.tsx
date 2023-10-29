@@ -1,6 +1,5 @@
 import { Archive, Edit, Plus, View } from 'lucide-react';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
 
 import { HasColors, HasHabit } from './types';
 

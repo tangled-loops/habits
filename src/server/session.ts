@@ -11,11 +11,12 @@ export async function ensureAuth() {
 
 export async function getCurrentUser() {
   const api = await getClient()
+  if (!api) return null
   return api.users.findBy({});
 }
 
 export async function getClient() {
   const session = await getServerSession(authOptions);
-  if (!session) redirect('/login');
+  if (!session) return
   return client(session);
 }

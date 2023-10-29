@@ -4,6 +4,8 @@
 import { Check, ChevronsUpDown, X } from 'lucide-react';
 import React from 'react';
 
+import { ScrollArea } from './scroll-area';
+
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -105,29 +107,31 @@ export function MultiSelect({
             {onEmpty ? onEmpty(value, setOpen) : 'No item found.'}
           </CommandEmpty>
           <CommandGroup className='max-h-64 overflow-auto'>
-            {options.map((option) => (
-              <CommandItem
-                key={option.value}
-                onSelect={() => {
-                  onChange(
-                    selected.includes(option.value)
-                      ? selected.filter((item) => item !== option.value)
-                      : [...selected, option.value],
-                  );
-                  setOpen(true);
-                }}
-              >
-                <Check
-                  className={cn(
-                    'mr-2 h-4 w-4',
-                    selected.includes(option.value)
-                      ? 'opacity-100'
-                      : 'opacity-0',
-                  )}
-                />
-                {option.label}
-              </CommandItem>
-            ))}
+            <ScrollArea>
+              {options.map((option) => (
+                <CommandItem
+                  key={option.value}
+                  onSelect={() => {
+                    onChange(
+                      selected.includes(option.value)
+                        ? selected.filter((item) => item !== option.value)
+                        : [...selected, option.value],
+                    );
+                    setOpen(true);
+                  }}
+                >
+                  <Check
+                    className={cn(
+                      'mr-2 h-4 w-4',
+                      selected.includes(option.value)
+                        ? 'opacity-100'
+                        : 'opacity-0',
+                    )}
+                  />
+                  {option.label}
+                </CommandItem>
+              ))}
+            </ScrollArea>
           </CommandGroup>
         </Command>
       </PopoverContent>

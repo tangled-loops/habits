@@ -51,9 +51,12 @@ function useFormViewModel({
     toast,
     router,
     mutate: async (data: FrontendHabit) => {
+      console.log('herro???')
       if (data.id) {
         await update.mutateAsync(data);
       } else {
+        console.log('mutate')
+        console.log(data)
         await create.mutateAsync(data);
       }
       await onMutate?.(data);
@@ -175,9 +178,11 @@ class FormViewModel {
 
   async onSubmit() {
     let didSubmit = false;
+    console.log('watafuck')
     await this.form?.handleSubmit((data: FrontendHabit) => {
       didSubmit = true;
       this.mutate({ ...data });
+      console.log('made it here')
     })();
     if (didSubmit) {
       this.router.replace(this.redirectTo);

@@ -19,7 +19,6 @@ import { tagNamesFor, tagsForHabits } from '@/lib/models/tag';
 import { createTRPCRouter, protectedProcedure } from '~/api/trpc';
 import { habits, habitsTags, responses } from '~/db/schema';
 import { selectedDaysByHabit, selectedDaysFor } from '@/lib/models/selected-day';
-import { dayNames } from '../../../lib/models/habit';
 
 /**
  * @todo start moving chunks of functionality to the habit model and consolodate
@@ -219,7 +218,10 @@ export const habitsRouter = createTRPCRouter({
         await db.insert(habits).values(valuesFor(input, userId)).returning()
       ).shift();
 
-      if (!newHabit) throw new Error('Habit couldnt be created');
+      if (!newHabit) {
+        console.log('no creation???')
+        throw new Error('Habit couldnt be created');
+      }
 
       const habitId = newHabit.id;
 

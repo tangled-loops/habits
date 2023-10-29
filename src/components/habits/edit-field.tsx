@@ -59,7 +59,7 @@ export function EditField({ id, field, value, handleSubmit }: EditFieldProps) {
                   autoFocus
                   className='w-[100%]'
                   defaultValue={String(value)}
-                  // onBlur={() => onSubmit(defaultValues)}
+                  onBlur={() => onSubmit(defaultValues)}
                   onKeyDown={(event) => {
                     if (event.code === 'Enter') {
                       form.handleSubmit(onSubmit);

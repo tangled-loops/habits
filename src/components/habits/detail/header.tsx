@@ -15,7 +15,7 @@ import { cn } from '@/lib/utils';
 
 function Header({ habit }: { habit: FrontendHabit }) {
   return (
-    <div className='fixed left-0 right-0 top-[45px] border bg-background px-8 py-6 sm:left-[155px] md:left-[200px]'>
+    <div className='fixed inset-x-0 top-[45px] border bg-background px-8 py-6 sm:left-[155px] md:left-[200px]'>
       <div className='flex flex-row items-center justify-between'>
         <h2 className='flex flex-row items-center text-xl font-normal'>
           <Link href={`/habits?page=1`} passHref className='-mx-6'>

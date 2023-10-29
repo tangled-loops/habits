@@ -1,5 +1,5 @@
 import { BookOpen, Edit2 } from 'lucide-react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button, buttonVariants } from '@/components/ui/button';
@@ -18,9 +18,52 @@ import { Textarea } from '@/components/ui/textarea';
 import { useDelayRender } from '@/lib/hooks/use-delay-render';
 import { trpc } from '@/lib/trpc';
 import { cn } from '@/lib/utils';
-import { Journal } from '@/server/db/schema';
+import { Journal as JournalRecord } from '@/server/db/schema';
 
-function Edit({ journal, onSave }: { journal: Journal, onSave: () => void }) {
+function Trigger({ icon }: { icon: React.ReactElement }) {
+  return (
+    <DialogTrigger className='w-[24px]'>
+      <div className={cn(buttonVariants({ variant: 'ghostPrimary' }))}>
+        {icon}
+        <span className='sr-only'>Write</span>
+      </div>
+    </DialogTrigger>
+  );
+}
+interface FooterProps {
+  handleSave: () => void;
+  // eslint-disable-next-line no-unused-vars
+  handleOpenChange: (force: boolean) => ((to: boolean) => void) | undefined;
+}
+
+function Footer({ handleOpenChange, handleSave }: FooterProps) {
+  return (
+    <DialogFooter>
+      <div className='grid w-full'>
+        <div className='flex flex-row items-center justify-between'>
+          <Button
+            variant='destructive'
+            className='destructive'
+            onClick={() => handleOpenChange(true)}
+          >
+            Cancel
+          </Button>
+          <Button className='primary' onClick={handleSave}>
+            Save
+          </Button>
+        </div>
+      </div>
+    </DialogFooter>
+  );
+}
+
+function Edit({
+  journal,
+  onSave,
+}: {
+  journal: JournalRecord;
+  onSave: () => void;
+}) {
   const { active } = useDelayRender();
 
   const [open, setOpen] = useState(false);
@@ -45,16 +88,11 @@ function Edit({ journal, onSave }: { journal: Journal, onSave: () => void }) {
     };
   };
 
-  if (!active) return <Edit2 />
+  if (!active) return <Edit2 />;
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange(false)}>
-      <DialogTrigger className='w-[24px]'>
-        <div className={cn(buttonVariants({ variant: 'ghostPrimary' }))}>
-          <Edit2 />
-          <span className='sr-only'>Write</span>
-        </div>
-      </DialogTrigger>
+      <Trigger icon={<Edit2 />} />
       <DialogContent>
         <DialogHeader>
           <span className='text-lg font-semibold'>New Journal Entry</span>
@@ -79,33 +117,20 @@ function Edit({ journal, onSave }: { journal: Journal, onSave: () => void }) {
             </div>
           </form>
         </div>
-        <DialogFooter>
-          <div className='grid w-full'>
-            <div className='flex flex-row items-center justify-between'>
-              <Button
-                variant='destructive'
-                className='destructive'
-                onClick={() => handleOpenChange(true)}
-              >
-                Cancel
-              </Button>
-              <Button className='primary' onClick={handleSave}>
-                Save
-              </Button>
-            </div>
-          </div>
-        </DialogFooter>
+        <Footer handleOpenChange={handleOpenChange} handleSave={handleSave} />
       </DialogContent>
     </Dialog>
   );
 }
 
 function Create({ habitId, onSave }: { habitId: string; onSave: () => void }) {
-  const [open, setOpen] = useState(false);
+  const { active } = useDelayRender();
+
   const add = trpc.journals.create.useMutation();
 
   const [content, setContent] = useState('');
   const [title, setTitle] = useState('');
+  const [open, setOpen] = useState(false);
 
   const handleSave = async () => {
     await add.mutateAsync({ habitId, content, title });
@@ -123,14 +148,11 @@ function Create({ habitId, onSave }: { habitId: string; onSave: () => void }) {
     };
   };
 
+  if (!active) return <BookOpen />;
+
   return (
     <Dialog open={open} onOpenChange={handleOpenChange(false)}>
-      <DialogTrigger>
-        <div className={cn(buttonVariants({ variant: 'ghostPrimary' }))}>
-          <BookOpen />
-          <span className='sr-only'>Write</span>
-        </div>
-      </DialogTrigger>
+      <Trigger icon={<BookOpen />} />
       <DialogContent>
         <DialogHeader>
           <span className='text-lg font-semibold'>New Journal Entry</span>
@@ -153,22 +175,7 @@ function Create({ habitId, onSave }: { habitId: string; onSave: () => void }) {
             </div>
           </form>
         </div>
-        <DialogFooter>
-          <div className='grid w-full'>
-            <div className='flex flex-row items-center justify-between'>
-              <Button
-                variant='destructive'
-                className='destructive'
-                onClick={() => handleOpenChange(true)}
-              >
-                Cancel
-              </Button>
-              <Button className='primary' onClick={handleSave}>
-                Save
-              </Button>
-            </div>
-          </div>
-        </DialogFooter>
+        <Footer handleOpenChange={handleOpenChange} handleSave={handleSave} />
       </DialogContent>
     </Dialog>
   );
@@ -186,7 +193,7 @@ export function Journal({ habitId }: { habitId: string }) {
       <Card className='h-[350px]'>
         <CardHeader>
           <CardTitle>
-            <div  className='flex flex-row items-center justify-between'>
+            <div className='flex flex-row items-center justify-between'>
               <span className='ml-2 text-xl font-semibold'>Journal</span>
               {active ? (
                 <Create habitId={habitId} onSave={handleSave} />
@@ -235,13 +242,18 @@ export function Journal({ habitId }: { habitId: string }) {
                               orientation='vertical'
                               className='-mt-1 ml-2'
                             />
-                            <div className='mx-5 flex w-[60%] text-ellipsis flex-col items-center justify-center text-sm'>
-                              <button onClick={() => console.log('expand if needed?')}>
+                            <div className='mx-5 flex w-[60%] flex-col items-center justify-center text-ellipsis text-sm'>
+                              <button
+                                onClick={() => console.log('expand if needed?')}
+                              >
                                 {entry.content.substring(0, 145)}
                                 {entry.content.length > 145 && ' ...'}
                               </button>
                             </div>
-                            <Separator orientation='vertical' className='-mt-1' />
+                            <Separator
+                              orientation='vertical'
+                              className='-mt-1'
+                            />
                             <div className='relative -mr-2 flex flex-col items-center justify-center pl-1'>
                               <Edit journal={entry} onSave={handleSave} />
                             </div>
@@ -251,7 +263,7 @@ export function Journal({ habitId }: { habitId: string }) {
                     })
                   : null}
               </ul>
-            ) : (null)}
+            ) : null}
           </ScrollArea>
         </CardContent>
       </Card>
