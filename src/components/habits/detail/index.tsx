@@ -34,11 +34,13 @@ function DetailSection({ habit }: HasHabit) {
         />
       )}
       <Header habit={habitQuery.data ?? habit} />
-      <div className='space-8 mx-8 my-1 grid h-full grid-cols-1 gap-4 p-4 lg:grid-cols-2'>
-        <InfoCard habit={habitQuery.data ?? habit} count={count} />
-        <ResponseCard habit={habitQuery.data ?? habit} count={count} />
+      <div className='mt-[85px] overflow-hidden'>
+        <div className='space-8 mx-8 my-1 grid h-full grid-cols-1 gap-4 p-4 lg:grid-cols-2'>
+          <InfoCard habit={habitQuery.data ?? habit} count={count} />
+          <ResponseCard habit={habitQuery.data ?? habit} count={count} />
+        </div>
+        <Journal habitId={habit.id ?? ''} />
       </div>
-      <Journal />
     </>
   );
 }

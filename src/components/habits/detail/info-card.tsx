@@ -1,7 +1,10 @@
+import Link from 'next/link';
+
 import { ResponseCount } from './response-card';
 import { HasHabitAndTRPC } from './types';
 
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DaysField } from '@/components/ui/days-input';
 import { Separator } from '@/components/ui/separator';
@@ -11,7 +14,7 @@ import { cn } from '@/lib/utils';
 function InfoCard({ habit, count }: HasHabitAndTRPC) {
   return (
     <Card>
-      <CardHeader className='grow p-6'>
+      <CardHeader className='grow p-4'>
         <CardTitle className='font-semibold'>General Info</CardTitle>
       </CardHeader>
       <Separator className='my-2' />
@@ -54,7 +57,12 @@ function InfoCard({ habit, count }: HasHabitAndTRPC) {
               })
             ) : (
               <div className='text-center'>
-                None Added - (create button here?)
+                <Link
+                  href={`/habits/${habit.id}?edit=true&id=${habit.id}`}
+                  passHref
+                >
+                  <Button>Add Tags</Button>
+                </Link>
               </div>
             )}
           </span>

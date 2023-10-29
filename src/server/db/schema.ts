@@ -146,6 +146,7 @@ export const journals = pgTable('journals', {
   id: uuid('id').notNull().defaultRandom().primaryKey(),
   userId: uuid('user_id').notNull().references(() => users.id),
   habitId: uuid('habit_id').notNull().references(() => habits.id),
+  title: text('title').notNull(),
   content: text('content').notNull(),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at'),

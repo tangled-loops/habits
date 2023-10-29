@@ -1,6 +1,9 @@
-import { BookOpen } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { BookOpen, Edit } from 'lucide-react';
+import { useState } from 'react';
 
+import { abbrev } from '../../../lib/models/habit';
+
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -10,7 +13,9 @@ import {
   DialogHeader,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import {
   Tooltip,
@@ -19,16 +24,23 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { useDelayRender } from '@/lib/hooks/use-delay-render';
+import { backgroundColor, dayNames } from '@/lib/models/habit';
+import { trpc } from '@/lib/trpc';
+import { cn } from '@/lib/utils';
 
-interface JournalEntry {
-  id: number;
-  text: string;
-  createdAt: Date;
-  updatedAt: Date | null;
-}
-
-function Create() {
+function Create({ habitId, onSave }: { habitId: string; onSave: () => void }) {
   const [open, setOpen] = useState(false);
+  const add = trpc.journals.create.useMutation();
+
+  const [content, setContent] = useState('');
+  const [title, setTitle] = useState('');
+
+  const handleSave = async () => {
+    await add.mutateAsync({ habitId, content, title });
+    onSave();
+    setOpen(false);
+  };
+
   const handleOpenChange = (force: boolean) => {
     if (force) {
       setOpen(false);
@@ -38,6 +50,7 @@ function Create() {
       if (!force && !open) setOpen(to);
     };
   };
+
   return (
     <Dialog open={open} onOpenChange={handleOpenChange(false)}>
       <DialogTrigger>
@@ -52,7 +65,17 @@ function Create() {
         </DialogHeader>
         <div>
           <form>
-            <Textarea />
+            <div className='grid grid-cols-1 gap-4'>
+              <div className='grid grid-cols-1 gap-2'>
+                <h3 className='font-semibold'>Title</h3>
+                <Input
+                  type='text'
+                  placeholder={'...'}
+                  onChange={(event) => setTitle(event.target.value)}
+                />
+              </div>
+              <Textarea onChange={(event) => setContent(event.target.value)} />
+            </div>
           </form>
         </div>
         <DialogFooter>
@@ -65,7 +88,9 @@ function Create() {
               >
                 Cancel
               </Button>
-              <Button className='primary'>Save</Button>
+              <Button className='primary' onClick={handleSave}>
+                Save
+              </Button>
             </div>
           </div>
         </DialogFooter>
@@ -74,37 +99,21 @@ function Create() {
   );
 }
 
-export function Journal() {
+export function Journal({ habitId }: { habitId: string }) {
   const { active } = useDelayRender();
 
-  const journalEntries: JournalEntry[] = [
-    {
-      id: 1,
-      createdAt: new Date(),
-      updatedAt: null,
-      text: 'a blah and a blah and I blah blah blahed weeee',
-    },
-    {
-      id: 2,
-      createdAt: new Date('10/12/2023 00:00'),
-      updatedAt: new Date('10/13/2023 00:00'),
-      text: 'a blah and a blah and I blah blah blahed weeee',
-    },
-    {
-      id: 3,
-      createdAt: new Date('10/11/2023 00:00'),
-      updatedAt: null,
-      text: 'a blah and a blah and I blah blah blahed weeee',
-    },
-  ];
+  const query = trpc.journals.find.useQuery({ habitId });
+
+  const handleSave = () => query.refetch();
+
   return (
-    <div className='space-8 mx-8 -mt-5 grid h-full grid-cols-1 gap-4 p-4'>
+    <div className='space-8 mx-8 -mt-5 mb-4 grid h-full grid-cols-1 gap-4 p-4'>
       <Card className='h-[350px]'>
         <CardHeader>
           <CardTitle className='flex flex-row items-center justify-between'>
             Journal
             {active ? (
-              <Create />
+              <Create habitId={habitId} onSave={handleSave} />
             ) : (
               <Button variant='ghostPrimary'>
                 <BookOpen />
@@ -116,72 +125,52 @@ export function Journal() {
         <CardContent>
           <ScrollArea className='h-[250px] rounded-xl border'>
             <ul>
-              {journalEntries.map((entry) => {
-                return (
-                  <li key={entry.id} className='w-full p-4'>
-                    {entry.updatedAt ? (
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger>
-                            <div className='grid grid-cols-1 gap-0'>
-                              <p className='text-left font-semibold'>Created</p>
-                              {entry.createdAt.toDateString()}
+              {query.data
+                ? query.data.map((entry, i) => {
+                    return (
+                      <li
+                        key={entry.id}
+                        className={cn(
+                          'h-[64px] w-full border-spacing-4 border-y',
+                          i === query.data.length - 1 && 'border-b-2',
+                          'border-t-0',
+                        )}
+                      >
+                        <div className='flex h-full flex-row'>
+                          <div className='flex flex-col'>
+                            <div className='flex w-full flex-row items-start justify-start px-4 pt-2'>
+                              <h1 className='text-md font-semibold'>
+                                {entry.title}
+                              </h1>
                             </div>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            Last Updated:{' '}
-                            {entry.updatedAt?.toDateString() ?? ''}
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    ) : (
-                      <div className='grid-cols-3'>
-                        <span className='grid gap-0'>
-                          <p className='font-semibold'>Created</p>
-                          {entry.createdAt.toDateString()}
-                        </span>
-                        <div className='grid'>
-                          <p className='font-semibold'>Text</p>
-                          {entry.text}
-                        </div>
-                      </div>
-                    )}
-                  </li>
-                );
-              })}
-              {journalEntries.map((entry) => {
-                return (
-                  <li key={entry.id} className='w-full p-4'>
-                    {entry.updatedAt ? (
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger>
-                            <div className='grid grid-cols-1 gap-0'>
-                              <p className='text-left font-semibold'>Created</p>
-                              {entry.createdAt.toDateString()}
+                            <div className='ml-4'>
+                              <Badge
+                                className={cn('m-0.5')}
+                                variant='secondary'
+                              >
+                                {entry.createdAt.toLocaleDateString()}
+                                {/* @todo make this a tooltip that shows full created and updated if any */}
+                              </Badge>
                             </div>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            Last Updated:{' '}
-                            {entry.updatedAt?.toDateString() ?? ''}
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    ) : (
-                      <div className='grid-cols-3'>
-                        <span className='grid gap-0'>
-                          <p className='font-semibold'>Created</p>
-                          {entry.createdAt.toDateString()}
-                        </span>
-                        <div className='grid'>
-                          <p className='font-semibold'>Text</p>
-                          {entry.text}
+                          </div>
+                          <Separator
+                            orientation='vertical'
+                            className='-mt-1 ml-2'
+                          />
+                          <div className='ml-5 mr-5 flex w-[60%] flex-col items-center justify-center text-sm'>
+                            {entry.content}
+                          </div>
+                          <Separator orientation='vertical' className='-mt-1' />
+                          <div className='relative -mr-2 flex flex-col items-center justify-center pl-1'>
+                            <Button variant={'ghostPrimary'}>
+                              <Edit />
+                            </Button>
+                          </div>
                         </div>
-                      </div>
-                    )}
-                  </li>
-                );
-              })}
+                      </li>
+                    );
+                  })
+                : null}
             </ul>
           </ScrollArea>
         </CardContent>

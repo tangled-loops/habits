@@ -353,16 +353,21 @@ export async function selectDays({
   dayNames,
 }: SelectDaysOpts) {
   const allDays = await db.select().from(days);
-  const selectedNames = (
-    await db
-      .select({ name: days.name })
-      .from(selectedDays)
-      .innerJoin(days, eq(selectedDays.dayId, days.id))
-      .where(
-        and(inArray(days.name, dayNames), eq(selectedDays.habitId, habitId)),
-      )
-      .orderBy(days.createdAt)
-  ).map((sn) => sn.name);
+  let selectedNames: string[] = [];
+  if (dayNames.length === 0) {
+    selectedNames = []
+  } else {
+    selectedNames = (
+      await db
+        .select({ name: days.name })
+        .from(selectedDays)
+        .innerJoin(days, eq(selectedDays.dayId, days.id))
+        .where(
+          and(inArray(days.name, dayNames), eq(selectedDays.habitId, habitId)),
+        )
+        .orderBy(days.createdAt)
+    ).map((sn) => sn.name);
+  }
 
   const daysToDelete = allDays
     .filter((ad) => !dayNames.includes(ad.name))

@@ -186,7 +186,7 @@ function Nav() {
           </NavigationMenuItem>
         </NavigationMenuList>
       </NavigationMenu>
-      <Separator className='absolute bg-primary' />
+      <Separator className='fixed top-[44px] bg-primary' />
     </>
   );
 }

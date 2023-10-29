@@ -44,7 +44,7 @@ function ResponseCardContent({
     return <span></span>;
   }
 
-  const something = (date: string, responses: Response[]) => {
+  const section = (date: string, responses: Response[]) => {
     const time = (response: Response) =>
       new Date(
         response.createdAt
@@ -77,7 +77,7 @@ function ResponseCardContent({
           return (
             <div className='flex flex-row items-center justify-center'>
               <span className='flex h-full flex-col items-center'>{`(${responses[date].length})`}</span>
-              <span>{something(date, responses[date])}</span>
+              <span>{section(date, responses[date])}</span>
             </div>
           );
         })}
