@@ -95,6 +95,7 @@ export const frontendHabitSchema = z.object({
   notes: z.string(),
   frequency: z.string(),
   goal: z.coerce.number().default(1),
+  goalCode: z.string().default('Times'),
   selectedDays: z.array(z.string()).optional(),
   color: z.string(),
   icon: z.string(),
@@ -230,6 +231,7 @@ export const findAllSelect = {
   name: habits.name,
   notes: habits.notes,
   goal: habits.goal,
+  goalCode: habits.goalCode,
   icon: habits.icon,
   color: habits.color,
   archived: habits.archived,
@@ -245,6 +247,7 @@ export function valuesFor(input: FrontendHabit, userId: string) {
   return {
     userId,
     goal: input.goal,
+    goalCode: input.goalCode,
     name: input.name,
     icon: input.icon,
     color: input.color,

@@ -1,7 +1,7 @@
 'use client';
 
 import { Dot } from 'lucide-react';
-import React from 'react';
+import React, { useState } from 'react';
 
 import { icon } from '../icon';
 import { FormViewModel, useFormViewModel } from './form-view-model';
@@ -40,6 +40,54 @@ import { Textarea } from '$/ui/textarea';
 
 interface HabitsFormProps {
   viewModel: FormViewModel;
+}
+
+function GoalCode({
+  code,
+  viewModel,
+}: {
+  code?: string;
+  viewModel: FormViewModel;
+}) {
+  const [_code, setCode] = useState(code);
+  const [editing, setEditing] = useState(false);
+  if (!editing) {
+    return (
+      <button onClick={() => setEditing(!editing)}>{_code ?? 'Times'}</button>
+    );
+  }
+  return (
+    <FormField
+      control={viewModel.form!.control}
+      name='goalCode'
+      render={({ field }) => (
+        <FormItem className='flex flex-row items-center space-x-2'>
+          <FormControl>
+            <Input
+              {...field}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter') {
+                  event.preventDefault();
+                  setCode(field.value);
+                  setEditing(false);
+                }
+              }}
+            />
+          </FormControl>
+          <button
+            onClick={(event) => {
+              event.stopPropagation();
+              setCode(field.value);
+              setEditing(false);
+            }}
+          >
+            Save
+          </button>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  );
 }
 
 function HabitsForm({ viewModel }: HabitsFormProps) {
@@ -222,7 +270,14 @@ function HabitsForm({ viewModel }: HabitsFormProps) {
                     <Input {...field} type='number' min={0} />
                   </FormControl>
                   <FormDescription>
-                    How many times per{' '}
+                    How many{'  '}
+                    <GoalCode
+                      code={viewModel.watcher?.goalCode}
+                      viewModel={viewModel}
+                    />
+                    {'  '}
+                    per
+                    {'  '}
                     {viewModel.frequency === Frequency[Frequency.Daily]
                       ? 'day'
                       : 'week'}

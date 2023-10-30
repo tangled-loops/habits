@@ -3,9 +3,10 @@ import postgres from 'postgres';
 
 import * as schema from '~/db/schema';
 import { days } from '~/db/schema';
+import { conn } from '../../../drizzle.config';
 
 const main = async () => {
-  const client = postgres(process.env.PRODUCTION_DATABASE_URL!);
+  const client = postgres(`${conn}`);
   const db = drizzle(client, { schema });
   await db.delete(days)
   const data: schema.NewDay[] = []

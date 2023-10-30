@@ -1,0 +1,1 @@
+ALTER TABLE "habits" ADD COLUMN "goal_code" varchar DEFAULT 'Times' NOT NULL;

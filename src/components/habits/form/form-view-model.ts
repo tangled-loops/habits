@@ -158,6 +158,10 @@ class FormViewModel {
     return this.habit?.selectedDays ?? [];
   }
 
+  get goalCode() {
+    return this.habit?.goalCode ?? 'Times'
+  }
+
   get defaultValues() {
     if (this.habit) {
       return { ...this.habit };
@@ -178,11 +182,10 @@ class FormViewModel {
 
   async onSubmit() {
     let didSubmit = false;
-    console.log('watafuck')
     await this.form?.handleSubmit((data: FrontendHabit) => {
       didSubmit = true;
+      console.log(data)
       this.mutate({ ...data });
-      console.log('made it here')
     })();
     if (didSubmit) {
       this.router.replace(this.redirectTo);

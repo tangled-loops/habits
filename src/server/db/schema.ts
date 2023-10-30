@@ -97,6 +97,7 @@ export const habits = pgTable('habits', {
   id: uuid('id').notNull().defaultRandom().primaryKey(),
   name: varchar('name').notNull(),
   goal: integer('goal').notNull().default(1),
+  goalCode: varchar('goal_code').notNull().default('Times'),
   color: varchar('color'),
   icon: varchar('icon'),
   notes: text('notes'),

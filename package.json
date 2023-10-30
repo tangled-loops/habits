@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "bun db:generate && bun db:migrate && next dev",
     "nxt:build": "next build",
     "nxt:start": "next start",
     "nxt:lint": "next lint",
@@ -15,7 +15,8 @@
     "lint:debug": "eslint ./src --debug",
     "lint:fix": "eslint ./src --fix",
     "prettier": "prettier -c src",
-    "prettier:fix": "prettier -w src"
+    "prettier:fix": "prettier -w src",
+    "vercel-build": "bun db:migrate && next build"
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^0.3.2",
