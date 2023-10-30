@@ -108,7 +108,6 @@ export const habitsRouter = createTRPCRouter({
             parts.push(eq(habits.archived, false));
 
             const counts = await habitsBoundedByGoal({ db, type: 'above' });
-            console.log(counts);
             if (counts.length > 0) {
               parts.push(not(inArray(habits.id, counts)));
             }
@@ -218,10 +217,7 @@ export const habitsRouter = createTRPCRouter({
         await db.insert(habits).values(valuesFor(input, userId)).returning()
       ).shift();
 
-      if (!newHabit) {
-        console.log('no creation???')
-        throw new Error('Habit couldnt be created');
-      }
+      if (!newHabit) throw new Error('Habit couldnt be created');
 
       const habitId = newHabit.id;
 

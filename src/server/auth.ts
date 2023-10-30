@@ -42,12 +42,4 @@ export const authOptions: NextAuthOptions = {
       return '/';
     },
   },
-  // events: {
-  //   signIn(message) { console.log(message) },
-  //   signOut(message) { console.log(message) },
-  //   createUser(message) { console.log(message) },
-  //   updateUser(message) { console.log(message) },
-  //   linkAccount(message) { console.log(message) },
-  //   session(message) { console.log(message)},
-  // },
 };

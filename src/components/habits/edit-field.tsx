@@ -39,7 +39,6 @@ export function EditField({ id, field, value, handleSubmit }: EditFieldProps) {
   });
 
   function onSubmit(data: EditFieldFormValues) {
-    console.log(data);
     if (data.value) mutation.mutate(data);
     // Need to wait a bit so when we refresh the data it is in fact fresh
     setTimeout(() => handleSubmit(), 250);
