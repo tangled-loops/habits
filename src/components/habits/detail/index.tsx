@@ -21,9 +21,7 @@ function DetailSection({ habit }: HasHabit) {
     { habitId: habit.id! },
     { enabled: false },
   );
-  const handleSubmit = async () => {
-    await habitQuery.refetch();
-  };
+  const handleSubmit = async () => await habitQuery.refetch();
   return (
     <>
       {!!params.get('edit') && (

@@ -1,3 +1,4 @@
+import { Chart } from '@/components/dashboard/chart';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 import { Separator } from '$/ui/separator';
@@ -50,15 +51,15 @@ export default async function Dashboard() {
                 <CardTitle>Habits by Response Rate</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className='min-h-[300px]'>doop</div>
+                <Chart />
               </CardContent>
             </Card>
             <Card>
               <CardHeader>
-                <CardTitle>Response Rate In Period</CardTitle>
+                <CardTitle>Habits by Response Rate</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className='min-h-[300px]'>doop</div>
+                <Chart />
               </CardContent>
             </Card>
           </div>

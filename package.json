@@ -63,6 +63,7 @@
     "superjson": "^1.13.3",
     "tailwind-merge": "^1.14.0",
     "tailwindcss-animate": "^1.0.7",
+    "victory": "^36.6.11",
     "zod": "^3.22.2"
   },
   "devDependencies": {
@@ -74,6 +75,7 @@
     "@types/pg": "^8.10.3",
     "@types/react": "latest",
     "@types/react-dom": "latest",
+    "@types/victory": "^35.0.0",
     "@typescript-eslint/eslint-plugin": "^6.7.3",
     "@typescript-eslint/parser": "^6.7.3",
     "autoprefixer": "latest",
