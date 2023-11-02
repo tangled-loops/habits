@@ -124,7 +124,13 @@ export type Color = (typeof colors)[number];
 /**
  * habit list filter options
  */
-export const filters = ['none', 'archived', 'needs-response'] as const;
+export const filters = [
+  'none',
+  'archived',
+  'complete-in-window',
+  'needs-response',
+  'needs-response-today',
+] as const;
 
 /**
  * `filters` union type
@@ -358,7 +364,7 @@ export async function selectDays({
   const allDays = await db.select().from(days);
   let selectedNames: string[] = [];
   if (dayNames.length === 0) {
-    selectedNames = []
+    selectedNames = [];
   } else {
     selectedNames = (
       await db

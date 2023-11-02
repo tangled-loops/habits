@@ -9,6 +9,7 @@ import '@/styles/globals.css';
 
 import Navigation from '@/components/navigation';
 import { TrpcProvider } from '@/components/providers/trpc';
+import { cn } from '@/lib/utils';
 import { ensureAuth } from '@/server/session';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -26,7 +27,7 @@ export default async function HabitsLayout({
   await ensureAuth();
   return (
     <html lang='en'>
-      <body className={inter.className}>
+      <body className={cn(inter.className, 'overflow-hidden')}>
         <TrpcProvider>
           <ThemeProvider
             attribute='class'
