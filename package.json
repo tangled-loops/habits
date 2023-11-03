@@ -16,7 +16,7 @@
     "lint:fix": "eslint ./src --fix",
     "prettier": "prettier -c src",
     "prettier:fix": "prettier -w src",
-    "vercel-build": "bun db:migrate && next build"
+    "build": "bun db:migrate && next build"
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^0.3.2",
