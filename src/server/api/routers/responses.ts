@@ -3,6 +3,8 @@ import * as z from 'zod';
 import {
   add,
   find,
+  findAll,
+  findAllFrontend,
   findGrouped,
   frequencyBy,
   frequencyBySchema,
@@ -23,6 +25,16 @@ export const responsesRouter = createTRPCRouter({
     .query(async ({ ctx: { db }, input: { habitId }}) => {
       return await find({ db, habitId })
     }),
+  findAll: protectedProcedure
+    .input(z.object({ limit: z.number() }))
+    .query(async ({ ctx: { db, session: { user: { id }} }, input: { limit }}) => {
+      return await findAll({ db, userId: id, limit })
+    }),
+  findAllFrontend: protectedProcedure
+  .input(z.object({ limit: z.number() }))
+  .query(async ({ ctx: { db, session: { user: { id }} }, input: { limit }}) => {
+    return await findAllFrontend({ db, userId: id, limit })
+  }),
   findGrouped: protectedProcedure
     .input(
       z.object({

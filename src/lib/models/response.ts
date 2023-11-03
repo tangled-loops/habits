@@ -1,11 +1,11 @@
 import { and, desc, eq, gt, lt, or, sql } from 'drizzle-orm';
+import z from 'zod';
 
 import { HasDB } from '.';
 
 import { habits, responses } from '@/server/db/schema';
-import z from 'zod';
 
-export type Response = typeof responses.$inferSelect
+export type Response = typeof responses.$inferSelect;
 
 interface DateSinceOptions {
   frequency?: string;
@@ -155,7 +155,10 @@ export async function add({ db, habitId, userId }: AddOptions) {
   if (!habit) return;
   await db
     .update(habits)
-    .set({ totalResponseCount: habit.totalResponseCount + 1, updatedAt: new Date() })
+    .set({
+      totalResponseCount: habit.totalResponseCount + 1,
+      updatedAt: new Date(),
+    })
     .where(eq(habits.id, habitId));
 }
 
@@ -163,7 +166,7 @@ export const frequencyBySchema = z.object({
   habitId: z.string(),
   since: z.date().optional(),
   frequency: z.string().optional(),
-})
+});
 export interface FrequencyByOptions<T> {
   since?: Date;
   frequency?: string;
@@ -197,19 +200,60 @@ export async function find({ db, habitId }: HasDB & { habitId: string }) {
     .select()
     .from(responses)
     .where(eq(responses.habitId, habitId))
-    .orderBy(desc(responses.createdAt))
+    .orderBy(desc(responses.createdAt));
 }
 
-export async function findGrouped({ db, habitId }: HasDB & { habitId: string }) {
-  const result = await find({ db, habitId })
+export async function findGrouped({
+  db,
+  habitId,
+}: HasDB & { habitId: string }) {
+  const result = await find({ db, habitId });
   return result.reduce((p: Record<string, Response[]>, n) => {
-    const date = new Date(n.createdAt.toISOString()).toLocaleDateString()
-    const entry = p[date]
+    const date = new Date(n.createdAt.toISOString()).toLocaleDateString();
+    const entry = p[date];
     if (entry) {
-      p[date].push(n)
-      return p
+      p[date].push(n);
+      return p;
     }
-    p[date] = [n]
-    return p
-  }, {})
+    p[date] = [n];
+    return p;
+  }, {});
+}
+
+export async function findAll({
+  db,
+  userId,
+  limit,
+}: HasDB & { userId: string; limit: number }) {
+  return await db
+    .select()
+    .from(responses)
+    .where(eq(responses.userId, userId))
+    .orderBy(desc(responses.createdAt))
+    .limit(limit);
+}
+
+export interface FrontendResponse {
+  id: string;
+  name: string;
+  createdAt: Date;
+}
+
+export async function findAllFrontend({
+  db,
+  userId,
+  limit,
+}: HasDB & { userId: string; limit: number }): Promise<FrontendResponse[]> {
+  const result = await db
+    .select({
+      id: responses.id,
+      name: habits.name,
+      createdAt: responses.createdAt,
+    })
+    .from(responses)
+    .where(eq(responses.userId, userId))
+    .innerJoin(habits, eq(habits.id, responses.habitId))
+    .orderBy(desc(responses.createdAt))
+    .limit(limit);
+  return result as FrontendResponse[]
 }
