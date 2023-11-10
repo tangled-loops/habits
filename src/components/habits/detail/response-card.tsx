@@ -1,8 +1,10 @@
 import { Plus } from 'lucide-react';
 import { GridLoader } from 'react-spinners';
 
+import { FrontendResponse } from '../../../lib/models/response';
 import { HasHabitAndTRPC, TRPCData } from './types';
 
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -11,7 +13,25 @@ import { useDelayRender } from '@/lib/hooks/use-delay-render';
 import { backgroundColor, Color } from '@/lib/models/habit';
 import { trpc } from '@/lib/trpc';
 import { cn } from '@/lib/utils';
-import { Response } from '@/server/db/schema';
+
+function date(item: { createdAt: Date }) {
+  return new Date(
+    item.createdAt.toISOString().replaceAll('T', ' ').replaceAll('Z', ''),
+  ).toLocaleDateString();
+}
+
+function time(item: { createdAt: Date }) {
+  const locTime = new Date(
+    item.createdAt.toISOString().replaceAll('T', ' ').replaceAll('Z', ''),
+  ).toLocaleTimeString();
+  const parts = locTime.split(' ');
+  const type = parts[1];
+  const restNoSec = parts[0]
+    .split(':')
+    .filter((_x, i, r) => i < r.length - 1)
+    .join(':');
+  return `${restNoSec} ${type}`;
+}
 
 interface ResponseCountProps extends TRPCData {
   initial: number;
@@ -29,7 +49,7 @@ function ResponseCount({ count, initial }: ResponseCountProps) {
 function ResponseCardContent({
   responses,
 }: {
-  responses?: Record<string, Response[]>;
+  responses?: Record<string, FrontendResponse[]>;
 }) {
   if (!responses) {
     return (
@@ -45,49 +65,33 @@ function ResponseCardContent({
     return <span></span>;
   }
 
-  const section = (date: string, responses: Response[]) => {
-    const time = (response: Response) =>
-      new Date(
-        response.createdAt
-          .toISOString()
-          .replaceAll('T', ' ')
-          .replaceAll('Z', ''),
-      );
-    return (
-      <li key={date + '_key'} className='m-2 grid grid-cols-1 gap-4'>
-        {date}
-        <ul className='ml-5'>
-          {responses.map((response) => {
-            return (
-              <li
-                key={response.createdAt.toISOString()}
-                className='grid grid-cols-1 gap-4'
-              >
-                <span className='m-1'>
-                  {time(response).toLocaleTimeString()}
-                </span>
-              </li>
-            );
-          })}
-        </ul>
+  const section = (responses: FrontendResponse[]) => {
+    return responses.map((response) => (
+      <li className='border border-t-0 p-2 hover:bg-secondary hover:shadow'>
+        <div className='flex w-full flex-row justify-center space-x-2 md:space-x-8'>
+          <div className='flex flex-row justify-end space-x-2'>
+            <Badge variant={'outline'} className='text-primary'>
+              <p>+1</p>
+            </Badge>
+            {/* <p className='text-sm'>{response.name}</p> */}
+          </div>
+          <p className='text-sm'>
+            <span>{time(response)}</span>
+          </p>
+        </div>
       </li>
-    );
+    ));
   };
 
   return (
     <ScrollArea className='-mb-2 h-[220px] w-full rounded-xl border p-0'>
       <ul className='p-4'>
-        {Object.keys(responses).map((date) => {
-          return (
-            <div
-              key={date}
-              className='flex flex-row items-center justify-center'
-            >
-              <span className='flex h-full flex-col items-center'>{`(${responses[date].length})`}</span>
-              <span>{section(date, responses[date])}</span>
-            </div>
-          );
-        })}
+        {Object.keys(responses).map((date) => (
+          <div>
+            <div className='sticky top-0 border-b bg-background'>{date}</div>
+            <div className='ml-[100px]'>{section(responses[date])}</div>
+          </div>
+        ))}
       </ul>
     </ScrollArea>
   );
@@ -101,7 +105,7 @@ function ResponseCard({ habit, count }: HasHabitAndTRPC) {
     habitId: habit.id!,
     frequency: habit.frequency,
   });
-  const responses = trpc.responses.findGrouped.useQuery(
+  const responses = trpc.responses.findFrontendGrouped.useQuery(
     { habitId: habit.id! },
     { enabled: true },
   );

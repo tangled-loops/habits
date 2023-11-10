@@ -5,6 +5,7 @@ import {
   find,
   findAll,
   findAllFrontend,
+  findFrontendGrouped,
   findGrouped,
   frequencyBy,
   frequencyBySchema,
@@ -23,17 +24,17 @@ export const responsesRouter = createTRPCRouter({
   find: protectedProcedure
     .input(z.object({ habitId: z.string() }))
     .query(async ({ ctx: { db }, input: { habitId }}) => {
-      return await find({ db, habitId })
+      return find({ db, habitId })
     }),
   findAll: protectedProcedure
     .input(z.object({ limit: z.number() }))
     .query(async ({ ctx: { db, session: { user: { id }} }, input: { limit }}) => {
-      return await findAll({ db, userId: id, limit })
+      return findAll({ db, userId: id, limit })
     }),
   findAllFrontend: protectedProcedure
   .input(z.object({ limit: z.number() }))
   .query(async ({ ctx: { db, session: { user: { id }} }, input: { limit }}) => {
-    return await findAllFrontend({ db, userId: id, limit })
+    return findAllFrontend({ db, userId: id, limit })
   }),
   findGrouped: protectedProcedure
     .input(
@@ -41,12 +42,21 @@ export const responsesRouter = createTRPCRouter({
         habitId: z.string()
       })
     ).query(async ({ ctx: { db }, input: { habitId }}) => {
-      return await findGrouped({ db, habitId })
+      return findGrouped({ db, habitId })
+    }),
+  findFrontendGrouped: protectedProcedure
+    .input(
+      z.object({
+        habitId: z.string()
+      })
+    )
+    .query(async ({ ctx: { db, session }, input: { habitId }}) => {
+      return findFrontendGrouped({ db, userId: session.user.id, habitId })
     }),
   since: protectedProcedure
     .input(frequencyBySchema)
     .query(async ({ ctx: { db }, input: { habitId, since, frequency } }) => {
-      return await frequencyBy({
+      return frequencyBy({
         since,
         frequency,
         callbacks: {
@@ -58,7 +68,7 @@ export const responsesRouter = createTRPCRouter({
   countSince: protectedProcedure
     .input(frequencyBySchema)
     .query(async ({ ctx: { db }, input: { habitId, since, frequency } }) => {
-      return await frequencyBy({
+      return frequencyBy({
         since,
         frequency,
         callbacks: {

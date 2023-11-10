@@ -64,3 +64,11 @@
     display: none;
   }
 }
+
+.no-bars {
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+  scrollbar-width: none;  /* Firefox */
+}
+.no-bars::-webkit-scrollbar { 
+  display: none;  /* Safari and Chrome */
+}

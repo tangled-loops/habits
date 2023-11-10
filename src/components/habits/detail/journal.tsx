@@ -230,10 +230,12 @@ export function Journal({ habitId }: { habitId: string }) {
                           )}
                         >
                           <div className='flex w-full flex-row'>
-                            <div className='basis-[20%]'>
+                            <div className='basis-[25%]'>
                               <div className='grid max-h-[64px] place-items-center p-2 text-xs sm:text-sm'>
-                                <p className='w-full'>
-                                  {entry.title.substring(0, 12)}
+                                <p className='h-full w-full overflow-hidden'>
+                                  <p className='whitespace-nowrap'>
+                                    {entry.title}
+                                  </p>
                                 </p>
                                 <p className='w-full'>
                                   <TooltipProvider>
@@ -278,12 +280,12 @@ export function Journal({ habitId }: { habitId: string }) {
                                 </p>
                               </div>
                             </div>
-                            <div className='basis-[60%] border-l'>
+                            <div className='basis-[65%] border-l'>
                               <div className='grid max-h-[64px] place-items-start overflow-auto p-2'>
                                 {entry.content}
                               </div>
                             </div>
-                            <div className='basis-[20%] border-l'>
+                            <div className='basis-[10%] border-l'>
                               <div className='grid grid-flow-col'>
                                 <Edit journal={entry} onSave={handleSave} />
                               </div>

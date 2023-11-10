@@ -203,6 +203,35 @@ export async function find({ db, habitId }: HasDB & { habitId: string }) {
     .orderBy(desc(responses.createdAt));
 }
 
+
+export async function findFrontendGrouped({
+  db,
+  userId,
+  habitId,
+}: HasDB & { userId: string; habitId: string }): Promise<Record<string, FrontendResponse[]>> {
+  const result = await db
+    .select({
+      id: responses.id,
+      name: habits.name,
+      createdAt: responses.createdAt,
+    })
+    .from(responses)
+    .where(eq(responses.userId, userId))
+    .where(eq(habits.id, habitId))
+    .innerJoin(habits, eq(habits.id, responses.habitId))
+    .orderBy(desc(responses.createdAt))
+  return result.reduce((p: Record<string, FrontendResponse[]>, n) => {
+    const date = new Date(n.createdAt.toISOString()).toLocaleDateString();
+    const entry = p[date];
+    if (entry) {
+      p[date].push(n);
+      return p;
+    }
+    p[date] = [n];
+    return p;
+  }, {})
+}
+
 export async function findGrouped({
   db,
   habitId,
