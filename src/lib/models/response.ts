@@ -241,8 +241,8 @@ export interface FrontendResponse {
 
 export async function findAllFrontend({
   db,
-  userId,
   limit,
+  userId,
 }: HasDB & { userId: string; limit: number }): Promise<FrontendResponse[]> {
   const result = await db
     .select({

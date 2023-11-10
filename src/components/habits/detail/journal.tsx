@@ -1,3 +1,4 @@
+import { TooltipArrow, TooltipTrigger } from '@radix-ui/react-tooltip';
 import { BookOpen, Edit2 } from 'lucide-react';
 import React, { useState } from 'react';
 
@@ -13,8 +14,12 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+} from '@/components/ui/tooltip';
 import { useDelayRender } from '@/lib/hooks/use-delay-render';
 import { trpc } from '@/lib/trpc';
 import { cn } from '@/lib/utils';
@@ -22,7 +27,7 @@ import { Journal as JournalRecord } from '@/server/db/schema';
 
 function Trigger({ icon }: { icon: React.ReactElement }) {
   return (
-    <DialogTrigger className='w-[24px]'>
+    <DialogTrigger className='flex flex-row items-center justify-center p-4'>
       <div className={cn(buttonVariants({ variant: 'ghostPrimary' }))}>
         {icon}
         <span className='sr-only'>Write</span>
@@ -152,12 +157,13 @@ function Create({ habitId, onSave }: { habitId: string; onSave: () => void }) {
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange(false)}>
-      <Trigger icon={<BookOpen />} />
+      <Trigger icon={<BookOpen className='' />} />
       <DialogContent>
         <DialogHeader>
           <span className='text-lg font-semibold'>New Journal Entry</span>
         </DialogHeader>
         <div>
+          {/* @todo change this to a full handled form useForm etc */}
           <form>
             <div className='grid grid-cols-1 gap-4'>
               <div className='grid grid-cols-1 gap-2'>
@@ -189,7 +195,7 @@ export function Journal({ habitId }: { habitId: string }) {
   const handleSave = () => query.refetch();
 
   return (
-    <div className='space-8 mx-8 -mt-5 mb-4 grid h-full grid-cols-1 gap-4 p-4'>
+    <div className='space-8 -mt-5 mb-4 grid h-full grid-cols-1 gap-4 p-4'>
       <Card className='h-[350px]'>
         <CardHeader>
           <CardTitle>
@@ -198,10 +204,12 @@ export function Journal({ habitId }: { habitId: string }) {
               {active ? (
                 <Create habitId={habitId} onSave={handleSave} />
               ) : (
-                <Button variant='ghostPrimary'>
-                  <BookOpen />
-                  <span className='sr-only'>Write</span>
-                </Button>
+                <div className='mr-[11px] mt-1'>
+                  <Button variant='ghostPrimary'>
+                    <BookOpen />
+                    <span className='sr-only'>Write</span>
+                  </Button>
+                </div>
               )}
             </div>
           </CardTitle>
@@ -221,41 +229,64 @@ export function Journal({ habitId }: { habitId: string }) {
                             'border-t-0',
                           )}
                         >
-                          <div className='flex h-full flex-row'>
-                            <div className='flex flex-col'>
-                              <div className='flex w-full flex-row items-start justify-start px-4 pt-2'>
-                                <h1 className='text-md font-light'>
-                                  {entry.title.substring(0, 10)}
-                                </h1>
-                              </div>
-                              <div className='ml-4'>
-                                <Badge
-                                  className={cn('m-0.5')}
-                                  variant='secondary'
-                                >
-                                  {entry.createdAt.toLocaleDateString()}
-                                  {/* @todo make this a tooltip that shows full created and updated if any */}
-                                </Badge>
+                          <div className='flex w-full flex-row'>
+                            <div className='basis-[20%]'>
+                              <div className='grid max-h-[64px] place-items-center p-2 text-xs sm:text-sm'>
+                                <p className='w-full'>
+                                  {entry.title.substring(0, 12)}
+                                </p>
+                                <p className='w-full'>
+                                  <TooltipProvider>
+                                    <Tooltip>
+                                      <TooltipTrigger>
+                                        <Badge
+                                          className={cn('m-0.5')}
+                                          variant='outline'
+                                        >
+                                          {entry.createdAt.toLocaleDateString()}
+                                          {/* @todo make this a tooltip that shows full
+                                    created and updated if any */}
+                                        </Badge>
+                                      </TooltipTrigger>
+                                      <TooltipContent className='border bg-background text-secondary-foreground'>
+                                        <div className='grid justify-between p-2'>
+                                          <p className='flex flex-row justify-between space-x-2'>
+                                            <span>Created At: </span>
+                                            <span>
+                                              {entry.createdAt
+                                                .toISOString()
+                                                .split('T')
+                                                .join(' ')
+                                                .replace('.000Z', '')}
+                                            </span>
+                                          </p>
+                                          {entry.updatedAt && (
+                                            <p className='grid'>
+                                              <span>Last Updated: </span>
+                                              {entry.updatedAt
+                                                .toISOString()
+                                                .split('T')
+                                                .join(' ')
+                                                .replace('.000Z', '')}
+                                            </p>
+                                          )}
+                                        </div>
+                                        <TooltipArrow className='-mb-2 h-2 w-4 fill-primary stroke-primary' />
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </TooltipProvider>
+                                </p>
                               </div>
                             </div>
-                            <Separator
-                              orientation='vertical'
-                              className='-mt-1 ml-2'
-                            />
-                            <div className='mx-5 flex w-[60%] flex-col items-center justify-center text-ellipsis text-sm'>
-                              <button
-                                onClick={() => console.log('expand if needed?')}
-                              >
-                                {entry.content.substring(0, 145)}
-                                {entry.content.length > 145 && ' ...'}
-                              </button>
+                            <div className='basis-[60%] border-l'>
+                              <div className='grid max-h-[64px] place-items-start overflow-auto p-2'>
+                                {entry.content}
+                              </div>
                             </div>
-                            <Separator
-                              orientation='vertical'
-                              className='-mt-1'
-                            />
-                            <div className='relative -mr-2 flex flex-col items-center justify-center pl-1'>
-                              <Edit journal={entry} onSave={handleSave} />
+                            <div className='basis-[20%] border-l'>
+                              <div className='grid grid-flow-col'>
+                                <Edit journal={entry} onSave={handleSave} />
+                              </div>
                             </div>
                           </div>
                         </li>
@@ -269,4 +300,45 @@ export function Journal({ habitId }: { habitId: string }) {
       </Card>
     </div>
   );
+}
+
+{
+  /* <div className='flex h-full flex-row items-center'>
+  <div className='flex flex-col'>
+    <div className='flex w-full flex-row items-start justify-start px-4 pt-2'>
+      <h1 className='text-md font-light'>
+        {entry.title.substring(0, 10)}
+      </h1>
+    </div>
+    <div className='ml-4'>
+      <Badge
+        className={cn('m-0.5')}
+        variant='secondary'
+      >
+        {entry.createdAt.toLocaleDateString()}
+        @todo make this a tooltip that shows full created and updated if any
+      </Badge>
+    </div>
+  </div>
+  <Separator
+    orientation='vertical'
+    className='-mt-1 ml-2'
+  />
+  <div className='mx-5 flex w-[80%] flex-col items-center justify-center text-ellipsis text-sm'>
+    <button
+      onClick={() => console.log('expand if needed?')}
+    >
+      {entry.content.substring(0, 145)}
+      {entry.content.length > 145 && ' ...'}
+    </button>
+  </div>
+  <Separator
+    orientation='vertical'
+    className='-mt-1'
+  />
+  <div className='-ml-32 flex w-[15%] flex-row items-center justify-center md:-ml-8'>
+    <Edit journal={entry} onSave={handleSave} />
+  </div>
+</div>
+*/
 }

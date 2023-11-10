@@ -22,6 +22,7 @@ import { tagNamesFor, tagsForHabits } from '@/lib/models/tag';
 
 import { createTRPCRouter, protectedProcedure } from '~/api/trpc';
 import { habits, habitsTags, responses, selectedDays } from '~/db/schema';
+import { randomUUID } from 'crypto';
 
 /**
  * @todo start moving chunks of functionality to the habit model and consolodate
@@ -113,6 +114,8 @@ export const habitsRouter = createTRPCRouter({
             const counts = await habitsBoundedByGoal({ db, type: 'above' });
             if (counts.length > 0) {
               parts.push(inArray(habits.id, counts));
+            } else {
+              parts.push(eq(habits.id, randomUUID()))
             }
             if (search && search.length > 0) {
               parts.push(ilike(habits.name, `%${search}%`));

@@ -6,8 +6,8 @@ close to complete is:
 
 - Dashboard
   - Graphs showing completion rate of various habits
-  - Most important habits listed in a unique way
-  - View of recent activity would be nice, a bunch of ways to implement this
+  - [x] Most important habits listed in a unique way
+  - [x] View of recent activity would be nice, a bunch of ways to implement this
     so pick one
 - Settings
   - At least the settings I've already defined along with actually incorporating
@@ -16,13 +16,14 @@ close to complete is:
   - Complete this by finishing the journal and adding a completion chart
     - Go above and beyond by implementing a rich text editor
 - List / General
-  - Need to be able to narrow down to habits that need to be done on a given day
+  - [ ] Need to be able to narrow down to habits that need to be done on a given day
     and need to show these as important, maybe the progress tracker should not
     show up unless it is a habit that needs to be completed inside the timeframe.
-    Might need to restructure the database in some ways to make this easier, 
+
+  - [x] Might need to restructure the database in some ways to make this easier, 
     currently would need to do searchs in the json array, which would be worth
     learning more about for sure. 
-  - Weekly timeframe is completely broken, fix this
+  - [ ]Weekly timeframe is completely broken, fix this
 - Basic (single page) marketing with pictures and compelling wordses ha.
 
 - Above and Beyond (things to add over time but maybe start a new project first)

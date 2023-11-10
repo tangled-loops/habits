@@ -17,7 +17,7 @@ export const journalsRouter = createTRPCRouter({
     }),
   create: protectedProcedure
     .input(
-      z.object({ habitId: z.string(), title: z.string(), content: z.string() }),
+      z.object({ habitId: z.string(), title: z.string().min(2), content: z.string().min(3) }),
     )
     .mutation(
       async ({
@@ -37,7 +37,7 @@ export const journalsRouter = createTRPCRouter({
     .mutation(async ({ ctx: { db }, input: { title, content, id } }) => {
       await db
         .update(journals)
-        .set({ title, content })
+        .set({ title, content, updatedAt: new Date() })
         .where(eq(journals.id, id!));
     }),
 });

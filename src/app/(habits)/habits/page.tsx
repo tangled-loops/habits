@@ -14,7 +14,7 @@ import { Tag } from '~/db/schema';
 
 import { Button } from '$/ui/button';
 
-function Header() {
+export function Header() {
   return (
     <div className='-mx-3 -mt-4 border-y p-4 md:-mx-4'>
       <div className='mx-8 flex flex-row items-center justify-between'>
@@ -98,25 +98,23 @@ export default async function Habits({
     tagId: tags,
   });
   return (
-    <>
-      <div className='flex max-h-screen min-h-full flex-col'>
-        <Header />
-        <Menubar className='-mx-5 flex flex-row justify-start border-0 border-b'>
-          <div className='flex flex-row'>
-            <FilterMenu filter={searchParams.filter} />
-            <SortMenu sort={searchParams.sort} />
-            <TagsMenu tags={searchParams.tags} allTags={allTags} />
-          </div>
-          <MenubarMenu>
-            <SearchInput />
-          </MenubarMenu>
-        </Menubar>
-        <ScrollArea className='absolute bottom-0 -mx-4 h-[80vh] md:-mx-2 lg:-mx-4'>
-          <div className='px-8 py-2 pb-[200px]'>
-            <HabitsList habits={habits} />
-          </div>
-        </ScrollArea>
-      </div>
-    </>
+    <div className='flex max-h-screen min-h-full flex-col'>
+      <Header />
+      <Menubar className='-mx-5 flex flex-row justify-start border-0 border-b'>
+        <div className='flex flex-row'>
+          <FilterMenu filter={searchParams.filter} />
+          <SortMenu sort={searchParams.sort} />
+          <TagsMenu tags={searchParams.tags} allTags={allTags} />
+        </div>
+        <MenubarMenu>
+          <SearchInput />
+        </MenubarMenu>
+      </Menubar>
+      <ScrollArea className='absolute bottom-0 -mx-4 h-[80vh] md:-mx-2 lg:-mx-4'>
+        <div className='px-8 py-2 pb-[200px]'>
+          <HabitsList habits={habits} />
+        </div>
+      </ScrollArea>
+    </div>
   );
 }
