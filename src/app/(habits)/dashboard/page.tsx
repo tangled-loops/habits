@@ -1,9 +1,5 @@
 import { HabitList } from '@/components/dashboard/habit-list';
-import {
-  date,
-  RecentActivityItem,
-  time,
-} from '@/components/dashboard/recent-activity-item';
+import { date, time } from '@/components/dashboard/recent-activity-item';
 import { ResponseRateChart } from '@/components/dashboard/response-rate-chart';
 import { ResponseTimeChart } from '@/components/dashboard/response-time-chart';
 import { Badge } from '@/components/ui/badge';

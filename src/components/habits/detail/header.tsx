@@ -17,7 +17,7 @@ function Header({ habit }: { habit: FrontendHabit }) {
   return (
     <div className='fixed inset-x-0 top-[45px] z-50 border bg-background px-8 py-6 sm:left-[155px] md:left-[200px]'>
       <div className='flex flex-row items-center justify-between'>
-        <h2 className='flex flex-row items-center text-xl font-normal'>
+        <h2 className='flex flex-row items-center whitespace-nowrap text-sm font-normal md:text-xl lg:text-2xl'>
           <Link href={`/habits?page=1`} passHref className='-mx-6'>
             <Button variant='ghostPrimary'>
               <ChevronLeft className='mr-0' />

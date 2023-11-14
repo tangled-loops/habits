@@ -14,11 +14,11 @@ import { backgroundColor, Color } from '@/lib/models/habit';
 import { trpc } from '@/lib/trpc';
 import { cn } from '@/lib/utils';
 
-function date(item: { createdAt: Date }) {
-  return new Date(
-    item.createdAt.toISOString().replaceAll('T', ' ').replaceAll('Z', ''),
-  ).toLocaleDateString();
-}
+// function date(item: { createdAt: Date }) {
+//   return new Date(
+//     item.createdAt.toISOString().replaceAll('T', ' ').replaceAll('Z', ''),
+//   ).toLocaleDateString();
+// }
 
 function time(item: { createdAt: Date }) {
   const locTime = new Date(
