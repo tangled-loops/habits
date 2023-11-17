@@ -1,3 +1,12 @@
+Current tasks:
+
+- Integrate settings form by adding user defaults, either as a table or json on
+  user record.
+- Add sidebar toggle, animations would be cool
+- Hook up the charts to actual data
+- Incorporate idea of journal entry as an option to associate with a response
+
+
 One month of steady progress but things are slowing down because I don't have 
 a clear vision for where things are going.
 

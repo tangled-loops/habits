@@ -1,3 +1,7 @@
+import { SelectContent } from '@radix-ui/react-select';
+
+import { Derp } from './derp';
+
 import { HabitList } from '@/components/dashboard/habit-list';
 import { date, time } from '@/components/dashboard/recent-activity-item';
 import { ResponseRateChart } from '@/components/dashboard/response-rate-chart';
@@ -5,6 +9,12 @@ import { ResponseTimeChart } from '@/components/dashboard/response-time-chart';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import {
+  Select,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { FrontendHabit } from '@/lib/models/habit';
 import { FrontendResponse } from '@/lib/models/response';
 import { getClient } from '@/server/session';
@@ -102,6 +112,8 @@ export default async function Dashboard() {
   const recentActivity = await api.responses.findAllFrontend({
     limit: 100,
   });
+  const byResponseTimeData = await api.charts.byResponseTime();
+  const byResponseRateData = await api.charts.byResponseRate();
   return (
     <div className='border-0'>
       <div>
@@ -115,21 +127,28 @@ export default async function Dashboard() {
             <NeedsResponseCard habits={needsResponse} />
             <CompletedInTimeframeCard habits={completedInTimeframe} />
           </div>
-          <div className='grid gap-4 md:grid-cols-2'>
-            <Card>
+          <div className='m-4 grid grid-cols-3 gap-4'>
+            <div className=''>
+              <div className='h-64 rounded-lg border shadow'>
+                <h1 className='p-4 text-lg font-semibold'>Chart Options</h1>
+                <Derp />
+              </div>
+            </div>
+            <Card className='col-span-2'>
               <CardHeader>
                 <CardTitle>Habits by Response Rate</CardTitle>
               </CardHeader>
-              <CardContent className='-mt-10'>
-                <ResponseRateChart />
+              <CardContent className='-mt-24'>
+                <ResponseRateChart data={byResponseRateData} />
               </CardContent>
             </Card>
-            <Card>
+            <span></span>
+            <Card className='col-span-2'>
               <CardHeader>
                 <CardTitle>Habits by Response Time</CardTitle>
               </CardHeader>
-              <CardContent className='-m-2 -my-5'>
-                <ResponseTimeChart />
+              <CardContent className='-mt-24'>
+                <ResponseTimeChart data={byResponseTimeData} />
               </CardContent>
             </Card>
           </div>

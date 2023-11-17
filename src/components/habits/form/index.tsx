@@ -218,10 +218,7 @@ const GoalInput = ({ viewModel }: HasViewModel) => {
             {'  '}
             per
             {'  '}
-            {viewModel.frequency === Frequency[Frequency.Daily]
-              ? 'day'
-              : 'week'}
-            .
+          {viewModel.watcher?.frequency === Frequency.Daily ? 'day' : 'week'}.
           </FormDescription>
           <FormMessage />
         </FormItem>
