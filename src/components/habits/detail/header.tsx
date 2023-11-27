@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import {
   backgroundColor,
+  borderColor,
   Color,
   FrontendHabit,
   Icon,
@@ -15,7 +16,13 @@ import { cn } from '@/lib/utils';
 
 function Header({ habit }: { habit: FrontendHabit }) {
   return (
-    <div className='fixed inset-x-0 top-[45px] z-50 border bg-background px-8 py-6 sm:left-[155px] md:left-[200px]'>
+    <div
+      className={cn(
+        'absolute inset-0 left-[85px] z-50 h-[64px] border border-t-primary',
+        'bg-background px-8 py-6',
+        borderColor(habit.color as Color),
+      )}
+    >
       <div className='flex flex-row items-center justify-between'>
         <h2 className='flex flex-row items-center whitespace-nowrap text-sm font-normal md:text-xl lg:text-2xl'>
           <Link href={`/habits?page=1`} passHref className='-mx-6'>
@@ -29,12 +36,6 @@ function Header({ habit }: { habit: FrontendHabit }) {
               {icon(habit.icon as Icon, habit.color as Color)}
               {habit.name}
             </div>
-            <Separator
-              className={cn(
-                habit.icon.length > 0 ? 'ml-10' : '',
-                backgroundColor(habit.color as Color),
-              )}
-            />
           </div>
         </h2>
         <Link href={`/habits/${habit.id}?edit=true&id=${habit.id}`} passHref>

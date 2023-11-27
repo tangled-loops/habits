@@ -6,9 +6,9 @@ import { Separator } from '$/ui/separator';
 
 export default function Loading() {
   return (
-    <div className='border-0'>
-      <div>
-        <h1 className='p-4 text-2xl'>Dashboard</h1>
+    <div className='ml-[85px] border-0'>
+      <div className='flex flex-row items-center'>
+        <h1 className='h-[62px] p-4 text-2xl'>Dashboard</h1>
         <Separator className='-mx-10 mt-2 w-[100hw]' />
       </div>
       <div className='h-[85vh] '>

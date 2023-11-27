@@ -16,8 +16,8 @@ import { Button } from '$/ui/button';
 
 export function Header() {
   return (
-    <div className='-mx-3 -mt-4 border-y p-4 md:-mx-4'>
-      <div className='mx-8 flex flex-row items-center justify-between'>
+    <div className='ml-[85px] h-[63px] border-b p-4'>
+      <div className='flex flex-row items-center justify-between'>
         <h1 className='text-xl font-normal'>Habit Tracker</h1>
         <Link href='/habits?create=true' passHref>
           <Button variant='ghostPrimary'>
@@ -98,9 +98,9 @@ export default async function Habits({
     tagId: tags,
   });
   return (
-    <div className='flex max-h-screen min-h-full flex-col'>
+    <div className='relative flex h-full w-full flex-col'>
       <Header />
-      <Menubar className='-mx-5 flex flex-row justify-start border-0 border-b'>
+      <Menubar className='ml-[85.5px] flex flex-row justify-start rounded-none border-0 border-b'>
         <div className='flex flex-row'>
           <FilterMenu filter={searchParams.filter} />
           <SortMenu sort={searchParams.sort} />
@@ -110,8 +110,8 @@ export default async function Habits({
           <SearchInput />
         </MenubarMenu>
       </Menubar>
-      <ScrollArea className='absolute bottom-0 -mx-4 h-[80vh] md:-mx-2 lg:-mx-4'>
-        <div className='px-8 py-2 pb-[200px]'>
+      <ScrollArea className='absolute inset-0 ml-[85.5px] h-screen'>
+        <div className='container px-8 py-4 pb-[200px]'>
           <HabitsList habits={habits} />
         </div>
       </ScrollArea>

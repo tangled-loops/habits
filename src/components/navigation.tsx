@@ -1,13 +1,15 @@
 /* eslint-disable tailwindcss/classnames-order */
 'use client';
 
+import { CaretLeftIcon, CaretRightIcon } from '@radix-ui/react-icons';
 import clsx from 'clsx';
 import { LayoutDashboard, ListPlus, LogOut, Settings } from 'lucide-react';
 import { signOut } from 'next-auth/react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { PropsWithChildren, ReactElement } from 'react';
+import { PropsWithChildren, ReactElement, useContext, useState } from 'react';
 
+import { UIContext } from './providers/ui';
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -77,9 +79,10 @@ interface SidebarLinkProps {
   link: SidebarItem;
   path: string;
   className?: string;
+  iconOnly?: boolean;
 }
 
-const SidebarLink = ({ link, path, className }: SidebarLinkProps) => (
+const SidebarLink = ({ iconOnly, link, path, className }: SidebarLinkProps) => (
   <Link
     key={link.id}
     href={link.href}
@@ -90,11 +93,12 @@ const SidebarLink = ({ link, path, className }: SidebarLinkProps) => (
       'hover:bg-secondary hover:text-foreground',
       'text-md cursor-pointer p-4',
       'h-15 flex flex-col justify-center ',
+      'border-b',
     )}
   >
     <span className='ml-3 flex items-center'>
       {link.icon}
-      {link.title}
+      {!iconOnly && <>{link.title}</>}
     </span>
   </Link>
 );
@@ -109,27 +113,55 @@ function useRootPath() {
 }
 
 function Sidebar() {
+  const { sidebarMode: small } = useContext(UIContext);
   const path = useRootPath();
   const logoutLink = {
     id: 0,
     title: 'Sign Out',
     href: '',
     onClick: () => signOut(),
-    icon: <LogOut className='mr-2 h-5 w-5' />,
+    icon: <LogOut className='mr-2 h-7 w-7' />,
   };
   return (
-    <aside className='fixed inset-y-0 left-0 hidden h-[100%] border-r-[1px] border-primary bg-card sm:block md:w-[200px]'>
-      <h1 className='text-semibold mx-1 p-4 text-xl'>Habits</h1>
-      <div className='mt-1'>
+    <aside
+      className={cn(
+        'fixed left-0 top-[44px] z-50 hidden h-[calc(100%-44px)] border-r border-t border-primary',
+        'bg-card sm:block',
+        small && 'w-[85px]',
+        !small && 'w-[200px]',
+      )}
+    >
+      <div
+        className={cn(
+          'fixed bottom-[100px] z-50',
+          small && 'left-[69px]',
+          !small && 'left-[184px]',
+        )}
+      >
+        <button
+          className='rounded-[50px] bg-primary p-1 text-white'
+          onClick={() => setSmall(!small)}
+        >
+          {small ? <CaretRightIcon className='h-6 w-6' /> : <CaretLeftIcon />}
+        </button>
+      </div>
+      <div className='relative h-full'>
         <div className='w-full'>
-          {items('mr-2 h-5 w-5').map((link) => (
-            <SidebarLink key={link.id} link={link} path={path} />
+          {items('mr-2 h-7 w-7').map((link, i) => (
+            <SidebarLink
+              key={link.id}
+              link={link}
+              path={path}
+              iconOnly={small}
+              className={cn(i === 0 && 'border-t')}
+            />
           ))}
         </div>
         <SidebarLink
           link={logoutLink}
           path={path}
-          className='absolute bottom-0 w-full'
+          className='absolute bottom-0 w-full border-t'
+          iconOnly={small}
         />
       </div>
     </aside>
@@ -191,11 +223,11 @@ function Nav() {
   );
 }
 
-export default function Navigation() {
+export function Navigation({ isCollapsed }: { isCollapsed?: boolean }) {
   return (
     <>
       <Nav />
-      <Sidebar />
+      <Sidebar isCollapsed={isCollapsed} />
     </>
   );
 }

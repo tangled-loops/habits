@@ -1,3 +1,4 @@
+import { Color, colors } from '@/lib/models/habit';
 import { relations } from 'drizzle-orm';
 import {
   boolean,
@@ -12,6 +13,7 @@ import {
 } from 'drizzle-orm/pg-core';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
 import { AdapterAccount } from 'next-auth/adapters';
+import { z } from 'zod';
 
 /**
  * @mark NextAuth Tables
@@ -68,7 +70,17 @@ export type Role = 'standard' | 'subscriber' | 'admin';
 
 interface UserDefaults {
   days: string[],
+  color: Color,
+  journalResponseRequired: number,
+  hideSidebarByDefault: number,
 }
+
+export const userDefaultsSchema = z.object({
+  days: z.array(z.string()),
+  color: z.enum(['red', 'green', 'blue', 'orange', 'purple']),
+  journalResponseRequired: z.coerce.number(),
+  hideSidebarByDefault: z.coerce.number(),
+})
 
 export const users = pgTable('user', {
   id: uuid('id').notNull().primaryKey(),

@@ -10,28 +10,28 @@ import { Form, FormControl, FormField, FormItem, FormLabel } from '../ui/form';
 import { Input } from '../ui/input';
 import { Switch } from '../ui/switch';
 
+import { colors } from '@/lib/models/habit';
+import { trpc } from '@/lib/trpc';
+
 const FormDataSchema = z.object({
-  defaultDays: z.array(z.string()),
-  defaultColor: z.string(),
-  journalResponseRequired: z.number(),
-  hideSidebarByDefault: z.number(),
+  days: z.array(z.string()),
+  color: z.enum(colors),
+  journalResponseRequired: z.coerce.number(),
+  hideSidebarByDefault: z.coerce.number(),
 });
 
 type FormData = z.infer<typeof FormDataSchema>;
 
 export default function SettingsForm() {
+  const mutation = trpc.users.updateDefaults.useMutation();
+  const query = trpc.users.getCurrentUser.useQuery();
   const form = useForm<FormData>({
-    defaultValues: {
-      defaultDays: [],
-      defaultColor: 'green',
-      journalResponseRequired: 0,
-      hideSidebarByDefault: 0,
-    },
+    defaultValues: query.data?.defaults ?? {},
     resolver: zodResolver(FormDataSchema),
   });
 
   function onSubmit(data: FormData) {
-    console.log(data);
+    mutation.mutate(data);
   }
 
   return (
@@ -43,7 +43,7 @@ export default function SettingsForm() {
         >
           <FormField
             control={form.control}
-            name='defaultDays'
+            name='days'
             render={({ field }) => (
               <FormItem>
                 <FormControl>
@@ -62,7 +62,7 @@ export default function SettingsForm() {
           />
           <FormField
             control={form.control}
-            name='defaultColor'
+            name='color'
             render={({ field }) => (
               <FormItem>
                 <FormControl>

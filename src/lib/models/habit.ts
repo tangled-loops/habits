@@ -222,6 +222,21 @@ export function textColor(color: Color) {
   }
 }
 
+export function borderColor(color: Color) {
+  switch (color as Color) {
+    case 'blue':
+      return 'border-b-blue-500';
+    case 'green':
+      return 'text-green-500';
+    case 'orange':
+      return 'text-orange-500';
+    case 'purple':
+      return 'text-purple-500';
+    case 'red':
+      return 'text-red-500';
+  }
+}
+
 export const icons = ['activity', 'alarm', 'anchor', 'box', 'binary'] as const;
 export type Icon = (typeof icons)[number];
 

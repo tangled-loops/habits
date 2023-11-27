@@ -24,7 +24,7 @@ function DetailSection({ habit }: HasHabit) {
   );
   const handleSubmit = async () => await habitQuery.refetch();
   return (
-    <div className='flex max-h-screen min-h-full flex-col'>
+    <div className='flex h-screen flex-col'>
       {!!params.get('edit') && (
         <HabitEdit
           habit={habitQuery.data ?? habit}
@@ -32,9 +32,9 @@ function DetailSection({ habit }: HasHabit) {
           handleSubmit={handleSubmit}
         />
       )}
-      <div className='mb-4 overflow-hidden'>
+      <div className='relative mb-4 overflow-hidden'>
         <Header habit={habitQuery.data ?? habit} />
-        <ScrollArea className='-mx-4 mt-[60px] h-[90vh] pb-8'>
+        <ScrollArea className='absolute bottom-[-85px] left-[85px] right-0 top-[62px]'>
           <div className='space-8 my-1 grid h-full grid-cols-1 gap-4 p-4 lg:grid-cols-2'>
             <InfoCard habit={habitQuery.data ?? habit} count={count} />
             <ResponseCard habit={habitQuery.data ?? habit} count={count} />

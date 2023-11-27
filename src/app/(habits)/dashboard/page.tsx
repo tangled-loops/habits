@@ -1,6 +1,4 @@
-import { SelectContent } from '@radix-ui/react-select';
-
-import { Derp } from './derp';
+import { Charts } from './charts';
 
 import { HabitList } from '@/components/dashboard/habit-list';
 import { date, time } from '@/components/dashboard/recent-activity-item';
@@ -9,12 +7,6 @@ import { ResponseTimeChart } from '@/components/dashboard/response-time-chart';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import {
-  Select,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { FrontendHabit } from '@/lib/models/habit';
 import { FrontendResponse } from '@/lib/models/response';
 import { getClient } from '@/server/session';
@@ -115,43 +107,21 @@ export default async function Dashboard() {
   const byResponseTimeData = await api.charts.byResponseTime();
   const byResponseRateData = await api.charts.byResponseRate();
   return (
-    <div className='border-0'>
-      <div>
-        <h1 className='p-4 text-2xl'>Dashboard</h1>
-        <Separator className='-mx-10 mt-2 w-[100hw]' />
+    <div className='relative flex h-full w-full flex-col border-0'>
+      <div className='ml-[85px] border-b shadow-sm'>
+        <h1 className='h-[62px] p-4 text-xl'>Dashboard</h1>
       </div>
-      <ScrollArea className='h-[85vh] '>
-        <div className='grid grid-cols-1 gap-4 p-4'>
+      <ScrollArea className='container inset-0 h-screen'>
+        <div className='ml-[85px] mt-[20px] grid grid-cols-1 gap-4'>
           <div className='grid gap-4 sm:grid-cols-1 lg:grid-cols-3'>
             <RecentActivityCard responses={recentActivity} />
             <NeedsResponseCard habits={needsResponse} />
             <CompletedInTimeframeCard habits={completedInTimeframe} />
           </div>
-          <div className='m-4 grid grid-cols-3 gap-4'>
-            <div className=''>
-              <div className='h-64 rounded-lg border shadow'>
-                <h1 className='p-4 text-lg font-semibold'>Chart Options</h1>
-                <Derp />
-              </div>
-            </div>
-            <Card className='col-span-2'>
-              <CardHeader>
-                <CardTitle>Habits by Response Rate</CardTitle>
-              </CardHeader>
-              <CardContent className='-mt-24'>
-                <ResponseRateChart data={byResponseRateData} />
-              </CardContent>
-            </Card>
-            <span></span>
-            <Card className='col-span-2'>
-              <CardHeader>
-                <CardTitle>Habits by Response Time</CardTitle>
-              </CardHeader>
-              <CardContent className='-mt-24'>
-                <ResponseTimeChart data={byResponseTimeData} />
-              </CardContent>
-            </Card>
-          </div>
+          <Charts
+            byResponseRateData={byResponseRateData}
+            byResponseTimeData={byResponseTimeData}
+          />
         </div>
       </ScrollArea>
     </div>
