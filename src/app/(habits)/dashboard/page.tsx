@@ -2,8 +2,6 @@ import { Charts } from './charts';
 
 import { HabitList } from '@/components/dashboard/habit-list';
 import { date, time } from '@/components/dashboard/recent-activity-item';
-import { ResponseRateChart } from '@/components/dashboard/response-rate-chart';
-import { ResponseTimeChart } from '@/components/dashboard/response-time-chart';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -112,7 +110,7 @@ export default async function Dashboard() {
         <h1 className='h-[62px] p-4 text-xl'>Dashboard</h1>
       </div>
       <ScrollArea className='container inset-0 h-screen'>
-        <div className='ml-[85px] mt-[20px] grid grid-cols-1 gap-4'>
+        <div className='mb-12 ml-[85px] mt-[20px] grid grid-cols-1 gap-4 pb-14'>
           <div className='grid gap-4 sm:grid-cols-1 lg:grid-cols-3'>
             <RecentActivityCard responses={recentActivity} />
             <NeedsResponseCard habits={needsResponse} />

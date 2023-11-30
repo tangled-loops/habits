@@ -52,7 +52,7 @@ export default function SettingsForm() {
                       Default Habit Color
                     </FormLabel>
                     <DaysInput
-                      selected={field.value}
+                      selected={field.value ?? []}
                       onChange={field.onChange}
                     />
                   </div>

@@ -3,11 +3,9 @@ import { Inter } from 'next/font/google';
 import React from 'react';
 
 import { ThemeProvider } from '@/components/providers/theme';
-import { Toaster } from '@/components/ui/toaster';
 
 import '@/styles/globals.css';
 
-import Navigation from '@/components/navigation';
 import { TrpcProvider } from '@/components/providers/trpc';
 import { cn } from '@/lib/utils';
 import { ensureAuth } from '@/server/session';

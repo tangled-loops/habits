@@ -7,7 +7,7 @@ import { LayoutDashboard, ListPlus, LogOut, Settings } from 'lucide-react';
 import { signOut } from 'next-auth/react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { PropsWithChildren, ReactElement, useContext, useState } from 'react';
+import { PropsWithChildren, ReactElement, useContext } from 'react';
 
 import { UIContext } from './providers/ui';
 import {
@@ -113,7 +113,7 @@ function useRootPath() {
 }
 
 function Sidebar() {
-  const { sidebarMode: small } = useContext(UIContext);
+  const { sidebarMode, setSidebarMode } = useContext(UIContext);
   const path = useRootPath();
   const logoutLink = {
     id: 0,
@@ -127,22 +127,26 @@ function Sidebar() {
       className={cn(
         'fixed left-0 top-[44px] z-50 hidden h-[calc(100%-44px)] border-r border-t border-primary',
         'bg-card sm:block',
-        small && 'w-[85px]',
-        !small && 'w-[200px]',
+        sidebarMode && 'w-[85px]',
+        !sidebarMode && 'w-[200px]',
       )}
     >
       <div
         className={cn(
           'fixed bottom-[100px] z-50',
-          small && 'left-[69px]',
-          !small && 'left-[184px]',
+          sidebarMode && 'left-[69px]',
+          !sidebarMode && 'left-[184px]',
         )}
       >
         <button
           className='rounded-[50px] bg-primary p-1 text-white'
-          onClick={() => setSmall(!small)}
+          onClick={() => setSidebarMode(!sidebarMode)}
         >
-          {small ? <CaretRightIcon className='h-6 w-6' /> : <CaretLeftIcon />}
+          {sidebarMode ? (
+            <CaretRightIcon className='h-6 w-6' />
+          ) : (
+            <CaretLeftIcon className='h-6 w-6' />
+          )}
         </button>
       </div>
       <div className='relative h-full'>
@@ -152,7 +156,7 @@ function Sidebar() {
               key={link.id}
               link={link}
               path={path}
-              iconOnly={small}
+              iconOnly={sidebarMode}
               className={cn(i === 0 && 'border-t')}
             />
           ))}
@@ -161,7 +165,7 @@ function Sidebar() {
           link={logoutLink}
           path={path}
           className='absolute bottom-0 w-full border-t'
-          iconOnly={small}
+          iconOnly={sidebarMode}
         />
       </div>
     </aside>
@@ -223,11 +227,11 @@ function Nav() {
   );
 }
 
-export function Navigation({ isCollapsed }: { isCollapsed?: boolean }) {
+export function Navigation() {
   return (
     <>
       <Nav />
-      <Sidebar isCollapsed={isCollapsed} />
+      <Sidebar />
     </>
   );
 }

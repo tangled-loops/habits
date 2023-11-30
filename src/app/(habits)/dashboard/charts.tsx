@@ -4,7 +4,6 @@ import { useState } from 'react';
 
 import { ResponseRateChart } from '@/components/dashboard/response-rate-chart';
 import { ResponseTimeChart } from '@/components/dashboard/response-time-chart';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Select,
   SelectContent,

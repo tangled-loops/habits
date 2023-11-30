@@ -1,0 +1,1 @@
+ALTER TABLE "days" ADD COLUMN "day" integer NOT NULL;

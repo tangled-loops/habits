@@ -130,6 +130,7 @@ export const filters = [
   'complete-in-window',
   'needs-response',
   'needs-response-today',
+  'needs-response-this-week'
 ] as const;
 
 /**

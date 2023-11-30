@@ -37,7 +37,9 @@ function FilterMenu({ filter }: { filter?: string }) {
       value={filter}
       options={[
         { key: 'archived', title: 'Archived' },
-        { key: 'needs-response', title: 'Respond' },
+        { key: 'complete-in-window', title: 'Complete in Window' },
+        { key: 'needs-response', title: 'Needs Response' },
+        { key: 'needs-response-today', title: 'Needs Response Today' },
       ]}
     />
   );

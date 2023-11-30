@@ -1,3 +1,5 @@
+import { randomUUID } from 'crypto';
+
 import { and, desc, eq, ilike, inArray, not, sql } from 'drizzle-orm';
 import { z } from 'zod';
 
@@ -21,8 +23,7 @@ import {
 import { tagNamesFor, tagsForHabits } from '@/lib/models/tag';
 
 import { createTRPCRouter, protectedProcedure } from '~/api/trpc';
-import { habits, habitsTags, responses, selectedDays } from '~/db/schema';
-import { randomUUID } from 'crypto';
+import { days, habits, habitsTags, responses, selectedDays } from '~/db/schema';
 
 /**
  * @todo start moving chunks of functionality to the habit model and consolodate
@@ -112,11 +113,13 @@ export const habitsRouter = createTRPCRouter({
             parts.push(eq(habits.archived, false));
 
             const counts = await habitsBoundedByGoal({ db, type: 'above' });
+
             if (counts.length > 0) {
               parts.push(inArray(habits.id, counts));
             } else {
-              parts.push(eq(habits.id, randomUUID()))
+              parts.push(eq(habits.id, randomUUID()));
             }
+
             if (search && search.length > 0) {
               parts.push(ilike(habits.name, `%${search}%`));
             }
@@ -126,18 +129,47 @@ export const habitsRouter = createTRPCRouter({
             parts.push(eq(habits.archived, false));
 
             const counts = await habitsBoundedByGoal({ db, type: 'above' });
+
             if (counts.length > 0) {
               parts.push(not(inArray(habits.id, counts)));
             }
+
             if (search && search.length > 0) {
               parts.push(ilike(habits.name, `%${search}%`));
             }
             break;
           }
-          case 'needs-response-today':
-            // todo
+          case 'needs-response-today': {
+            parts.push(eq(habits.archived, false));
+            parts.push(eq(days.day, (new Date().getDay() - 1)));
+
+            const counts = await habitsBoundedByGoal({ db, type: 'above' });
+
+            if (counts.length > 0) {
+              parts.push(not(inArray(habits.id, counts)));
+            }
+
+            if (search && search.length > 0) {
+              parts.push(ilike(habits.name, `%${search}%`));
+            }
             break;
+          }
+          case 'needs-response-this-week':{
+            //todo
+            break;
+          }
         }
+
+        /**
+         * useful queries that could allow for more complicated aspects of habit tracking
+         *  - how many days in a row the habit was responded to at or above the goal
+         *    - this would be good for things displaying streaks
+         *  - being able to count the number of streaks by some preset goal for example
+         *    how many streaks of 3 days have there been total, since last month, etc
+         *    - this would be potentially useful for achievements
+         *  - a variation on the theme of the previous query; what is the longest streak
+         *    that has been completed
+         */
 
         const query = db
           .select(findAllSelect)
@@ -145,6 +177,7 @@ export const habitsRouter = createTRPCRouter({
           .leftJoin(responses, eq(habits.id, responses.habitId))
           .leftJoin(habitsTags, eq(habits.id, habitsTags.habitId))
           .leftJoin(selectedDays, eq(habits.id, selectedDays.habitId))
+          .leftJoin(days, eq(days.id, selectedDays.dayId))
           .where(and(...parts))
           .groupBy(habits.id);
 
@@ -166,8 +199,8 @@ export const habitsRouter = createTRPCRouter({
         }
 
         // if i turn the items into a hash then i could easily return grouped
-        // habits, but it might be better to do separate queries 
-        // 
+        // habits, but it might be better to do separate queries
+        //
         // pagination would be important at some point probably, but idk need
         // to start actually using it to track the things I want to habitualize
         // derpderp

@@ -1,4 +1,4 @@
-import { Color, colors } from '@/lib/models/habit';
+import { Color } from '@/lib/models/habit';
 import { relations } from 'drizzle-orm';
 import {
   boolean,
@@ -135,6 +135,7 @@ export const habitsRelations = relations(habits, ({ one, many }) => ({
 
 export const days = pgTable('days', {
   id: uuid('id').notNull().defaultRandom().primaryKey(),
+  day: integer('day').notNull(),
   name: varchar('name').notNull(),
   abbrev: varchar('abbrev').notNull(),
   createdAt: timestamp('created_at').notNull().defaultNow(),

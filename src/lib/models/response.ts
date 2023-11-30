@@ -22,18 +22,27 @@ export function dateSinceBy({ frequency, since, at }: DateSinceOptions) {
   if (since && !frequency) return since;
 
   const timeOfDay = at ?? 'start-of-day';
-  const timeString = timeOfDay === 'start-of-day' ? '00:00' : '23:59';
   let date: Date = new Date();
   if (frequency && !since) {
     const today = new Date();
     switch (frequency) {
       case 'Daily': {
+        const timeString = timeOfDay === 'start-of-day' ? '00:00' : '23:59';
         date = new Date(`${today.toDateString()} ${timeString}`);
         break;
       }
       case 'Weekly': {
-        const startOfWeek = new Date(today.getDate() - today.getDay() - 6); // check that this is correct :)
-        date = new Date(`${startOfWeek.toDateString()} ${timeString}`);
+        if (at === 'start-of-week') {
+          const startOfWeek = new Date(
+            today.setDate(today.getDate() - today.getDay() + 1),
+          );
+          date = new Date(`${startOfWeek.toDateString()} 00:00`);
+        } else {
+          const endOfWeek = new Date(
+            today.setDate(today.getDate() - today.getDay() + 6),
+          );
+          date = new Date(`${endOfWeek.toDateString()} 23:59`);
+        }
         break;
       }
     }
@@ -83,8 +92,9 @@ function makeStartEndQuery() {
     lt(responses.createdAt, endOfDay),
     eq(habits.frequency, 'Daily'),
   );
-  const startOfWeek = dateSinceBy({ frequency: 'Daily', at: 'start-of-week' });
-  const endOfWeek = dateSinceBy({ frequency: 'Daily', at: 'end-of-week' });
+  const startOfWeek = dateSinceBy({ frequency: 'Weekly', at: 'start-of-week' });
+  const endOfWeek = dateSinceBy({ frequency: 'Weekly', at: 'end-of-week' });
+  console.log('start: ', startOfWeek.toISOString(), 'end: ', endOfWeek.toISOString());
   const weekly = and(
     gt(responses.createdAt, startOfWeek),
     lt(responses.createdAt, endOfWeek),
@@ -203,12 +213,13 @@ export async function find({ db, habitId }: HasDB & { habitId: string }) {
     .orderBy(desc(responses.createdAt));
 }
 
-
 export async function findFrontendGrouped({
   db,
   userId,
   habitId,
-}: HasDB & { userId: string; habitId: string }): Promise<Record<string, FrontendResponse[]>> {
+}: HasDB & { userId: string; habitId: string }): Promise<
+  Record<string, FrontendResponse[]>
+> {
   const result = await db
     .select({
       id: responses.id,
@@ -219,7 +230,7 @@ export async function findFrontendGrouped({
     .where(eq(responses.userId, userId))
     .where(eq(habits.id, habitId))
     .innerJoin(habits, eq(habits.id, responses.habitId))
-    .orderBy(desc(responses.createdAt))
+    .orderBy(desc(responses.createdAt));
   return result.reduce((p: Record<string, FrontendResponse[]>, n) => {
     const date = new Date(n.createdAt.toISOString()).toLocaleDateString();
     const entry = p[date];
@@ -229,7 +240,7 @@ export async function findFrontendGrouped({
     }
     p[date] = [n];
     return p;
-  }, {})
+  }, {});
 }
 
 export async function findGrouped({
@@ -284,5 +295,5 @@ export async function findAllFrontend({
     .innerJoin(habits, eq(habits.id, responses.habitId))
     .orderBy(desc(responses.createdAt))
     .limit(limit);
-  return result as FrontendResponse[]
+  return result as FrontendResponse[];
 }

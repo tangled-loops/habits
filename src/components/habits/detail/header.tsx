@@ -4,14 +4,7 @@ import Link from 'next/link';
 import { icon } from '../icon';
 
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import {
-  backgroundColor,
-  borderColor,
-  Color,
-  FrontendHabit,
-  Icon,
-} from '@/lib/models/habit';
+import { borderColor, Color, FrontendHabit, Icon } from '@/lib/models/habit';
 import { cn } from '@/lib/utils';
 
 function Header({ habit }: { habit: FrontendHabit }) {
