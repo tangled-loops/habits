@@ -1,4 +1,5 @@
 import { Charts } from './charts';
+import { DashboardHeader, DashboardWrapper } from './dashboard';
 
 import { HabitList } from '@/components/dashboard/habit-list';
 import { date, time } from '@/components/dashboard/recent-activity-item';
@@ -106,22 +107,22 @@ export default async function Dashboard() {
   const byResponseRateData = await api.charts.byResponseRate();
   return (
     <div className='relative flex h-full w-full flex-col border-0'>
-      <div className='ml-[85px] border-b shadow-sm'>
-        <h1 className='h-[62px] p-4 text-xl'>Dashboard</h1>
-      </div>
-      <ScrollArea className='container inset-0 h-screen'>
-        <div className='mb-12 ml-[85px] mt-[20px] grid grid-cols-1 gap-4 pb-14'>
-          <div className='grid gap-4 sm:grid-cols-1 lg:grid-cols-3'>
-            <RecentActivityCard responses={recentActivity} />
-            <NeedsResponseCard habits={needsResponse} />
-            <CompletedInTimeframeCard habits={completedInTimeframe} />
+      <DashboardHeader />
+      <DashboardWrapper>
+        <ScrollArea className='h-screen'>
+          <div className='container mb-12 mt-[20px] grid grid-cols-1 gap-4 pb-14'>
+            <div className='grid gap-4 sm:grid-cols-1 lg:grid-cols-3'>
+              <RecentActivityCard responses={recentActivity} />
+              <NeedsResponseCard habits={needsResponse} />
+              <CompletedInTimeframeCard habits={completedInTimeframe} />
+            </div>
+            <Charts
+              byResponseRateData={byResponseRateData}
+              byResponseTimeData={byResponseTimeData}
+            />
           </div>
-          <Charts
-            byResponseRateData={byResponseRateData}
-            byResponseTimeData={byResponseTimeData}
-          />
-        </div>
-      </ScrollArea>
+        </ScrollArea>
+      </DashboardWrapper>
     </div>
   );
 }

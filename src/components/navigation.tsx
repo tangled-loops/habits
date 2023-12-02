@@ -90,10 +90,9 @@ const SidebarLink = ({ iconOnly, link, path, className }: SidebarLinkProps) => (
     className={clsx(
       className,
       link.href.split('/').pop() === path ? 'text-primary' : 'text-foreground',
+      'flex flex-col justify-center',
+      'h-[15] cursor-pointer border-b p-4 text-lg',
       'hover:bg-secondary hover:text-foreground',
-      'text-md cursor-pointer p-4',
-      'h-15 flex flex-col justify-center ',
-      'border-b',
     )}
   >
     <span className='ml-3 flex items-center'>
@@ -113,36 +112,41 @@ function useRootPath() {
 }
 
 function Sidebar() {
-  const { sidebarMode, setSidebarMode } = useContext(UIContext);
+  const { sidebarSize, setSidebarSize } = useContext(UIContext);
+  const isSmall = sidebarSize === 'sm';
   const path = useRootPath();
   const logoutLink = {
     id: 0,
     title: 'Sign Out',
     href: '',
     onClick: () => signOut(),
-    icon: <LogOut className='mr-2 h-7 w-7' />,
+    icon: (
+      <LogOut
+        className={cn(isSmall ? 'h-[1.5rem] w-[1.5rem]' : 'mr-2 h-6 w-6')}
+      />
+    ),
   };
   return (
     <aside
       className={cn(
         'fixed left-0 top-[44px] z-50 hidden h-[calc(100%-44px)] border-r border-t border-primary',
         'bg-card sm:block',
-        sidebarMode && 'w-[85px]',
-        !sidebarMode && 'w-[200px]',
+        isSmall && 'w-[85px]',
+        !isSmall && 'w-[200px]',
       )}
     >
       <div
         className={cn(
           'fixed bottom-[100px] z-50',
-          sidebarMode && 'left-[69px]',
-          !sidebarMode && 'left-[184px]',
+          isSmall && 'left-[69px]',
+          !isSmall && 'left-[184px]',
         )}
       >
         <button
           className='rounded-[50px] bg-primary p-1 text-white'
-          onClick={() => setSidebarMode(!sidebarMode)}
+          onClick={() => setSidebarSize(isSmall ? 'lg' : 'sm')}
         >
-          {sidebarMode ? (
+          {isSmall ? (
             <CaretRightIcon className='h-6 w-6' />
           ) : (
             <CaretLeftIcon className='h-6 w-6' />
@@ -151,12 +155,12 @@ function Sidebar() {
       </div>
       <div className='relative h-full'>
         <div className='w-full'>
-          {items('mr-2 h-7 w-7').map((link, i) => (
+          {items(isSmall ? 'h-7 w-7' : 'mr-2 h-7 w-7').map((link, i) => (
             <SidebarLink
               key={link.id}
               link={link}
               path={path}
-              iconOnly={sidebarMode}
+              iconOnly={isSmall}
               className={cn(i === 0 && 'border-t')}
             />
           ))}
@@ -165,7 +169,7 @@ function Sidebar() {
           link={logoutLink}
           path={path}
           className='absolute bottom-0 w-full border-t'
-          iconOnly={sidebarMode}
+          iconOnly={isSmall}
         />
       </div>
     </aside>

@@ -49,7 +49,7 @@ export default function SettingsForm() {
                 <FormControl>
                   <div className='grid gap-4'>
                     <FormLabel className='whitespace-nowrap font-semibold'>
-                      Default Habit Color
+                      Default Selected Days
                     </FormLabel>
                     <DaysInput
                       selected={field.value ?? []}
@@ -70,13 +70,13 @@ export default function SettingsForm() {
                     <FormLabel className='whitespace-nowrap font-semibold'>
                       Default Habit Color
                     </FormLabel>
-                    <Input {...field} className='w-[60%]' />
+                    <Input {...field} className='w-[40%]' />
                   </div>
                 </FormControl>
               </FormItem>
             )}
           />
-          <div className='grid grid-cols-1 gap-4'>
+          <div className='grid grid-cols-2 gap-4'>
             <FormField
               control={form.control}
               name='journalResponseRequired'
@@ -111,13 +111,6 @@ export default function SettingsForm() {
             />
           </div>
           <div className='flex flex-row items-center justify-end space-x-4'>
-            <Button
-              type='submit'
-              variant='outline'
-              className='text-destructive'
-            >
-              Reset
-            </Button>
             <Button type='submit' variant='outline' className='text-primary'>
               Save
             </Button>

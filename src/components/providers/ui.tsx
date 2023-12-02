@@ -3,11 +3,14 @@
 // }
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
+
+type SidebarSize = 'na' | 'sm' | 'lg';
 
 interface UIContextValue {
-  sidebarMode: boolean;
-  setSidebarMode: React.Dispatch<React.SetStateAction<boolean>>;
+  sidebarSize: SidebarSize;
+  sidebarMargin: string;
+  setSidebarSize: React.Dispatch<React.SetStateAction<SidebarSize>>;
 }
 
 export const UIContext = React.createContext<UIContextValue>(
@@ -15,9 +18,31 @@ export const UIContext = React.createContext<UIContextValue>(
 );
 
 export function UIProvider({ children }: { children: React.ReactNode }) {
-  const [sidebarMode, setSidebarMode] = React.useState(true);
+  const [sidebarSize, setSidebarSize] = React.useState<SidebarSize>('lg');
+
+  useEffect(() => {
+    function handler() {
+      if (window.innerWidth < 640 && sidebarSize !== 'na') setSidebarSize('na');
+      else if (window.innerWidth > 640 && sidebarSize === 'na')
+        setSidebarSize('lg');
+    }
+    window.addEventListener('resize', handler);
+    return () => window.removeEventListener('resize', handler);
+  });
+
   return (
-    <UIContext.Provider value={{ sidebarMode, setSidebarMode }}>
+    <UIContext.Provider
+      value={{
+        sidebarSize,
+        sidebarMargin:
+          sidebarSize === 'sm'
+            ? 'ml-[85px]'
+            : sidebarSize === 'na'
+            ? 'ml-[0px]'
+            : 'ml-[200px]',
+        setSidebarSize,
+      }}
+    >
       {children}
     </UIContext.Provider>
   );
