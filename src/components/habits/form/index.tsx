@@ -38,10 +38,6 @@ import {
   SelectValue,
 } from '$/ui/select';
 
-interface HabitsFormProps {
-  viewModel: FormViewModel;
-}
-
 interface HasViewModel {
   viewModel: FormViewModel;
 }
@@ -218,7 +214,7 @@ const GoalInput = ({ viewModel }: HasViewModel) => {
             {'  '}
             per
             {'  '}
-          {viewModel.watcher?.frequency === Frequency.Daily ? 'day' : 'week'}.
+            {viewModel.watcher?.frequency === Frequency.Daily ? 'day' : 'week'}.
           </FormDescription>
           <FormMessage />
         </FormItem>
@@ -227,13 +223,12 @@ const GoalInput = ({ viewModel }: HasViewModel) => {
   );
 };
 
-function GoalCode({
-  code,
-  viewModel,
-}: {
+interface GoalCodeProps {
   code?: string;
   viewModel: FormViewModel;
-}) {
+}
+
+function GoalCode({ code, viewModel }: GoalCodeProps) {
   const [_code, setCode] = useState(code);
   const [editing, setEditing] = useState(false);
   if (!editing) {
@@ -315,6 +310,10 @@ const NotesInput = ({ viewModel }: HasViewModel) => (
     )}
   />
 );
+
+interface HabitsFormProps {
+  viewModel: FormViewModel;
+}
 
 function HabitsForm({ viewModel }: HabitsFormProps) {
   return (

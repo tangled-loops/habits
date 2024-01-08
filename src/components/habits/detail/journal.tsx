@@ -195,7 +195,7 @@ export function Journal({ habitId }: { habitId: string }) {
   const handleSave = () => query.refetch();
 
   return (
-    <div className='space-8 -mt-5 mb-4 grid h-full grid-cols-1 gap-4 p-4'>
+    <div className='-mt-8 mb-4 grid h-full grid-cols-1 gap-4 p-4'>
       <Card className='h-[350px]'>
         <CardHeader>
           <CardTitle>

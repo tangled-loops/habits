@@ -1,6 +1,3 @@
-// export function UIProvider() {
-// const derp = useCon
-// }
 'use client';
 
 import React, { useEffect } from 'react';
@@ -18,7 +15,7 @@ export const UIContext = React.createContext<UIContextValue>(
 );
 
 export function UIProvider({ children }: { children: React.ReactNode }) {
-  const [sidebarSize, setSidebarSize] = React.useState<SidebarSize>('lg');
+  const [sidebarSize, setSidebarSize] = React.useState<SidebarSize>('na');
 
   useEffect(() => {
     function handler() {
@@ -26,6 +23,7 @@ export function UIProvider({ children }: { children: React.ReactNode }) {
       else if (window.innerWidth > 640 && sidebarSize === 'na')
         setSidebarSize('lg');
     }
+    handler();
     window.addEventListener('resize', handler);
     return () => window.removeEventListener('resize', handler);
   });

@@ -14,7 +14,6 @@ export const metadata: Metadata = {
 export default async function Login() {
   const user = await getCurrentUser();
   if (user) redirect('/');
-
   return (
     <>
       <div className='container relative grid h-[800px] flex-col items-center justify-center'>

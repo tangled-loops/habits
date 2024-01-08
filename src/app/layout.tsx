@@ -8,7 +8,6 @@ import '@/styles/globals.css';
 
 import { TrpcProvider } from '@/components/providers/trpc';
 import { cn } from '@/lib/utils';
-import { ensureAuth } from '@/server/session';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -22,7 +21,6 @@ export default async function Layout({
 }: {
   children: React.ReactNode;
 }) {
-  await ensureAuth();
   return (
     <html lang='en'>
       <body className={cn(inter.className, 'overflow-hidden')}>

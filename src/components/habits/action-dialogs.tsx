@@ -31,7 +31,6 @@ function HabitCreate({ open, tags }: { open?: boolean; tags?: string[] }) {
   const { active } = useDelayRender();
 
   if (!active) return null;
-
   return (
     <Dialog open={open} onOpenChange={handleOpenChange(false, viewModel)}>
       <DialogContent className='md:min-w-[500px] lg:min-w-[800px]'>

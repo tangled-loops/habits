@@ -7,7 +7,7 @@ import { LayoutDashboard, ListPlus, LogOut, Settings } from 'lucide-react';
 import { signOut } from 'next-auth/react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { PropsWithChildren, ReactElement, useContext } from 'react';
+import React, { PropsWithChildren, ReactElement, useContext } from 'react';
 
 import { UIContext } from './providers/ui';
 import {
@@ -115,6 +115,7 @@ function Sidebar() {
   const { sidebarSize, setSidebarSize } = useContext(UIContext);
   const isSmall = sidebarSize === 'sm';
   const path = useRootPath();
+  if (sidebarSize === 'na') return;
   const logoutLink = {
     id: 0,
     title: 'Sign Out',

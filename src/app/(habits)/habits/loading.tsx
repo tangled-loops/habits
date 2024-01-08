@@ -1,5 +1,4 @@
-import { ListHeader } from './list';
-
+import { ListHeader } from '@/components/habits/list';
 import { Menubar } from '@/components/ui/menubar';
 import { Skeleton } from '@/components/ui/skeleton';
 

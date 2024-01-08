@@ -1,8 +1,11 @@
 import { redirect } from 'next/navigation';
 
-import { ListHeader, ListMenubar, ListScrollArea } from './list';
-
-import { HabitsList } from '@/components/habits/list';
+import {
+  HabitsList,
+  ListHeader,
+  ListMenubar,
+  ListScrollArea,
+} from '@/components/habits/list';
 import { MenuSelect } from '@/components/habits/menu-select';
 import { SearchInput } from '@/components/habits/search-input';
 import { MenubarMenu } from '@/components/ui/menubar';
@@ -81,7 +84,7 @@ export default async function Habits({
     tagId: tags,
   });
   return (
-    <div className='relative flex h-full w-full flex-col'>
+    <div className='relative flex h-full w-full flex-col border-0'>
       <ListHeader />
       <ListMenubar>
         <div className='flex flex-row'>

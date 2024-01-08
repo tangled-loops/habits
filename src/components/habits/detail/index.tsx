@@ -36,10 +36,10 @@ function DetailSection({ habit }: HasHabit) {
           handleSubmit={handleSubmit}
         />
       )}
-      <div className='relative mb-4 h-full overflow-hidden'>
+      <div className='relative mb-4 h-screen overflow-hidden'>
         <Header habit={habitQuery.data ?? habit} />
-        <ScrollArea className={cn('absolute inset-0 mt-[64px]', sidebarMargin)}>
-          <div className='space-8 my-1 grid h-full grid-cols-1 gap-4 p-4 lg:grid-cols-2'>
+        <ScrollArea className={cn('mt-[64px] h-screen pb-8', sidebarMargin)}>
+          <div className='space-8 my-1 grid h-full grid-cols-1 gap-4 p-4 pb-8 lg:grid-cols-2'>
             <InfoCard habit={habitQuery.data ?? habit} count={count} />
             <ResponseCard habit={habitQuery.data ?? habit} count={count} />
           </div>

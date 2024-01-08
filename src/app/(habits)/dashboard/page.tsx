@@ -1,5 +1,5 @@
-import { Charts } from './charts';
-import { DashboardHeader, DashboardWrapper } from './dashboard';
+import { Charts } from '../../../components/dashboard/charts';
+import { DashboardHeader, DashboardWrapper } from '../../../components/dashboard/dashboard';
 
 import { HabitList } from '@/components/dashboard/habit-list';
 import { date, time } from '@/components/dashboard/recent-activity-item';

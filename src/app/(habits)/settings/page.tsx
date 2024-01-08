@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { SettingsWrapper } from './wrapper';
+import { SettingsWrapper } from '../../../components/settings/wrapper';
 
 import SettingsForm from '@/components/settings/settings-form';
 

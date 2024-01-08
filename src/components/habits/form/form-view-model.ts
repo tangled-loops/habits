@@ -35,12 +35,13 @@ function useFormViewModel({
   redirectTo,
 }: UseFormViewModelOptions): FormViewModel {
   const router = useRouter();
-
   const { toast } = useToast();
-
+  
   const [tags, setTags] = React.useState<Array<OptionType>>(
     tagNames?.map((t) => ({ value: t, label: t })) ?? [],
   );
+  if (tagNames !== undefined && tags.length !== tagNames.length) 
+    setTags(tagNames.map((t) => ({ value: t, label: t })))
 
   const create = trpc.habits.create.useMutation();
   const update = trpc.habits.update.useMutation();

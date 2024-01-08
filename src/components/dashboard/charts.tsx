@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 
+import { useDelayRender } from '../../lib/hooks/use-delay-render';
+
 import { ResponseRateChart } from '@/components/dashboard/response-rate-chart';
 import { ResponseTimeChart } from '@/components/dashboard/response-time-chart';
 import {
@@ -22,10 +24,12 @@ export function Charts({
   }[];
   byResponseTimeData: {
     habit: string;
-    respondedAt: Date;
+    respondedAt: number;
   }[];
 }) {
+  const { active } = useDelayRender();
   const [value, setValue] = useState('responseRate');
+  if (!active) return null;
   const chart = () => {
     switch (value) {
       case 'responseRate':
